@@ -4,7 +4,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Code, Shield, QrCode, Scale, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
-const navItems = [
+const publicNavItems = [
+  { name: "Home", path: "/", icon: Code },
+];
+
+const coordinatorNavItems = [
   { name: "Home", path: "/", icon: Code },
   { name: "Admin", path: "/admin", icon: Shield },
   { name: "QR Panel", path: "/qr-panel", icon: QrCode },
@@ -15,6 +19,10 @@ const navItems = [
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  
+  // Show only home link on registration page, full navigation elsewhere
+  const isRegistrationPage = location.pathname === "/";
+  const navItems = isRegistrationPage ? publicNavItems : coordinatorNavItems;
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
