@@ -2,7 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { QrCode, Scan, CheckCircle, Users, Github } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { QrCode, Scan, CheckCircle, Users, Github, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ScannedTeam {
@@ -13,11 +16,46 @@ interface ScannedTeam {
   domain: string;
 }
 
+const domains = [
+  { id: "web", label: "Web Development" },
+  { id: "mobile", label: "Mobile Development" },
+  { id: "ai", label: "Artificial Intelligence" },
+  { id: "wildcard", label: "Wildcard" }
+];
+
 const QRPanel = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
   const [scannedData, setScannedData] = useState<ScannedTeam | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
   const { toast } = useToast();
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === "volunteer123" && selectedDomains.length > 0) {
+      setIsAuthenticated(true);
+      toast({
+        title: "Access Granted",
+        description: `Volunteer access granted for ${selectedDomains.length} domain(s)`
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "Invalid password or no domains selected"
+      });
+    }
+  };
+
+  const handleDomainChange = (domainId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedDomains(prev => [...prev, domainId]);
+    } else {
+      setSelectedDomains(prev => prev.filter(id => id !== domainId));
+    }
+  };
 
   // Mock QR scan function
   const simulateQRScan = () => {
@@ -66,6 +104,59 @@ const QRPanel = () => {
     }, 2000);
   };
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center pt-16">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
+              <Shield className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <CardTitle className="text-2xl text-gradient">Volunteer Access</CardTitle>
+            <p className="text-muted-foreground">Select domains and enter volunteer password</p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div>
+                <Label className="text-base font-medium">Select Domains to Manage</Label>
+                <div className="mt-3 space-y-3">
+                  {domains.map((domain) => (
+                    <div key={domain.id} className="flex items-center space-x-3">
+                      <Checkbox
+                        id={domain.id}
+                        checked={selectedDomains.includes(domain.id)}
+                        onCheckedChange={(checked) => handleDomainChange(domain.id, checked as boolean)}
+                      />
+                      <Label htmlFor={domain.id} className="text-sm font-normal cursor-pointer">
+                        {domain.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="password">Volunteer Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter volunteer password"
+                  required
+                />
+              </div>
+              
+              <Button type="submit" className="w-full" variant="hero">
+                Access QR Scanner
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pt-20 px-4">
       <div className="max-w-4xl mx-auto">
@@ -74,6 +165,16 @@ const QRPanel = () => {
           <p className="text-muted-foreground">
             Scan team QR codes to activate repositories on hackathon day
           </p>
+          <div className="mt-2 flex flex-wrap justify-center gap-2">
+            {selectedDomains.map(domainId => {
+              const domain = domains.find(d => d.id === domainId);
+              return (
+                <Badge key={domainId} variant="outline">
+                  {domain?.label}
+                </Badge>
+              );
+            })}
+          </div>
         </div>
 
         <div className="grid gap-8">

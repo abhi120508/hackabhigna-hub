@@ -131,6 +131,7 @@ const AdminPanel = () => {
         <Tabs defaultValue="registrations" className="space-y-6">
           <TabsList>
             <TabsTrigger value="registrations">Registrations</TabsTrigger>
+            <TabsTrigger value="certificates">Certificates</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -233,6 +234,58 @@ const AdminPanel = () => {
                 </Card>
               ))}
             </div>
+          </TabsContent>
+
+          <TabsContent value="certificates" className="space-y-6">
+            {/* Certificate Management */}
+            {domains.slice(1).map((domain) => {
+              const admittedTeams = registrations.filter(reg => 
+                reg.domain === domain.value && reg.status === "approved"
+              );
+              
+              return (
+                <Card key={domain.value} className="bg-card/50 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>{domain.label}</span>
+                      <Badge variant="outline">{admittedTeams.length} Teams</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {admittedTeams.map((team) => (
+                        <div key={team.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <h4 className="font-semibold">{team.teamName}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              Members: {team.participants.map(p => p.name).join(", ")}
+                            </p>
+                          </div>
+                          <Button
+                            variant="hero"
+                            size="sm"
+                            onClick={() => {
+                              toast({
+                                title: "Certificate Issued!",
+                                description: `Certificate sent to ${team.teamName} team lead via email.`
+                              });
+                            }}
+                          >
+                            <Mail className="w-4 h-4 mr-1" />
+                            Issue Certificate
+                          </Button>
+                        </div>
+                      ))}
+                      {admittedTeams.length === 0 && (
+                        <p className="text-center text-muted-foreground py-8">
+                          No admitted teams in this domain yet.
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </TabsContent>
 
           <TabsContent value="analytics">
