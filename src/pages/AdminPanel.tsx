@@ -5,7 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Users, CheckCircle, XCircle, Mail, Download } from "lucide-react";
+import {
+  Shield,
+  Users,
+  CheckCircle,
+  XCircle,
+  Mail,
+  Download,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Registration {
@@ -27,19 +34,35 @@ const mockRegistrations: Registration[] = [
     domain: "web",
     participants: [
       { name: "John Doe", email: "john@example.com" },
-      { name: "Jane Smith", email: "jane@example.com" }
+      { name: "Jane Smith", email: "jane@example.com" },
+      { name: "abhi", email: "abhi.com" },
     ],
     gitRepo: "https://github.com/team/project",
     paymentProof: "payment_proof_1.jpg",
     status: "pending",
-    submittedAt: "2024-01-15T10:30:00Z"
-  }
+    submittedAt: "2024-01-15T10:30:00Z",
+  },
+  {
+    id: "2",
+    teamName: "Code Warriors",
+    domain: "web",
+    participants: [
+      { name: "John Doe", email: "john@example.com" },
+      { name: "Jane Smith", email: "jane@example.com" },
+      { name: "abhi", email: "abhi.com" },
+    ],
+    gitRepo: "https://github.com/team/project",
+    paymentProof: "payment_proof_1.jpg",
+    status: "pending",
+    submittedAt: "2024-01-15T10:30:00Z",
+  },
 ];
 
 const AdminPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
-  const [registrations, setRegistrations] = useState<Registration[]>(mockRegistrations);
+  const [registrations, setRegistrations] =
+    useState<Registration[]>(mockRegistrations);
   const [selectedDomain, setSelectedDomain] = useState("all");
   const { toast } = useToast();
 
@@ -49,28 +72,29 @@ const AdminPanel = () => {
       setIsAuthenticated(true);
       toast({
         title: "Login Successful",
-        description: "Welcome to the Admin Panel"
+        description: "Welcome to the Admin Panel",
       });
     } else {
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: "Invalid password"
+        description: "Invalid password",
       });
     }
   };
 
-  const handleApproval = (registrationId: string, status: "approved" | "rejected") => {
-    setRegistrations(prev => 
-      prev.map(reg => 
-        reg.id === registrationId ? { ...reg, status } : reg
-      )
+  const handleApproval = (
+    registrationId: string,
+    status: "approved" | "rejected"
+  ) => {
+    setRegistrations((prev) =>
+      prev.map((reg) => (reg.id === registrationId ? { ...reg, status } : reg))
     );
-    
+
     const action = status === "approved" ? "approved" : "rejected";
     toast({
       title: `Registration ${action}`,
-      description: `Team registration has been ${action} and QR code sent via email.`
+      description: `Team registration has been ${action} and QR code sent via email.`,
     });
   };
 
@@ -79,12 +103,13 @@ const AdminPanel = () => {
     { value: "web", label: "Web Development" },
     { value: "mobile", label: "Mobile Development" },
     { value: "ai", label: "Artificial Intelligence" },
-    { value: "wildcard", label: "Wildcard" }
+    { value: "wildcard", label: "Wildcard" },
   ];
 
-  const filteredRegistrations = selectedDomain === "all" 
-    ? registrations 
-    : registrations.filter(reg => reg.domain === selectedDomain);
+  const filteredRegistrations =
+    selectedDomain === "all"
+      ? registrations
+      : registrations.filter((reg) => reg.domain === selectedDomain);
 
   if (!isAuthenticated) {
     return (
@@ -94,8 +119,12 @@ const AdminPanel = () => {
             <div className="mx-auto mb-4 w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
               <Shield className="w-6 h-6 text-primary-foreground" />
             </div>
-            <CardTitle className="text-2xl text-gradient">Admin Access</CardTitle>
-            <p className="text-muted-foreground">Enter admin password to continue</p>
+            <CardTitle className="text-2xl text-gradient">
+              Admin Access
+            </CardTitle>
+            <p className="text-muted-foreground">
+              Enter admin password to continue
+            </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
@@ -125,7 +154,9 @@ const AdminPanel = () => {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gradient mb-2">Admin Panel</h1>
-          <p className="text-muted-foreground">Manage registrations and approvals</p>
+          <p className="text-muted-foreground">
+            Manage registrations and approvals
+          </p>
         </div>
 
         <Tabs defaultValue="registrations" className="space-y-6">
@@ -141,7 +172,9 @@ const AdminPanel = () => {
               {domains.map((domain) => (
                 <Button
                   key={domain.value}
-                  variant={selectedDomain === domain.value ? "default" : "outline"}
+                  variant={
+                    selectedDomain === domain.value ? "default" : "outline"
+                  }
                   size="sm"
                   onClick={() => setSelectedDomain(domain.value)}
                 >
@@ -153,22 +186,33 @@ const AdminPanel = () => {
             {/* Registrations List */}
             <div className="grid gap-6">
               {filteredRegistrations.map((registration) => (
-                <Card key={registration.id} className="bg-card/50 backdrop-blur-sm">
+                <Card
+                  key={registration.id}
+                  className="bg-card/50 backdrop-blur-sm"
+                >
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <CardTitle className="text-xl">{registration.teamName}</CardTitle>
-                        <Badge 
+                        <CardTitle className="text-xl">
+                          {registration.teamName}
+                        </CardTitle>
+                        <Badge
                           variant={
-                            registration.status === "approved" ? "default" :
-                            registration.status === "rejected" ? "destructive" : "secondary"
+                            registration.status === "approved"
+                              ? "default"
+                              : registration.status === "rejected"
+                              ? "destructive"
+                              : "secondary"
                           }
                         >
                           {registration.status}
                         </Badge>
                       </div>
                       <Badge variant="outline">
-                        {domains.find(d => d.value === registration.domain)?.label}
+                        {
+                          domains.find((d) => d.value === registration.domain)
+                            ?.label
+                        }
                       </Badge>
                     </div>
                   </CardHeader>
@@ -180,20 +224,26 @@ const AdminPanel = () => {
                           Team Members
                         </h4>
                         <div className="space-y-1">
-                          {registration.participants.map((participant, index) => (
-                            <div key={index} className="text-sm">
-                              <span className="font-medium">{participant.name}</span>
-                              <span className="text-muted-foreground ml-2">{participant.email}</span>
-                            </div>
-                          ))}
+                          {registration.participants.map(
+                            (participant, index) => (
+                              <div key={index} className="text-sm">
+                                <span className="font-medium">
+                                  {participant.name}
+                                </span>
+                                <span className="text-muted-foreground ml-2">
+                                  {participant.email}
+                                </span>
+                              </div>
+                            )
+                          )}
                         </div>
                       </div>
                       <div className="space-y-2">
                         <div>
                           <span className="font-semibold">Git Repository:</span>
-                          <a 
-                            href={registration.gitRepo} 
-                            target="_blank" 
+                          <a
+                            href={registration.gitRepo}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary hover:underline ml-2"
                           >
@@ -209,11 +259,13 @@ const AdminPanel = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     {registration.status === "pending" && (
                       <div className="flex gap-2 pt-4 border-t">
                         <Button
-                          onClick={() => handleApproval(registration.id, "approved")}
+                          onClick={() =>
+                            handleApproval(registration.id, "approved")
+                          }
                           variant="default"
                           size="sm"
                         >
@@ -221,7 +273,9 @@ const AdminPanel = () => {
                           Approve
                         </Button>
                         <Button
-                          onClick={() => handleApproval(registration.id, "rejected")}
+                          onClick={() =>
+                            handleApproval(registration.id, "rejected")
+                          }
                           variant="destructive"
                           size="sm"
                         >
@@ -239,26 +293,36 @@ const AdminPanel = () => {
           <TabsContent value="certificates" className="space-y-6">
             {/* Certificate Management */}
             {domains.slice(1).map((domain) => {
-              const admittedTeams = registrations.filter(reg => 
-                reg.domain === domain.value && reg.status === "approved"
+              const admittedTeams = registrations.filter(
+                (reg) =>
+                  reg.domain === domain.value && reg.status === "approved"
               );
-              
+
               return (
-                <Card key={domain.value} className="bg-card/50 backdrop-blur-sm">
+                <Card
+                  key={domain.value}
+                  className="bg-card/50 backdrop-blur-sm"
+                >
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span>{domain.label}</span>
-                      <Badge variant="outline">{admittedTeams.length} Teams</Badge>
+                      <Badge variant="outline">
+                        {admittedTeams.length} Teams
+                      </Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       {admittedTeams.map((team) => (
-                        <div key={team.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div
+                          key={team.id}
+                          className="flex items-center justify-between p-4 border rounded-lg"
+                        >
                           <div>
                             <h4 className="font-semibold">{team.teamName}</h4>
                             <p className="text-sm text-muted-foreground">
-                              Members: {team.participants.map(p => p.name).join(", ")}
+                              Members:{" "}
+                              {team.participants.map((p) => p.name).join(", ")}
                             </p>
                           </div>
                           <Button
@@ -267,7 +331,7 @@ const AdminPanel = () => {
                             onClick={() => {
                               toast({
                                 title: "Certificate Issued!",
-                                description: `Certificate sent to ${team.teamName} team lead via email.`
+                                description: `Certificate sent to ${team.teamName} team lead via email.`,
                               });
                             }}
                           >
@@ -306,7 +370,10 @@ const AdminPanel = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-accent">
-                    {registrations.filter(r => r.status === "approved").length}
+                    {
+                      registrations.filter((r) => r.status === "approved")
+                        .length
+                    }
                   </div>
                 </CardContent>
               </Card>
@@ -316,7 +383,7 @@ const AdminPanel = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-secondary">
-                    {registrations.filter(r => r.status === "pending").length}
+                    {registrations.filter((r) => r.status === "pending").length}
                   </div>
                 </CardContent>
               </Card>

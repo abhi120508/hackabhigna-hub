@@ -42,40 +42,72 @@ interface LeaderboardEntry {
 const mockTeamData: TeamData = {
   id: "team-001",
   name: "Code Warriors",
-  domain: "Web Development", 
+  domain: "Web Development",
   participants: ["John Doe", "Jane Smith", "Bob Wilson"],
   repository: "https://github.com/hackabhigna-org/team-001",
   activity: {
     commits: 45,
     branches: 3,
-    pushes: 12
+    pushes: 12,
   },
   scores: [
     {
       round: "Round 1",
       score: 85,
       maxScore: 100,
-      remarks: "Great initial implementation with clean code structure. Good use of modern React patterns.",
-      judge: "Judge A"
+      remarks:
+        "Great initial implementation with clean code structure. Good use of modern React patterns.",
+      judge: "Judge A",
     },
     {
-      round: "Round 2", 
+      round: "Round 2",
       score: 78,
       maxScore: 100,
-      remarks: "Solid progress on features. Could improve on error handling and user experience.",
-      judge: "Judge B"
-    }
+      remarks:
+        "Solid progress on features. Could improve on error handling and user experience.",
+      judge: "Judge B",
+    },
   ],
   rank: 3,
-  totalScore: 163
+  totalScore: 163,
 };
 
 const mockLeaderboard: LeaderboardEntry[] = [
-  { rank: 1, teamName: "Innovation Squad", domain: "AI", totalScore: 185, rounds: 2 },
-  { rank: 2, teamName: "Tech Titans", domain: "Mobile", totalScore: 172, rounds: 2 },
-  { rank: 3, teamName: "Code Warriors", domain: "Web", totalScore: 163, rounds: 2 },
-  { rank: 4, teamName: "Digital Wizards", domain: "Wildcard", totalScore: 158, rounds: 2 },
-  { rank: 5, teamName: "Future Builders", domain: "AI", totalScore: 145, rounds: 2 }
+  {
+    rank: 1,
+    teamName: "Innovation Squad",
+    domain: "AI",
+    totalScore: 185,
+    rounds: 2,
+  },
+  {
+    rank: 2,
+    teamName: "Tech Titans",
+    domain: "Mobile",
+    totalScore: 172,
+    rounds: 2,
+  },
+  {
+    rank: 3,
+    teamName: "Code Warriors",
+    domain: "Web",
+    totalScore: 163,
+    rounds: 2,
+  },
+  {
+    rank: 4,
+    teamName: "Digital Wizards",
+    domain: "Wildcard",
+    totalScore: 158,
+    rounds: 2,
+  },
+  {
+    rank: 5,
+    teamName: "Future Builders",
+    domain: "AI",
+    totalScore: 145,
+    rounds: 2,
+  },
 ];
 
 const ParticipantPanel = () => {
@@ -92,13 +124,13 @@ const ParticipantPanel = () => {
       setTeamData(mockTeamData);
       toast({
         title: "Login Successful",
-        description: `Welcome, ${mockTeamData.name}!`
+        description: `Welcome, ${mockTeamData.name}!`,
       });
     } else {
       toast({
         variant: "destructive",
-        title: "Login Failed", 
-        description: "Invalid unique ID"
+        title: "Login Failed",
+        description: "Invalid unique ID",
       });
     }
   };
@@ -111,8 +143,12 @@ const ParticipantPanel = () => {
             <div className="mx-auto mb-4 w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
               <User className="w-6 h-6 text-primary-foreground" />
             </div>
-            <CardTitle className="text-2xl text-gradient">Participant Login</CardTitle>
-            <p className="text-muted-foreground">Enter your unique team ID to access dashboard</p>
+            <CardTitle className="text-2xl text-gradient">
+              Participant Login
+            </CardTitle>
+            <p className="text-muted-foreground">
+              Enter your unique team ID to access dashboard
+            </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
@@ -157,7 +193,9 @@ const ParticipantPanel = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gradient mb-2">{teamData.name}</h1>
+              <h1 className="text-3xl font-bold text-gradient mb-2">
+                {teamData.name}
+              </h1>
               <div className="flex items-center gap-4">
                 <Badge variant="outline">{teamData.domain}</Badge>
                 <Badge variant="default" className="text-lg px-3">
@@ -166,7 +204,9 @@ const ParticipantPanel = () => {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-3xl font-bold text-primary">{teamData.totalScore}</div>
+              <div className="text-3xl font-bold text-primary">
+                {teamData.totalScore}
+              </div>
               <div className="text-sm text-muted-foreground">Total Score</div>
             </div>
           </div>
@@ -175,7 +215,7 @@ const ParticipantPanel = () => {
         <Tabs defaultValue="scores" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="scores">Scores & Feedback</TabsTrigger>
-            <TabsTrigger value="activity">Repository Activity</TabsTrigger> 
+            <TabsTrigger value="activity">Repository Activity</TabsTrigger>
             <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
           </TabsList>
 
@@ -185,7 +225,9 @@ const ParticipantPanel = () => {
                 <Card className="bg-card/50 backdrop-blur-sm">
                   <CardContent className="p-12 text-center">
                     <Trophy className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold mb-2">No Scores Yet</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      No Scores Yet
+                    </h3>
                     <p className="text-muted-foreground">
                       Scores and feedback will appear here after judging rounds
                     </p>
@@ -208,7 +250,9 @@ const ParticipantPanel = () => {
                     <CardContent className="space-y-4">
                       <div>
                         <h4 className="font-semibold mb-2">Judge Feedback</h4>
-                        <p className="text-muted-foreground">{scoreData.remarks}</p>
+                        <p className="text-muted-foreground">
+                          {scoreData.remarks}
+                        </p>
                       </div>
                       <div className="text-sm text-muted-foreground">
                         Evaluated by: {scoreData.judge}
@@ -243,7 +287,7 @@ const ParticipantPanel = () => {
 
                 <div>
                   <h4 className="font-semibold mb-2">Repository</h4>
-                  <a 
+                  <a
                     href={teamData.repository}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -259,22 +303,34 @@ const ParticipantPanel = () => {
                     <Card>
                       <CardContent className="p-4 text-center">
                         <GitCommit className="w-8 h-8 mx-auto mb-2 text-primary" />
-                        <div className="text-2xl font-bold">{teamData.activity.commits}</div>
-                        <div className="text-sm text-muted-foreground">Total Commits</div>
+                        <div className="text-2xl font-bold">
+                          {teamData.activity.commits}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Total Commits
+                        </div>
                       </CardContent>
                     </Card>
                     <Card>
                       <CardContent className="p-4 text-center">
                         <Activity className="w-8 h-8 mx-auto mb-2 text-accent" />
-                        <div className="text-2xl font-bold">{teamData.activity.branches}</div>
-                        <div className="text-sm text-muted-foreground">Branches</div>
+                        <div className="text-2xl font-bold">
+                          {teamData.activity.branches}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Branches
+                        </div>
                       </CardContent>
                     </Card>
                     <Card>
                       <CardContent className="p-4 text-center">
                         <Users className="w-8 h-8 mx-auto mb-2 text-secondary" />
-                        <div className="text-2xl font-bold">{teamData.activity.pushes}</div>
-                        <div className="text-sm text-muted-foreground">Total Pushes</div>
+                        <div className="text-2xl font-bold">
+                          {teamData.activity.pushes}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Total Pushes
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
@@ -297,37 +353,52 @@ const ParticipantPanel = () => {
               <CardContent>
                 <div className="space-y-3">
                   {mockLeaderboard.map((entry, index) => (
-                    <div 
+                    <div
                       key={index}
                       className={`flex items-center justify-between p-4 rounded-lg border ${
-                        entry.teamName === teamData.name 
-                          ? 'bg-primary/10 border-primary/30' 
-                          : 'bg-muted/20 border-border/50'
+                        entry.teamName === teamData.name
+                          ? "bg-primary/10 border-primary/30"
+                          : "bg-muted/20 border-border/50"
                       }`}
                     >
                       <div className="flex items-center gap-4">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                          entry.rank === 1 ? 'bg-yellow-500 text-black' :
-                          entry.rank === 2 ? 'bg-gray-400 text-black' :
-                          entry.rank === 3 ? 'bg-amber-600 text-white' :
-                          'bg-muted text-muted-foreground'
-                        }`}>
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                            entry.rank === 1
+                              ? "bg-yellow-500 text-black"
+                              : entry.rank === 2
+                              ? "bg-gray-400 text-black"
+                              : entry.rank === 3
+                              ? "bg-amber-600 text-white"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
                           {entry.rank}
                         </div>
                         <div>
-                          <div className={`font-semibold ${
-                            entry.teamName === teamData.name ? 'text-primary' : ''
-                          }`}>
+                          <div
+                            className={`font-semibold ${
+                              entry.teamName === teamData.name
+                                ? "text-primary"
+                                : ""
+                            }`}
+                          >
                             {entry.teamName}
                             {entry.teamName === teamData.name && (
-                              <Badge variant="outline" className="ml-2">Your Team</Badge>
+                              <Badge variant="outline" className="ml-2">
+                                Your Team
+                              </Badge>
                             )}
                           </div>
-                          <div className="text-sm text-muted-foreground">{entry.domain}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {entry.domain}
+                          </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-lg font-bold">{entry.totalScore}</div>
+                        <div className="text-lg font-bold">
+                          {entry.totalScore}
+                        </div>
                         <div className="text-sm text-muted-foreground">
                           {entry.rounds} rounds
                         </div>
