@@ -20,6 +20,7 @@ import {
   Github,
   CreditCard,
   ShieldCheck,
+  Phone,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
@@ -27,6 +28,7 @@ import axios from "axios";
 interface Participant {
   name: string;
   email: string;
+  mobile?: string;
 }
 
 const domains = [
@@ -39,19 +41,21 @@ const domains = [
 export function RegistrationForm() {
   const [teamName, setTeamName] = useState("");
   const [participants, setParticipants] = useState<Participant[]>([
-    { name: "", email: "" },
-    { name: "", email: "" },
+    { name: "", email: "", mobile: "" },
+    { name: "", email: "", mobile: "" },
   ]);
   const [leaderIndex, setLeaderIndex] = useState(0);
   const [selectedDomain, setSelectedDomain] = useState("");
   const [gitRepo, setGitRepo] = useState("");
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [leaderMobile, setLeaderMobile] = useState("");
+  const [alternateMobile, setAlternateMobile] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const addParticipant = () => {
     if (participants.length < 4) {
-      setParticipants([...participants, { name: "", email: "" }]);
+      setParticipants([...participants, { name: "", email: "", mobile: "" }]);
     }
   };
 
@@ -83,9 +87,15 @@ export function RegistrationForm() {
     if (!selectedDomain) return "Please select a domain";
     if (!gitRepo.trim()) return "Git repository URL is required";
     if (!paymentProof) return "Payment proof is required";
+    if (!leaderMobile.trim()) return "Team leader mobile number is required";
+    if (!alternateMobile.trim()) return "Alternate mobile number is required";
 
     const urlPattern = /^https?:\/\/.+/;
     if (!urlPattern.test(gitRepo)) return "Please enter a valid repository URL";
+
+    const mobilePattern = /^[6-9]\d{9}$/;
+    if (!mobilePattern.test(leaderMobile)) return "Please enter a valid leader mobile number";
+    if (!mobilePattern.test(alternateMobile)) return "Please enter a valid alternate mobile number";
 
     for (const participant of participants) {
       if (!participant.name.trim()) return "All participant names are required";
@@ -151,6 +161,8 @@ export function RegistrationForm() {
       leaderIndex,
       domain: selectedDomain,
       gitRepo,
+      leaderMobile,
+      alternateMobile,
     };
     formData.append("team", JSON.stringify(teamData));
     if (paymentProof) {
@@ -174,13 +186,15 @@ export function RegistrationForm() {
       // Reset form
       setTeamName("");
       setParticipants([
-        { name: "", email: "" },
-        { name: "", email: "" },
+        { name: "", email: "", mobile: "" },
+        { name: "", email: "", mobile: "" },
       ]);
       setLeaderIndex(0);
       setSelectedDomain("");
       setGitRepo("");
       setPaymentProof(null);
+      setLeaderMobile("");
+      setAlternateMobile("");
     } catch (error) {
       toast({
         variant: "destructive",
@@ -228,7 +242,7 @@ export function RegistrationForm() {
             {participants.map((participant, index) => (
               <div key={index} className="flex gap-2 items-center">
                 <div className="flex-1 space-y-2">
-                  <Input
+                   <Input
                     value={participant.name}
                     onChange={(e) =>
                       updateParticipant(index, "name", e.target.value)
@@ -243,6 +257,15 @@ export function RegistrationForm() {
                       updateParticipant(index, "email", e.target.value)
                     }
                     placeholder={`Member ${index + 1} Email`}
+                    className="bg-input/50"
+                  />
+                  <Input
+                    type="tel"
+                    value={participant.mobile || ""}
+                    onChange={(e) =>
+                      updateParticipant(index, "mobile", e.target.value)
+                    }
+                    placeholder={`Member ${index + 1} Mobile (Optional)`}
                     className="bg-input/50"
                   />
                 </div>
@@ -279,6 +302,38 @@ export function RegistrationForm() {
                 Add Team Member
               </Button>
             )}
+          </div>
+
+          {/* Mobile Numbers */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="leader-mobile" className="flex items-center gap-2">
+                <Phone className="w-4 h-4" />
+                Team Leader Mobile *
+              </Label>
+              <Input
+                id="leader-mobile"
+                type="tel"
+                value={leaderMobile}
+                onChange={(e) => setLeaderMobile(e.target.value)}
+                placeholder="Enter leader's mobile number"
+                className="bg-input/50"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="alternate-mobile" className="flex items-center gap-2">
+                <Phone className="w-4 h-4" />
+                Alternate Mobile *
+              </Label>
+              <Input
+                id="alternate-mobile"
+                type="tel"
+                value={alternateMobile}
+                onChange={(e) => setAlternateMobile(e.target.value)}
+                placeholder="Enter alternate mobile number"
+                className="bg-input/50"
+              />
+            </div>
           </div>
 
           {/* Domain Selection */}

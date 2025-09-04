@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,59 +12,35 @@ import {
   XCircle,
   Mail,
   Download,
+  Phone,
+  Github,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { MockDatabase, MockAPI, TeamRegistration } from "@/lib/mockBackend";
 
-interface Registration {
-  id: string;
-  teamName: string;
-  domain: string;
-  participants: Array<{ name: string; email: string }>;
-  gitRepo: string;
-  paymentProof: string;
-  status: "pending" | "approved" | "rejected";
-  submittedAt: string;
-}
+// Using TeamRegistration interface from mockBackend
 
-// Mock data
-const mockRegistrations: Registration[] = [
-  {
-    id: "1",
-    teamName: "Code Warriors",
-    domain: "web",
-    participants: [
-      { name: "John Doe", email: "john@example.com" },
-      { name: "Jane Smith", email: "jane@example.com" },
-      { name: "abhi", email: "abhi.com" },
-    ],
-    gitRepo: "https://github.com/team/project",
-    paymentProof: "payment_proof_1.jpg",
-    status: "pending",
-    submittedAt: "2024-01-15T10:30:00Z",
-  },
-  {
-    id: "2",
-    teamName: "Code Warriors",
-    domain: "web",
-    participants: [
-      { name: "John Doe", email: "john@example.com" },
-      { name: "Jane Smith", email: "jane@example.com" },
-      { name: "abhi", email: "abhi.com" },
-    ],
-    gitRepo: "https://github.com/team/project",
-    paymentProof: "payment_proof_1.jpg",
-    status: "pending",
-    submittedAt: "2024-01-15T10:30:00Z",
-  },
-];
+// Using mock data from MockDatabase
 
 const AdminPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
-  const [registrations, setRegistrations] =
-    useState<Registration[]>(mockRegistrations);
+  const [registrations, setRegistrations] = useState<TeamRegistration[]>([]);
   const [selectedDomain, setSelectedDomain] = useState("all");
+  const [statistics, setStatistics] = useState<any>({});
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadRegistrations();
+    }
+  }, [isAuthenticated]);
+
+  const loadRegistrations = async () => {
+    const data = await MockAPI.getRegistrations();
+    setRegistrations(data);
+    setStatistics(MockDatabase.getStatistics());
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,19 +59,32 @@ const AdminPanel = () => {
     }
   };
 
-  const handleApproval = (
+  const handleApproval = async (
     registrationId: string,
     status: "approved" | "rejected"
   ) => {
-    setRegistrations((prev) =>
-      prev.map((reg) => (reg.id === registrationId ? { ...reg, status } : reg))
-    );
-
-    const action = status === "approved" ? "approved" : "rejected";
-    toast({
-      title: `Registration ${action}`,
-      description: `Team registration has been ${action} and QR code sent via email.`,
-    });
+    const result = await MockAPI.updateTeamStatus(registrationId, status);
+    
+    if (result.success) {
+      // Send QR code email if approved
+      if (status === "approved" && result.data) {
+        await MockAPI.sendQRCodeEmail(result.data);
+      }
+      
+      await loadRegistrations(); // Reload data
+      
+      const action = status === "approved" ? "approved" : "rejected";
+      toast({
+        title: `Registration ${action}`,
+        description: result.message + (status === "approved" ? " QR code sent via email." : ""),
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: result.message,
+      });
+    }
   };
 
   const domains = [
@@ -216,49 +205,103 @@ const AdminPanel = () => {
                       </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="font-semibold mb-2 flex items-center gap-2">
-                          <Users className="w-4 h-4" />
-                          Team Members
-                        </h4>
-                        <div className="space-y-1">
-                          {registration.participants.map(
-                            (participant, index) => (
-                              <div key={index} className="text-sm">
-                                <span className="font-medium">
-                                  {participant.name}
-                                </span>
-                                <span className="text-muted-foreground ml-2">
-                                  {participant.email}
-                                </span>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <div>
-                          <span className="font-semibold">Git Repository:</span>
-                          <a
-                            href={registration.gitRepo}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline ml-2"
-                          >
-                            {registration.gitRepo}
-                          </a>
-                        </div>
-                        <div>
-                          <span className="font-semibold">Payment Proof:</span>
-                          <Button variant="outline" size="sm" className="ml-2">
-                            <Download className="w-4 h-4 mr-1" />
-                            View
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
+                   <CardContent className="space-y-4">
+                     {/* Show unique ID and GitHub repo for approved teams */}
+                     {registration.status === "approved" && registration.uniqueId && (
+                       <div className="bg-accent/10 p-4 rounded-lg border">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           <div>
+                             <span className="font-semibold">Unique ID:</span>
+                             <span className="text-primary ml-2 font-mono text-lg">
+                               {registration.uniqueId}
+                             </span>
+                           </div>
+                           <div>
+                             <span className="font-semibold">GitHub Repository:</span>
+                             <a
+                               href={registration.githubRepo}
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               className="text-primary hover:underline ml-2 flex items-center gap-1"
+                             >
+                               <Github className="w-4 h-4" />
+                               {registration.githubRepo}
+                             </a>
+                           </div>
+                         </div>
+                       </div>
+                     )}
+
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div>
+                         <h4 className="font-semibold mb-2 flex items-center gap-2">
+                           <Users className="w-4 h-4" />
+                           Team Members
+                         </h4>
+                         <div className="space-y-1">
+                           {registration.participants.map(
+                             (participant, index) => (
+                               <div key={index} className="text-sm">
+                                 <span className="font-medium">
+                                   {participant.name}
+                                   {index === registration.leaderIndex && (
+                                     <Badge variant="outline" className="ml-1 text-xs">
+                                       Leader
+                                     </Badge>
+                                   )}
+                                 </span>
+                                 <div className="text-muted-foreground ml-2">
+                                   <Mail className="w-3 h-3 inline mr-1" />
+                                   {participant.email}
+                                   {participant.mobile && (
+                                     <div>
+                                       <Phone className="w-3 h-3 inline mr-1" />
+                                       {participant.mobile}
+                                     </div>
+                                   )}
+                                 </div>
+                               </div>
+                             )
+                           )}
+                         </div>
+                       </div>
+                       <div className="space-y-2">
+                         <div>
+                           <h4 className="font-semibold mb-2 flex items-center gap-2">
+                             <Phone className="w-4 h-4" />
+                             Contact Information
+                           </h4>
+                           <div className="text-sm space-y-1">
+                             <div>
+                               <span className="font-medium">Leader Mobile:</span>
+                               <span className="ml-2">{registration.leaderMobile}</span>
+                             </div>
+                             <div>
+                               <span className="font-medium">Alternate Mobile:</span>
+                               <span className="ml-2">{registration.alternateMobile}</span>
+                             </div>
+                           </div>
+                         </div>
+                         <div>
+                           <span className="font-semibold">Original Repository:</span>
+                           <a
+                             href={registration.gitRepo}
+                             target="_blank"
+                             rel="noopener noreferrer"
+                             className="text-primary hover:underline ml-2"
+                           >
+                             {registration.gitRepo}
+                           </a>
+                         </div>
+                         <div>
+                           <span className="font-semibold">Payment Proof:</span>
+                           <Button variant="outline" size="sm" className="ml-2">
+                             <Download className="w-4 h-4 mr-1" />
+                             View
+                           </Button>
+                         </div>
+                       </div>
+                     </div>
 
                     {registration.status === "pending" && (
                       <div className="flex gap-2 pt-4 border-t">

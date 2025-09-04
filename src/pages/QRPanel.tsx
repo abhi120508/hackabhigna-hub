@@ -5,16 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { QrCode, Scan, CheckCircle, Users, Github, Shield } from "lucide-react";
+import { QrCode, Scan, CheckCircle, Users, Github, Shield, Phone, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface ScannedTeam {
-  teamName: string;
-  teamId: string;
-  gitUsername: string;
-  participants: string[];
-  domain: string;
-}
+import { MockAPI, TeamRegistration } from "@/lib/mockBackend";
+import { MockQRScanner, parseQRCode } from "@/lib/qrUtils";
 
 const domains = [
   { id: "web", label: "Web Development" },
@@ -27,7 +21,7 @@ const QRPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
-  const [scannedData, setScannedData] = useState<ScannedTeam | null>(null);
+  const [scannedData, setScannedData] = useState<TeamRegistration | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
   const { toast } = useToast();
@@ -57,51 +51,75 @@ const QRPanel = () => {
     }
   };
 
-  // Mock QR scan function
-  const simulateQRScan = () => {
+  const simulateQRScan = async () => {
     setIsScanning(true);
     
-    setTimeout(() => {
-      // Simulate scanned QR data
-      const mockData: ScannedTeam = {
-        teamName: "Code Warriors",
-        teamId: "team-001",
-        gitUsername: "hackabhigna-org",
-        participants: ["John Doe", "Jane Smith", "Bob Wilson"],
-        domain: "Web Development"
-      };
+    try {
+      // Use mock QR scanner
+      const scanResult = await MockQRScanner.startScan();
       
-      setScannedData(mockData);
-      setIsScanning(false);
-      
+      if (scanResult.success && scanResult.data) {
+        // Parse the QR code data
+        const parsed = parseQRCode(scanResult.data);
+        
+        if (parsed) {
+          // Get team data from backend
+          const teamResult = await MockAPI.getTeamByQR(parsed.uniqueId);
+          
+          if (teamResult.success && teamResult.data) {
+            setScannedData(teamResult.data);
+            toast({
+              title: "QR Code Scanned Successfully!",
+              description: `Team: ${teamResult.data.teamName} (${teamResult.data.uniqueId})`,
+            });
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Team Not Found",
+              description: "No team found with this QR code.",
+            });
+          }
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Invalid QR Code",
+            description: "QR code format is invalid.",
+          });
+        }
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Scan Failed",
+          description: "Could not read QR code. Please try again.",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "QR Code Scanned Successfully",
-        description: `Team "${mockData.teamName}" information loaded`
+        variant: "destructive",
+        title: "Scanning Error",
+        description: "An error occurred while scanning.",
       });
-    }, 2000);
+    } finally {
+      setIsScanning(false);
+    }
   };
 
   const handleActivateRepository = async () => {
-    if (!scannedData) return;
+    if (!scannedData || !scannedData.githubRepo) return;
     
     setIsActivating(true);
     
-    // Simulate repository activation
-    setTimeout(() => {
-      const repoUrl = `https://github.com/${scannedData.gitUsername}/${scannedData.teamId}`;
-      
-      toast({
-        title: "Repository Activated!",
-        description: `Repository activated and email sent to team lead with access details.`
-      });
-      
-      setIsActivating(false);
-      
-      // Reset for next scan
-      setTimeout(() => {
-        setScannedData(null);
-      }, 3000);
-    }, 2000);
+    // Simulate repository activation (opening in new tab)
+    window.open(scannedData.githubRepo, '_blank');
+    
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    toast({
+      title: "Repository Opened!",
+      description: `GitHub repository opened for ${scannedData.teamName}`,
+    });
+    
+    setIsActivating(false);
   };
 
   if (!isAuthenticated) {
@@ -235,43 +253,79 @@ const QRPanel = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">Team Name</h4>
-                      <p className="text-lg font-medium">{scannedData.teamName}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">Team ID</h4>
-                      <p className="font-mono text-sm bg-muted/50 px-2 py-1 rounded">
-                        {scannedData.teamId}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">Domain</h4>
-                      <Badge variant="outline">{scannedData.domain}</Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-semibold text-sm text-muted-foreground mb-2">Team Members</h4>
-                      <div className="space-y-1">
-                        {scannedData.participants.map((participant, index) => (
-                          <p key={index} className="text-sm">{participant}</p>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">
-                        Repository URL
-                      </h4>
-                      <p className="text-sm font-mono bg-muted/50 px-2 py-1 rounded break-all">
-                        https://github.com/{scannedData.gitUsername}/{scannedData.teamId}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div className="space-y-4">
+                     <div>
+                       <h4 className="font-semibold text-sm text-muted-foreground mb-1">Team Name</h4>
+                       <p className="text-lg font-medium">{scannedData.teamName}</p>
+                     </div>
+                     <div>
+                       <h4 className="font-semibold text-sm text-muted-foreground mb-1">Unique ID</h4>
+                       <p className="font-mono text-sm bg-muted/50 px-2 py-1 rounded text-primary">
+                         {scannedData.uniqueId}
+                       </p>
+                     </div>
+                     <div>
+                       <h4 className="font-semibold text-sm text-muted-foreground mb-1">Domain</h4>
+                       <Badge variant="outline">{scannedData.domain}</Badge>
+                     </div>
+                     <div>
+                       <h4 className="font-semibold text-sm text-muted-foreground mb-2">Contact Info</h4>
+                       <div className="space-y-1 text-sm">
+                         <div className="flex items-center gap-2">
+                           <Phone className="w-3 h-3" />
+                           <span>Leader: {scannedData.leaderMobile}</span>
+                         </div>
+                         <div className="flex items-center gap-2">
+                           <Phone className="w-3 h-3" />
+                           <span>Alt: {scannedData.alternateMobile}</span>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                   
+                   <div className="space-y-4">
+                     <div>
+                       <h4 className="font-semibold text-sm text-muted-foreground mb-2">Team Members</h4>
+                       <div className="space-y-1">
+                         {scannedData.participants.map((participant, index) => (
+                           <div key={index} className="text-sm flex items-center justify-between">
+                             <span>{participant.name}
+                               {index === scannedData.leaderIndex && (
+                                 <Badge variant="outline" className="ml-2 text-xs">Leader</Badge>
+                               )}
+                             </span>
+                             <div className="text-xs text-muted-foreground flex items-center gap-1">
+                               <Mail className="w-3 h-3" />
+                               {participant.email}
+                             </div>
+                           </div>
+                         ))}
+                       </div>
+                     </div>
+                     <div>
+                       <h4 className="font-semibold text-sm text-muted-foreground mb-1">
+                         GitHub Repository
+                       </h4>
+                       <p className="text-sm font-mono bg-muted/50 px-2 py-1 rounded break-all text-primary">
+                         {scannedData.githubRepo}
+                       </p>
+                     </div>
+                     <div>
+                       <h4 className="font-semibold text-sm text-muted-foreground mb-1">
+                         Original Repository
+                       </h4>
+                       <a
+                         href={scannedData.gitRepo}
+                         target="_blank"
+                         rel="noopener noreferrer"
+                         className="text-sm font-mono bg-muted/50 px-2 py-1 rounded break-all text-blue-500 hover:underline block"
+                       >
+                         {scannedData.gitRepo}
+                       </a>
+                     </div>
+                   </div>
+                 </div>
 
                 <div className="pt-6 border-t text-center">
                   <Button
