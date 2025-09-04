@@ -124,8 +124,9 @@ app.patch("/registrations/:id/status", async (req, res) => {
       if (!team.uniqueId) {
         team.uniqueId = await generateUniqueId(team.domain, team.teamName);
       }
-      team.githubRepo = `https://github.com/hackabhigna/${team.uniqueId.toLowerCase()}`;
-      team.qrCode = `https://hackabhigna.com/qr/${team.uniqueId}`;
+      const repoUrl = `https://github.com/hackabhigna/${team.uniqueId.toLowerCase()}`;
+      team.githubRepo = repoUrl;
+      team.qrCode = repoUrl; // Set QR code to be the same as the GitHub repo URL
     }
 
     await team.save();
