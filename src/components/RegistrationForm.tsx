@@ -94,8 +94,10 @@ export function RegistrationForm() {
     if (!urlPattern.test(gitRepo)) return "Please enter a valid repository URL";
 
     const mobilePattern = /^[6-9]\d{9}$/;
-    if (!mobilePattern.test(leaderMobile)) return "Please enter a valid leader mobile number";
-    if (!mobilePattern.test(alternateMobile)) return "Please enter a valid alternate mobile number";
+    if (!mobilePattern.test(leaderMobile))
+      return "Please enter a valid leader mobile number";
+    if (!mobilePattern.test(alternateMobile))
+      return "Please enter a valid alternate mobile number";
 
     for (const participant of participants) {
       if (!participant.name.trim()) return "All participant names are required";
@@ -242,7 +244,7 @@ export function RegistrationForm() {
             {participants.map((participant, index) => (
               <div key={index} className="flex gap-2 items-center">
                 <div className="flex-1 space-y-2">
-                   <Input
+                  <Input
                     value={participant.name}
                     onChange={(e) =>
                       updateParticipant(index, "name", e.target.value)
@@ -257,15 +259,6 @@ export function RegistrationForm() {
                       updateParticipant(index, "email", e.target.value)
                     }
                     placeholder={`Member ${index + 1} Email`}
-                    className="bg-input/50"
-                  />
-                  <Input
-                    type="tel"
-                    value={participant.mobile || ""}
-                    onChange={(e) =>
-                      updateParticipant(index, "mobile", e.target.value)
-                    }
-                    placeholder={`Member ${index + 1} Mobile (Optional)`}
                     className="bg-input/50"
                   />
                 </div>
@@ -307,7 +300,10 @@ export function RegistrationForm() {
           {/* Mobile Numbers */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="leader-mobile" className="flex items-center gap-2">
+              <Label
+                htmlFor="leader-mobile"
+                className="flex items-center gap-2"
+              >
                 <Phone className="w-4 h-4" />
                 Team Leader Mobile *
               </Label>
@@ -321,7 +317,10 @@ export function RegistrationForm() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="alternate-mobile" className="flex items-center gap-2">
+              <Label
+                htmlFor="alternate-mobile"
+                className="flex items-center gap-2"
+              >
                 <Phone className="w-4 h-4" />
                 Alternate Mobile *
               </Label>
