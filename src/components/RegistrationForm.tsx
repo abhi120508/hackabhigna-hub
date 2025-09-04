@@ -23,7 +23,7 @@ import {
   Phone,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 interface Participant {
   name: string;
@@ -183,7 +183,7 @@ export function RegistrationForm() {
       );
       toast({
         title: "Registration Successful!",
-        description: response.data,
+        description: response.data.message,
       });
       // Reset form
       setTeamName("");
@@ -198,10 +198,13 @@ export function RegistrationForm() {
       setLeaderMobile("");
       setAlternateMobile("");
     } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>;
       toast({
         variant: "destructive",
         title: "Registration Failed",
-        description: "An error occurred while registering your team.",
+        description:
+          axiosError.response?.data?.message ||
+          "An error occurred while registering your team.",
       });
     } finally {
       setIsSubmitting(false);

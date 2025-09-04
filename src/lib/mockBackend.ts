@@ -15,7 +15,7 @@ export interface TeamRegistration {
   leaderMobile: string;
   alternateMobile: string;
   paymentProof: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   submittedAt: string;
   approvedAt?: string;
   qrCode?: string;
@@ -29,7 +29,7 @@ let registrationCounter = 1;
 export function generateUniqueId(domain: string, teamName: string): string {
   const domainPrefix = domain.substring(0, 2).toUpperCase();
   const teamPrefix = teamName.substring(0, 2).toUpperCase();
-  const number = String(registrationCounter).padStart(3, '0');
+  const number = String(registrationCounter).padStart(3, "0");
   registrationCounter++;
   return `${domainPrefix}${teamPrefix}${number}`;
 }
@@ -48,62 +48,70 @@ export function generateQRCodeData(uniqueId: string): string {
 export class MockDatabase {
   private static registrations: TeamRegistration[] = [
     {
-      id: '1',
-      uniqueId: 'WETE001',
-      teamName: 'TechInnovators',
+      id: "1",
+      uniqueId: "WETE001",
+      teamName: "TechInnovators",
       participants: [
-        { name: 'John Doe', email: 'john@example.com', mobile: '9876543210' },
-        { name: 'Jane Smith', email: 'jane@example.com', mobile: '9876543211' },
+        { name: "John Doe", email: "john@example.com", mobile: "9876543210" },
+        { name: "Jane Smith", email: "jane@example.com", mobile: "9876543211" },
       ],
       leaderIndex: 0,
-      domain: 'web',
-      gitRepo: 'https://github.com/johndoe/techinnovators',
-      leaderMobile: '9876543210',
-      alternateMobile: '9876543220',
-      paymentProof: 'payment_proof_1.jpg',
-      status: 'approved',
-      submittedAt: '2024-09-01T10:00:00Z',
-      approvedAt: '2024-09-02T14:30:00Z',
-      qrCode: 'https://hackabhigna.com/qr/WETE001',
-      githubRepo: 'https://github.com/hackabhigna/wete001',
+      domain: "web",
+      gitRepo: "https://github.com/johndoe",
+      leaderMobile: "9876543210",
+      alternateMobile: "9876543220",
+      paymentProof: "payment_proof_1.jpg",
+      status: "approved",
+      submittedAt: "2024-09-01T10:00:00Z",
+      approvedAt: "2024-09-02T14:30:00Z",
+      qrCode: "https://hackabhigna.com/qr/WETE001",
+      githubRepo: "https://github.com/hackabhigna/wete001",
     },
     {
-      id: '2',
-      uniqueId: 'AICO002',
-      teamName: 'CodeMasters',
+      id: "2",
+      uniqueId: "AICO002",
+      teamName: "CodeMasters",
       participants: [
-        { name: 'Alice Johnson', email: 'alice@example.com', mobile: '9876543212' },
-        { name: 'Bob Wilson', email: 'bob@example.com', mobile: '9876543213' },
-        { name: 'Charlie Brown', email: 'charlie@example.com', mobile: '9876543214' },
+        {
+          name: "Alice Johnson",
+          email: "alice@example.com",
+          mobile: "9876543212",
+        },
+        { name: "Bob Wilson", email: "bob@example.com", mobile: "9876543213" },
+        {
+          name: "Charlie Brown",
+          email: "charlie@example.com",
+          mobile: "9876543214",
+        },
       ],
       leaderIndex: 0,
-      domain: 'ai',
-      gitRepo: 'https://github.com/alice/codemasters',
-      leaderMobile: '9876543212',
-      alternateMobile: '9876543221',
-      paymentProof: 'payment_proof_2.jpg',
-      status: 'pending',
-      submittedAt: '2024-09-02T11:00:00Z',
+      domain: "ai",
+      gitRepo: "https://github.com/alice",
+      leaderMobile: "9876543212",
+      alternateMobile: "9876543221",
+      paymentProof: "payment_proof_2.jpg",
+      status: "pending",
+      submittedAt: "2024-09-02T11:00:00Z",
     },
     {
-      id: '3',
-      uniqueId: 'MOAP003',
-      teamName: 'AppBuilders',
+      id: "3",
+      uniqueId: "MOAP003",
+      teamName: "AppBuilders",
       participants: [
-        { name: 'David Lee', email: 'david@example.com', mobile: '9876543215' },
-        { name: 'Emma Davis', email: 'emma@example.com', mobile: '9876543216' },
+        { name: "David Lee", email: "david@example.com", mobile: "9876543215" },
+        { name: "Emma Davis", email: "emma@example.com", mobile: "9876543216" },
       ],
       leaderIndex: 0,
-      domain: 'mobile',
-      gitRepo: 'https://github.com/david/appbuilders',
-      leaderMobile: '9876543215',
-      alternateMobile: '9876543222',
-      paymentProof: 'payment_proof_3.jpg',
-      status: 'approved',
-      submittedAt: '2024-09-03T09:30:00Z',
-      approvedAt: '2024-09-03T16:45:00Z',
-      qrCode: 'https://hackabhigna.com/qr/MOAP003',
-      githubRepo: 'https://github.com/hackabhigna/moap003',
+      domain: "mobile",
+      gitRepo: "https://github.com/david",
+      leaderMobile: "9876543215",
+      alternateMobile: "9876543222",
+      paymentProof: "payment_proof_3.jpg",
+      status: "approved",
+      submittedAt: "2024-09-03T09:30:00Z",
+      approvedAt: "2024-09-03T16:45:00Z",
+      qrCode: "https://hackabhigna.com/qr/MOAP003",
+      githubRepo: "https://github.com/hackabhigna/moap003",
     },
   ];
 
@@ -112,14 +120,18 @@ export class MockDatabase {
   }
 
   static getRegistrationByDomain(domain: string): TeamRegistration[] {
-    return this.registrations.filter(reg => reg.domain === domain);
+    return this.registrations.filter((reg) => reg.domain === domain);
   }
 
-  static getRegistrationByUniqueId(uniqueId: string): TeamRegistration | undefined {
-    return this.registrations.find(reg => reg.uniqueId === uniqueId);
+  static getRegistrationByUniqueId(
+    uniqueId: string
+  ): TeamRegistration | undefined {
+    return this.registrations.find((reg) => reg.uniqueId === uniqueId);
   }
 
-  static addRegistration(registration: Omit<TeamRegistration, 'id' | 'submittedAt'>): TeamRegistration {
+  static addRegistration(
+    registration: Omit<TeamRegistration, "id" | "submittedAt">
+  ): TeamRegistration {
     const newRegistration: TeamRegistration = {
       ...registration,
       id: String(this.registrations.length + 1),
@@ -130,19 +142,24 @@ export class MockDatabase {
   }
 
   static updateRegistrationStatus(
-    id: string, 
-    status: 'approved' | 'rejected'
+    id: string,
+    status: "approved" | "rejected"
   ): TeamRegistration | null {
-    const registrationIndex = this.registrations.findIndex(reg => reg.id === id);
+    const registrationIndex = this.registrations.findIndex(
+      (reg) => reg.id === id
+    );
     if (registrationIndex === -1) return null;
 
     const registration = this.registrations[registrationIndex];
     registration.status = status;
 
-    if (status === 'approved') {
+    if (status === "approved") {
       registration.approvedAt = new Date().toISOString();
       if (!registration.uniqueId) {
-        registration.uniqueId = generateUniqueId(registration.domain, registration.teamName);
+        registration.uniqueId = generateUniqueId(
+          registration.domain,
+          registration.teamName
+        );
       }
       registration.qrCode = generateQRCodeData(registration.uniqueId);
       registration.githubRepo = generateGithubRepo(registration.uniqueId);
@@ -153,18 +170,24 @@ export class MockDatabase {
   }
 
   static getApprovedTeams(): TeamRegistration[] {
-    return this.registrations.filter(reg => reg.status === 'approved');
+    return this.registrations.filter((reg) => reg.status === "approved");
   }
 
   static getPendingTeams(): TeamRegistration[] {
-    return this.registrations.filter(reg => reg.status === 'pending');
+    return this.registrations.filter((reg) => reg.status === "pending");
   }
 
   static getStatistics() {
     const total = this.registrations.length;
-    const approved = this.registrations.filter(reg => reg.status === 'approved').length;
-    const pending = this.registrations.filter(reg => reg.status === 'pending').length;
-    const rejected = this.registrations.filter(reg => reg.status === 'rejected').length;
+    const approved = this.registrations.filter(
+      (reg) => reg.status === "approved"
+    ).length;
+    const pending = this.registrations.filter(
+      (reg) => reg.status === "pending"
+    ).length;
+    const rejected = this.registrations.filter(
+      (reg) => reg.status === "rejected"
+    ).length;
 
     return {
       total,
@@ -172,11 +195,13 @@ export class MockDatabase {
       pending,
       rejected,
       byDomain: {
-        web: this.registrations.filter(reg => reg.domain === 'web').length,
-        mobile: this.registrations.filter(reg => reg.domain === 'mobile').length,
-        ai: this.registrations.filter(reg => reg.domain === 'ai').length,
-        wildcard: this.registrations.filter(reg => reg.domain === 'wildcard').length,
-      }
+        web: this.registrations.filter((reg) => reg.domain === "web").length,
+        mobile: this.registrations.filter((reg) => reg.domain === "mobile")
+          .length,
+        ai: this.registrations.filter((reg) => reg.domain === "ai").length,
+        wildcard: this.registrations.filter((reg) => reg.domain === "wildcard")
+          .length,
+      },
     };
   }
 }
@@ -184,22 +209,28 @@ export class MockDatabase {
 // Mock API functions
 export const MockAPI = {
   // Register a new team
-  registerTeam: async (teamData: any): Promise<{ success: boolean; message: string; data?: TeamRegistration }> => {
+  registerTeam: async (
+    teamData: any
+  ): Promise<{
+    success: boolean;
+    message: string;
+    data?: TeamRegistration;
+  }> => {
     try {
       const registration = MockDatabase.addRegistration({
         ...teamData,
-        status: 'pending',
+        status: "pending",
       });
 
       return {
         success: true,
-        message: 'Team registered successfully!',
+        message: "Team registered successfully!",
         data: registration,
       };
     } catch (error) {
       return {
         success: false,
-        message: 'Registration failed. Please try again.',
+        message: "Registration failed. Please try again.",
       };
     }
   },
@@ -211,11 +242,15 @@ export const MockAPI = {
 
   // Approve or reject a team
   updateTeamStatus: async (
-    id: string, 
-    status: 'approved' | 'rejected'
-  ): Promise<{ success: boolean; message: string; data?: TeamRegistration }> => {
+    id: string,
+    status: "approved" | "rejected"
+  ): Promise<{
+    success: boolean;
+    message: string;
+    data?: TeamRegistration;
+  }> => {
     const updatedTeam = MockDatabase.updateRegistrationStatus(id, status);
-    
+
     if (updatedTeam) {
       return {
         success: true,
@@ -226,14 +261,20 @@ export const MockAPI = {
 
     return {
       success: false,
-      message: 'Team not found.',
+      message: "Team not found.",
     };
   },
 
   // Get team by QR unique ID
-  getTeamByQR: async (uniqueId: string): Promise<{ success: boolean; data?: TeamRegistration; message?: string }> => {
+  getTeamByQR: async (
+    uniqueId: string
+  ): Promise<{
+    success: boolean;
+    data?: TeamRegistration;
+    message?: string;
+  }> => {
     const team = MockDatabase.getRegistrationByUniqueId(uniqueId);
-    
+
     if (team) {
       return {
         success: true,
@@ -243,20 +284,22 @@ export const MockAPI = {
 
     return {
       success: false,
-      message: 'Team not found.',
+      message: "Team not found.",
     };
   },
 
   // Send email with QR code (mock)
-  sendQRCodeEmail: async (teamData: TeamRegistration): Promise<{ success: boolean; message: string }> => {
+  sendQRCodeEmail: async (
+    teamData: TeamRegistration
+  ): Promise<{ success: boolean; message: string }> => {
     // Mock email sending
     console.log(`Sending QR code email to team: ${teamData.teamName}`);
     console.log(`QR Code: ${teamData.qrCode}`);
     console.log(`GitHub Repo: ${teamData.githubRepo}`);
-    
+
     return {
       success: true,
-      message: 'QR code sent successfully!',
+      message: "QR code sent successfully!",
     };
   },
 };

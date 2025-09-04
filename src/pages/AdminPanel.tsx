@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +16,26 @@ import {
   Github,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { MockDatabase, MockAPI, TeamRegistration } from "@/lib/mockBackend";
+// import { MockDatabase, MockAPI, TeamRegistration } from "@/lib/mockBackend";
+import { TeamRegistration } from "@/lib/mockBackend"; // Keep type definition
+import { AnyCaaRecord } from "dns";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+interface Statistics {
+  total?: number;
+  approved?: number;
+  pending?: number;
+  rejected?: number;
+  byDomain?: {
+    [key: string]: number;
+  };
+}
 
 // Using TeamRegistration interface from mockBackend
 
@@ -27,20 +46,50 @@ const AdminPanel = () => {
   const [password, setPassword] = useState("");
   const [registrations, setRegistrations] = useState<TeamRegistration[]>([]);
   const [selectedDomain, setSelectedDomain] = useState("all");
-  const [statistics, setStatistics] = useState<any>({});
+  const [statistics, setStatistics] = useState<Statistics>({});
+  const [selectedProof, setSelectedProof] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const API_URL = "http://localhost:5000"; // Your backend URL
+
+  const loadRegistrations = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/registrations`);
+      if (!response.ok) throw new Error("Failed to fetch");
+      const data: (TeamRegistration & { _id: string })[] =
+        await response.json();
+      const formattedData = data.map((item) => ({ ...item, id: item._id }));
+      setRegistrations(formattedData);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error loading registrations",
+        description: (error as Error).message,
+      });
+    }
+  }, [toast]);
+
+  const loadStatistics = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/statistics`);
+      if (!response.ok) throw new Error("Failed to fetch");
+      const data = await response.json();
+      setStatistics(data);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error loading statistics",
+        description: (error as Error).message,
+      });
+    }
+  }, [toast]);
 
   useEffect(() => {
     if (isAuthenticated) {
       loadRegistrations();
+      loadStatistics();
     }
-  }, [isAuthenticated]);
-
-  const loadRegistrations = async () => {
-    const data = await MockAPI.getRegistrations();
-    setRegistrations(data);
-    setStatistics(MockDatabase.getStatistics());
-  };
+  }, [isAuthenticated, loadRegistrations, loadStatistics]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,26 +112,34 @@ const AdminPanel = () => {
     registrationId: string,
     status: "approved" | "rejected"
   ) => {
-    const result = await MockAPI.updateTeamStatus(registrationId, status);
-    
-    if (result.success) {
-      // Send QR code email if approved
-      if (status === "approved" && result.data) {
-        await MockAPI.sendQRCodeEmail(result.data);
+    try {
+      const response = await fetch(
+        `${API_URL}/registrations/${registrationId}/status`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to update status");
       }
-      
-      await loadRegistrations(); // Reload data
-      
-      const action = status === "approved" ? "approved" : "rejected";
+
       toast({
-        title: `Registration ${action}`,
-        description: result.message + (status === "approved" ? " QR code sent via email." : ""),
+        title: `Registration ${status}`,
+        description: result.message,
       });
-    } else {
+
+      loadRegistrations();
+      loadStatistics();
+    } catch (error) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: result.message,
+        title: "Update Error",
+        description: (error as Error).message,
       });
     }
   };
@@ -205,103 +262,139 @@ const AdminPanel = () => {
                       </Badge>
                     </div>
                   </CardHeader>
-                   <CardContent className="space-y-4">
-                     {/* Show unique ID and GitHub repo for approved teams */}
-                     {registration.status === "approved" && registration.uniqueId && (
-                       <div className="bg-accent/10 p-4 rounded-lg border">
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                           <div>
-                             <span className="font-semibold">Unique ID:</span>
-                             <span className="text-primary ml-2 font-mono text-lg">
-                               {registration.uniqueId}
-                             </span>
-                           </div>
-                           <div>
-                             <span className="font-semibold">GitHub Repository:</span>
-                             <a
-                               href={registration.githubRepo}
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               className="text-primary hover:underline ml-2 flex items-center gap-1"
-                             >
-                               <Github className="w-4 h-4" />
-                               {registration.githubRepo}
-                             </a>
-                           </div>
-                         </div>
-                       </div>
-                     )}
+                  <CardContent className="space-y-4">
+                    {/* Show unique ID and GitHub repo for approved teams */}
+                    {registration.status === "approved" &&
+                      registration.uniqueId && (
+                        <div className="bg-accent/10 p-4 rounded-lg border">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <span className="font-semibold">Unique ID:</span>
+                              <span className="text-primary ml-2 font-mono text-lg">
+                                {registration.uniqueId}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="font-semibold">
+                                GitHub Repository:
+                              </span>
+                              <a
+                                href={registration.githubRepo}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline ml-2 flex items-center gap-1"
+                              >
+                                <Github className="w-4 h-4" />
+                                {registration.githubRepo}
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                       <div>
-                         <h4 className="font-semibold mb-2 flex items-center gap-2">
-                           <Users className="w-4 h-4" />
-                           Team Members
-                         </h4>
-                         <div className="space-y-1">
-                           {registration.participants.map(
-                             (participant, index) => (
-                               <div key={index} className="text-sm">
-                                 <span className="font-medium">
-                                   {participant.name}
-                                   {index === registration.leaderIndex && (
-                                     <Badge variant="outline" className="ml-1 text-xs">
-                                       Leader
-                                     </Badge>
-                                   )}
-                                 </span>
-                                 <div className="text-muted-foreground ml-2">
-                                   <Mail className="w-3 h-3 inline mr-1" />
-                                   {participant.email}
-                                   {participant.mobile && (
-                                     <div>
-                                       <Phone className="w-3 h-3 inline mr-1" />
-                                       {participant.mobile}
-                                     </div>
-                                   )}
-                                 </div>
-                               </div>
-                             )
-                           )}
-                         </div>
-                       </div>
-                       <div className="space-y-2">
-                         <div>
-                           <h4 className="font-semibold mb-2 flex items-center gap-2">
-                             <Phone className="w-4 h-4" />
-                             Contact Information
-                           </h4>
-                           <div className="text-sm space-y-1">
-                             <div>
-                               <span className="font-medium">Leader Mobile:</span>
-                               <span className="ml-2">{registration.leaderMobile}</span>
-                             </div>
-                             <div>
-                               <span className="font-medium">Alternate Mobile:</span>
-                               <span className="ml-2">{registration.alternateMobile}</span>
-                             </div>
-                           </div>
-                         </div>
-                         <div>
-                           <span className="font-semibold">Original Repository:</span>
-                           <a
-                             href={registration.gitRepo}
-                             target="_blank"
-                             rel="noopener noreferrer"
-                             className="text-primary hover:underline ml-2"
-                           >
-                             {registration.gitRepo}
-                           </a>
-                         </div>
-                         <div>
-                           <span className="font-semibold">Payment Proof:</span>
-                           <Button variant="outline" size="sm" className="ml-2">
-                             <Download className="w-4 h-4 mr-1" />
-                             View
-                           </Button>
-                         </div>
-                       </div>
-                     </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="font-semibold mb-2 flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          Team Members
+                        </h4>
+                        <div className="space-y-1">
+                          {registration.participants.map(
+                            (participant, index) => (
+                              <div key={index} className="text-sm">
+                                <span className="font-medium">
+                                  {participant.name}
+                                  {index === registration.leaderIndex && (
+                                    <Badge
+                                      variant="outline"
+                                      className="ml-1 text-xs"
+                                    >
+                                      Leader
+                                    </Badge>
+                                  )}
+                                </span>
+                                <div className="text-muted-foreground ml-2">
+                                  <Mail className="w-3 h-3 inline mr-1" />
+                                  {participant.email}
+                                  {participant.mobile && (
+                                    <div>
+                                      <Phone className="w-3 h-3 inline mr-1" />
+                                      {participant.mobile}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div>
+                          <h4 className="font-semibold mb-2 flex items-center gap-2">
+                            <Phone className="w-4 h-4" />
+                            Contact Information
+                          </h4>
+                          <div className="text-sm space-y-1">
+                            <div>
+                              <span className="font-medium">
+                                Leader Mobile:
+                              </span>
+                              <span className="ml-2">
+                                {registration.leaderMobile}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="font-medium">
+                                Alternate Mobile:
+                              </span>
+                              <span className="ml-2">
+                                {registration.alternateMobile}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          <span className="font-semibold">
+                            Original Repository:
+                          </span>
+                          <a
+                            href={registration.gitRepo}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline ml-2"
+                          >
+                            {registration.gitRepo}
+                          </a>
+                        </div>
+                        <div>
+                          <span className="font-semibold">Payment Proof:</span>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="ml-2"
+                              >
+                                <Download className="w-4 h-4 mr-1" />
+                                View
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-3xl">
+                              <DialogHeader>
+                                <DialogTitle>Payment Proof</DialogTitle>
+                              </DialogHeader>
+                              <div className="mt-4">
+                                <img
+                                  src={`${API_URL}/${registration.paymentProof}`}
+                                  alt="Payment Proof"
+                                  className="max-w-full h-auto rounded-md"
+                                />
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </div>
+                    </div>
 
                     {registration.status === "pending" && (
                       <div className="flex gap-2 pt-4 border-t">
@@ -403,7 +496,7 @@ const AdminPanel = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-primary">
-                    {registrations.length}
+                    {statistics.total ?? registrations.length}
                   </div>
                 </CardContent>
               </Card>
@@ -413,10 +506,9 @@ const AdminPanel = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-accent">
-                    {
+                    {statistics.approved ??
                       registrations.filter((r) => r.status === "approved")
-                        .length
-                    }
+                        .length}
                   </div>
                 </CardContent>
               </Card>
@@ -426,7 +518,9 @@ const AdminPanel = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-secondary">
-                    {registrations.filter((r) => r.status === "pending").length}
+                    {statistics.pending ??
+                      registrations.filter((r) => r.status === "pending")
+                        .length}
                   </div>
                 </CardContent>
               </Card>
