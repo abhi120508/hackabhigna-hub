@@ -31,62 +31,152 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const participantSchema = new mongoose.Schema({
-  name: String,
-  email: String,
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  mobile: { type: String },
 });
 
 const teamSchema = new mongoose.Schema({
-  teamName: String,
-  leader: participantSchema,
+  teamName: { type: String, required: true },
   participants: [participantSchema],
-  domain: String,
-  gitRepo: String,
-  paymentProof: String,
+  leaderIndex: { type: Number, required: true },
+  domain: { type: String, required: true },
+  gitRepo: { type: String, required: true },
+  leaderMobile: { type: String, required: true },
+  alternateMobile: { type: String },
+  paymentProof: { type: String, required: true },
+  status: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: "pending",
+  },
+  submittedAt: { type: Date, default: Date.now },
+  approvedAt: { type: Date },
+  uniqueId: { type: String, unique: true, sparse: true },
+  githubRepo: { type: String },
+  qrCode: { type: String },
 });
 
-const WebTeam = mongoose.model("WebTeam", teamSchema);
-const MobileTeam = mongoose.model("MobileTeam", teamSchema);
-const AITeam = mongoose.model("AITeam", teamSchema);
-const WildcardTeam = mongoose.model("WildcardTeam", teamSchema);
+const Team = mongoose.model("Team", teamSchema);
 
-const domainModels = {
-  web: WebTeam,
-  mobile: MobileTeam,
-  ai: AITeam,
-  wildcard: WildcardTeam,
+// Helper to generate unique ID
+const generateUniqueId = async (domain, teamName) => {
+  const domainPrefix = domain.substring(0, 2).toUpperCase();
+  const teamPrefix = teamName.substring(0, 2).toUpperCase();
+  const count = await Team.countDocuments({ domain });
+  const number = String(count + 1).padStart(3, "0");
+  return `${domainPrefix}${teamPrefix}${number}`;
 };
 
 app.post("/register", upload.single("paymentProof"), async (req, res) => {
-  const { teamName, participants, leaderIndex, domain, gitRepo } = JSON.parse(
-    req.body.team
-  );
-  const paymentProof = req.file.path;
-
-  const leader = participants[leaderIndex];
-  const otherParticipants = participants.filter(
-    (_, index) => index !== leaderIndex
-  );
-
-  const TeamModel = domainModels[domain];
-
-  if (!TeamModel) {
-    return res.status(400).json("Invalid domain");
-  }
-
-  const newTeam = new TeamModel({
-    teamName,
-    leader,
-    participants: otherParticipants,
-    domain,
-    gitRepo,
-    paymentProof,
-  });
-
   try {
+    const teamData = JSON.parse(req.body.team);
+    const paymentProofPath = req.file ? req.file.path : null;
+
+    if (!paymentProofPath) {
+      return res.status(400).json({ message: "Payment proof is required." });
+    }
+
+    const newTeam = new Team({
+      ...teamData,
+      paymentProof: paymentProofPath,
+    });
+
     await newTeam.save();
-    res.json("Team registered successfully!");
+    res.status(201).json({
+      message: "Team registered successfully!",
+      data: newTeam,
+    });
   } catch (err) {
-    res.status(400).json("Error: " + err);
+    res.status(400).json({ message: "Error: " + err.message });
+  }
+});
+
+// Get all registrations
+app.get("/registrations", async (req, res) => {
+  try {
+    const registrations = await Team.find().sort({ submittedAt: -1 });
+    res.json(registrations);
+  } catch (err) {
+    res.status(400).json({ message: "Error: " + err.message });
+  }
+});
+
+// Update registration status
+app.patch("/registrations/:id/status", async (req, res) => {
+  try {
+    const { status } = req.body;
+    const { id } = req.params;
+
+    if (!["approved", "rejected"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status." });
+    }
+
+    const team = await Team.findById(id);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found." });
+    }
+
+    team.status = status;
+
+    if (status === "approved") {
+      team.approvedAt = new Date();
+      if (!team.uniqueId) {
+        team.uniqueId = await generateUniqueId(team.domain, team.teamName);
+      }
+      team.githubRepo = `https://github.com/hackabhigna/${team.uniqueId.toLowerCase()}`;
+      team.qrCode = `https://hackabhigna.com/qr/${team.uniqueId}`;
+    }
+
+    await team.save();
+    res.json({ message: `Team ${status} successfully!`, data: team });
+  } catch (err) {
+    res.status(400).json({ message: "Error: " + err.message });
+  }
+});
+
+// Get statistics
+app.get("/statistics", async (req, res) => {
+  try {
+    const total = await Team.countDocuments();
+    const approved = await Team.countDocuments({ status: "approved" });
+    const pending = await Team.countDocuments({ status: "pending" });
+    const rejected = await Team.countDocuments({ status: "rejected" });
+
+    const byDomain = await Team.aggregate([
+      { $group: { _id: "$domain", count: { $sum: 1 } } },
+    ]);
+
+    const domainCounts = byDomain.reduce((acc, item) => {
+      acc[item._id] = item.count;
+      return acc;
+    }, {});
+
+    res.json({
+      total,
+      approved,
+      pending,
+      rejected,
+      byDomain: domainCounts,
+    });
+  } catch (err) {
+    res.status(400).json({ message: "Error: " + err.message });
+  }
+});
+
+// Get team by QR unique ID
+app.get("/teams/:uniqueId", async (req, res) => {
+  try {
+    const { uniqueId } = req.params;
+    const team = await Team.findOne({ uniqueId });
+
+    if (team) {
+      res.json({ success: true, data: team });
+    } else {
+      res.status(404).json({ success: false, message: "Team not found." });
+    }
+  } catch (err) {
+    res.status(400).json({ success: false, message: "Error: " + err.message });
   }
 });
 
