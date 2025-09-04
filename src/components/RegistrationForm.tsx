@@ -356,14 +356,14 @@ export function RegistrationForm() {
           <div className="space-y-2">
             <Label htmlFor="git-repo" className="flex items-center gap-2">
               <Github className="w-4 h-4" />
-              Git Repository URL
+              Git Profile URL
             </Label>
             <Input
               id="git-repo"
               type="url"
               value={gitRepo}
               onChange={(e) => setGitRepo(e.target.value)}
-              placeholder="https://github.com/yourusername/repository"
+              placeholder="https://github.com/yourusername"
               className="bg-input/50"
             />
           </div>
