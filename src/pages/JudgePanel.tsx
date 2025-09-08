@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,125 +6,195 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Scale, Github, GitCommit, GitBranch, Activity, Save } from "lucide-react";
+import {
+  Scale,
+  Github,
+  GitCommit,
+  GitBranch,
+  Activity,
+  Save,
+  Shield,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface Team {
-  id: string;
-  name: string;
-  domain: string;
-  repository: string;
-  participants: string[];
-  activity: {
-    commits: number;
-    branches: number;
-    pushes: number;
-    lastActivity: string;
-  };
-  scores: {
-    round1?: { score: number; remarks: string; judge: string };
-    round2?: { score: number; remarks: string; judge: string };
-    final?: { score: number; remarks: string; judge: string };
-  };
-}
-
-// Mock data
-const mockTeams: Team[] = [
-  {
-    id: "team-001",
-    name: "Code Warriors",
-    domain: "Web Development",
-    repository: "https://github.com/hackabhigna-org/team-001",
-    participants: ["John Doe", "Jane Smith", "Bob Wilson"],
-    activity: {
-      commits: 45,
-      branches: 3,
-      pushes: 12,
-      lastActivity: "2 minutes ago"
-    },
-    scores: {
-      round1: { score: 85, remarks: "Great initial implementation", judge: "Judge A" }
-    }
-  },
-  {
-    id: "team-002", 
-    name: "Innovation Squad",
-    domain: "AI",
-    repository: "https://github.com/hackabhigna-org/team-002",
-    participants: ["Alice Johnson", "Mike Chen"],
-    activity: {
-      commits: 32,
-      branches: 2,
-      pushes: 8,
-      lastActivity: "5 minutes ago"
-    },
-    scores: {}
-  }
-];
+import { TeamRegistration } from "@/lib/mockBackend"; // Using the same type
 
 const JudgePanel = () => {
-  const [teams, setTeams] = useState<Team[]>(mockTeams);
-  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [teams, setTeams] = useState<TeamRegistration[]>([]);
+  const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<TeamRegistration | null>(
+    null
+  );
   const [selectedRound, setSelectedRound] = useState<string>("round1");
   const [score, setScore] = useState<string>("");
   const [remarks, setRemarks] = useState<string>("");
-  const [judgeName, setJudgeName] = useState<string>("Judge A");
+  const [judgeName, setJudgeName] = useState<string>("");
   const { toast } = useToast();
 
-  const handleSubmitScore = () => {
-    if (!selectedTeam || !score || !remarks) {
+  const API_URL = "http://localhost:5000";
+
+  const domains = [
+    { value: "web", label: "Web Development" },
+    { value: "mobile", label: "Mobile Development" },
+    { value: "ai", label: "Artificial Intelligence" },
+    { value: "wildcard", label: "Wildcard" },
+  ];
+
+  const loadApprovedTeams = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/registrations`);
+      if (!response.ok) throw new Error("Failed to fetch teams");
+      const allTeams: (TeamRegistration & { _id: string })[] =
+        await response.json();
+      const approvedTeams = allTeams
+        .filter((team) => team.status === "approved")
+        .map((team) => ({ ...team, id: team._id }));
+      setTeams(approvedTeams);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: (error as Error).message,
+      });
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadApprovedTeams();
+    }
+  }, [isAuthenticated, loadApprovedTeams]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, this would be a secure check
+    if (password === "judge123") {
+      setIsAuthenticated(true);
+      toast({ title: "Login Successful" });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: "Invalid password",
+      });
+    }
+  };
+
+  const handleSubmitScore = async () => {
+    if (!selectedTeam || !score || !remarks || !judgeName) {
       toast({
         variant: "destructive",
         title: "Missing Information",
-        description: "Please fill in all fields"
+        description: "Please fill in all fields",
       });
       return;
     }
 
     const scoreValue = parseInt(score);
-    if (scoreValue < 0 || scoreValue > 100) {
+    if (isNaN(scoreValue) || scoreValue < 0 || scoreValue > 100) {
       toast({
-        variant: "destructive", 
+        variant: "destructive",
         title: "Invalid Score",
-        description: "Score must be between 0 and 100"
+        description: "Score must be a number between 0 and 100",
       });
       return;
     }
 
-    setTeams(prev => prev.map(team => 
-      team.id === selectedTeam.id 
-        ? {
-            ...team,
-            scores: {
-              ...team.scores,
-              [selectedRound]: {
-                score: scoreValue,
-                remarks,
-                judge: judgeName
-              }
-            }
-          }
-        : team
-    ));
+    try {
+      const response = await fetch(
+        `${API_URL}/teams/${selectedTeam.id}/score`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            round: selectedRound,
+            score: scoreValue,
+            remarks,
+            judge: judgeName,
+          }),
+        }
+      );
 
-    toast({
-      title: "Score Submitted",
-      description: `Score for ${selectedTeam.name} in ${selectedRound} has been saved`
-    });
+      const result = await response.json();
 
-    // Reset form
-    setScore("");
-    setRemarks("");
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to submit score");
+      }
+
+      toast({
+        title: "Score Submitted",
+        description: `Score for ${selectedTeam.teamName} has been saved.`,
+      });
+
+      // Refresh data
+      loadApprovedTeams();
+      // Reset form
+      setScore("");
+      setRemarks("");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Submission Error",
+        description: (error as Error).message,
+      });
+    }
   };
 
   const getRoundDisplayName = (round: string) => {
     switch (round) {
-      case "round1": return "Round 1";
-      case "round2": return "Round 2"; 
-      case "final": return "Final Round";
-      default: return round;
+      case "round1":
+        return "Round 1";
+      case "round2":
+        return "Round 2";
+      case "final":
+        return "Final Round";
+      default:
+        return round;
     }
   };
+
+  const teamsInSelectedDomain = selectedDomain
+    ? teams.filter((team) => team.domain === selectedDomain)
+    : [];
+
+  if (!isAuthenticated) {
+    return (
+      <div className="dark min-h-screen flex items-center justify-center pt-16 bg-black">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
+              <Shield className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <CardTitle className="text-2xl text-gradient">
+              Judge Access
+            </CardTitle>
+            <p className="text-muted-foreground">
+              Enter judge password to continue
+            </p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter judge password"
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" variant="hero">
+                Login
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-20 px-4">
@@ -147,20 +217,52 @@ const JudgePanel = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {teams.map((team) => (
-                  <Button
-                    key={team.id}
-                    variant={selectedTeam?.id === team.id ? "default" : "outline"}
-                    className="w-full justify-start"
-                    onClick={() => setSelectedTeam(team)}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">{team.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {team.domain}
+                {/* Domain Accordion */}
+                {domains.map((domain) => (
+                  <div key={domain.value}>
+                    <Button
+                      variant={
+                        selectedDomain === domain.value ? "default" : "outline"
+                      }
+                      className="w-full justify-between"
+                      onClick={() =>
+                        setSelectedDomain(
+                          selectedDomain === domain.value ? null : domain.value
+                        )
+                      }
+                    >
+                      {domain.label}
+                      <Badge variant="secondary">
+                        {teams.filter((t) => t.domain === domain.value).length}
+                      </Badge>
+                    </Button>
+                    {selectedDomain === domain.value && (
+                      <div className="pl-4 mt-2 space-y-2">
+                        {teamsInSelectedDomain.map((team) => (
+                          <Button
+                            key={team.id}
+                            variant={
+                              selectedTeam?.id === team.id
+                                ? "secondary"
+                                : "ghost"
+                            }
+                            className="w-full justify-start"
+                            onClick={() => setSelectedTeam(team)}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline">{team.uniqueId}</Badge>
+                              <span>{team.teamName}</span>
+                            </div>
+                          </Button>
+                        ))}
+                        {teamsInSelectedDomain.length === 0 && (
+                          <p className="text-xs text-muted-foreground text-center py-2">
+                            No teams in this domain.
+                          </p>
+                        )}
                       </div>
-                    </div>
-                  </Button>
+                    )}
+                  </div>
                 ))}
               </CardContent>
             </Card>
@@ -171,7 +273,9 @@ const JudgePanel = () => {
             {selectedTeam ? (
               <Tabs defaultValue="activity" className="space-y-6">
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="activity">Repository Activity</TabsTrigger>
+                  <TabsTrigger value="activity">
+                    Repository Activity
+                  </TabsTrigger>
                   <TabsTrigger value="scoring">Scoring</TabsTrigger>
                   <TabsTrigger value="history">Score History</TabsTrigger>
                 </TabsList>
@@ -181,7 +285,7 @@ const JudgePanel = () => {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Github className="w-5 h-5" />
-                        {selectedTeam.name} - Repository Activity
+                        {selectedTeam.uniqueId} - {selectedTeam.teamName}
                       </CardTitle>
                       <Badge variant="outline">{selectedTeam.domain}</Badge>
                     </CardHeader>
@@ -189,54 +293,74 @@ const JudgePanel = () => {
                       <div>
                         <h4 className="font-semibold mb-2">Team Members</h4>
                         <div className="flex flex-wrap gap-2">
-                          {selectedTeam.participants.map((participant, index) => (
-                            <Badge key={index} variant="secondary">
-                              {participant}
-                            </Badge>
-                          ))}
+                          {selectedTeam.participants.map(
+                            (participant, index) => (
+                              <Badge
+                                key={index}
+                                variant={
+                                  index === selectedTeam.leaderIndex
+                                    ? "default"
+                                    : "secondary"
+                                }
+                              >
+                                {participant.name}
+                                {index === selectedTeam.leaderIndex &&
+                                  " (Lead)"}
+                              </Badge>
+                            )
+                          )}
                         </div>
                       </div>
 
                       <div>
                         <h4 className="font-semibold mb-2">Repository</h4>
-                        <a 
-                          href={selectedTeam.repository}
+                        <a
+                          href={selectedTeam.githubRepo}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-primary hover:underline"
                         >
-                          {selectedTeam.repository}
+                          {selectedTeam.githubRepo}
                         </a>
                       </div>
 
+                      {/* Mock activity data for now */}
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <Card>
                           <CardContent className="p-4 text-center">
                             <GitCommit className="w-6 h-6 mx-auto mb-2 text-primary" />
-                            <div className="text-2xl font-bold">{selectedTeam.activity.commits}</div>
-                            <div className="text-sm text-muted-foreground">Commits</div>
+                            <div className="text-2xl font-bold">45</div>
+                            <div className="text-sm text-muted-foreground">
+                              Commits
+                            </div>
                           </CardContent>
                         </Card>
                         <Card>
                           <CardContent className="p-4 text-center">
                             <GitBranch className="w-6 h-6 mx-auto mb-2 text-accent" />
-                            <div className="text-2xl font-bold">{selectedTeam.activity.branches}</div>
-                            <div className="text-sm text-muted-foreground">Branches</div>
+                            <div className="text-2xl font-bold">3</div>
+                            <div className="text-sm text-muted-foreground">
+                              Branches
+                            </div>
                           </CardContent>
                         </Card>
                         <Card>
                           <CardContent className="p-4 text-center">
                             <Activity className="w-6 h-6 mx-auto mb-2 text-secondary" />
-                            <div className="text-2xl font-bold">{selectedTeam.activity.pushes}</div>
-                            <div className="text-sm text-muted-foreground">Pushes</div>
+                            <div className="text-2xl font-bold">12</div>
+                            <div className="text-sm text-muted-foreground">
+                              Pushes
+                            </div>
                           </CardContent>
                         </Card>
                         <Card>
                           <CardContent className="p-4 text-center">
                             <div className="text-sm font-bold text-primary">
-                              {selectedTeam.activity.lastActivity}
+                              2 mins ago
                             </div>
-                            <div className="text-sm text-muted-foreground">Last Activity</div>
+                            <div className="text-sm text-muted-foreground">
+                              Last Activity
+                            </div>
                           </CardContent>
                         </Card>
                       </div>
@@ -247,7 +371,10 @@ const JudgePanel = () => {
                 <TabsContent value="scoring">
                   <Card className="bg-card/50 backdrop-blur-sm">
                     <CardHeader>
-                      <CardTitle>Submit Score for {selectedTeam.name}</CardTitle>
+                      <CardTitle>
+                        Submit Score for {selectedTeam.uniqueId} -{" "}
+                        {selectedTeam.teamName}
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -298,7 +425,11 @@ const JudgePanel = () => {
                         />
                       </div>
 
-                      <Button onClick={handleSubmitScore} variant="hero" className="w-full">
+                      <Button
+                        onClick={handleSubmitScore}
+                        variant="hero"
+                        className="w-full"
+                      >
                         <Save className="w-4 h-4 mr-2" />
                         Submit Score
                       </Button>
@@ -309,31 +440,45 @@ const JudgePanel = () => {
                 <TabsContent value="history">
                   <Card className="bg-card/50 backdrop-blur-sm">
                     <CardHeader>
-                      <CardTitle>Score History for {selectedTeam.name}</CardTitle>
+                      <CardTitle>
+                        Score History for {selectedTeam.uniqueId} -{" "}
+                        {selectedTeam.teamName}
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {Object.entries(selectedTeam.scores).length === 0 ? (
+                        {!selectedTeam.scores ||
+                        Object.keys(selectedTeam.scores).length === 0 ? (
                           <p className="text-muted-foreground text-center py-8">
                             No scores submitted yet
                           </p>
                         ) : (
-                          Object.entries(selectedTeam.scores).map(([round, scoreData]) => (
-                            <Card key={round}>
-                              <CardContent className="p-4">
-                                <div className="flex items-center justify-between mb-2">
-                                  <h4 className="font-semibold">{getRoundDisplayName(round)}</h4>
-                                  <Badge variant="default" className="text-lg px-3">
-                                    {scoreData.score}/100
-                                  </Badge>
-                                </div>
-                                <p className="text-sm text-muted-foreground mb-1">
-                                  Judge: {scoreData.judge}
-                                </p>
-                                <p className="text-sm">{scoreData.remarks}</p>
-                              </CardContent>
-                            </Card>
-                          ))
+                          Object.entries(selectedTeam.scores).map(
+                            ([round, scoreData]) =>
+                              scoreData && scoreData.score ? (
+                                <Card key={round}>
+                                  <CardContent className="p-4">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <h4 className="font-semibold">
+                                        {getRoundDisplayName(round)}
+                                      </h4>
+                                      <Badge
+                                        variant="default"
+                                        className="text-lg px-3"
+                                      >
+                                        {scoreData.score}/100
+                                      </Badge>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground mb-1">
+                                      Judge: {scoreData.judge}
+                                    </p>
+                                    <p className="text-sm">
+                                      {scoreData.remarks}
+                                    </p>
+                                  </CardContent>
+                                </Card>
+                              ) : null
+                          )
                         )}
                       </div>
                     </CardContent>
@@ -344,9 +489,12 @@ const JudgePanel = () => {
               <Card className="bg-card/50 backdrop-blur-sm">
                 <CardContent className="p-12 text-center">
                   <Scale className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">No Team Selected</h3>
+                  <h3 className="text-lg font-semibold mb-2">
+                    No Team Selected
+                  </h3>
                   <p className="text-muted-foreground">
-                    Select a team from the list to view details and submit scores
+                    Select a team from the list to view details and submit
+                    scores
                   </p>
                 </CardContent>
               </Card>

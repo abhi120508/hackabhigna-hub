@@ -55,6 +55,11 @@ const teamSchema = new mongoose.Schema({
   uniqueId: { type: String, unique: true, sparse: true },
   githubRepo: { type: String },
   qrCode: { type: String },
+  scores: {
+    round1: { score: Number, remarks: String, judge: String },
+    round2: { score: Number, remarks: String, judge: String },
+    final: { score: Number, remarks: String, judge: String },
+  },
 });
 
 const Team = mongoose.model("Team", teamSchema);
@@ -92,6 +97,44 @@ app.post("/register", upload.single("paymentProof"), async (req, res) => {
   }
 });
 
+// Participant Login
+app.post("/login/participant", async (req, res) => {
+  try {
+    const { uniqueId, email } = req.body;
+
+    if (!uniqueId || !email) {
+      return res
+        .status(400)
+        .json({ message: "Unique ID and Email are required." });
+    }
+
+    const team = await Team.findOne({ uniqueId: uniqueId.trim() });
+
+    if (!team) {
+      return res.status(404).json({ message: "Invalid Unique ID." });
+    }
+
+    if (team.status !== "approved") {
+      return res
+        .status(403)
+        .json({ message: "This team has not been approved yet." });
+    }
+
+    const leaderEmail = team.participants[team.leaderIndex]?.email;
+
+    if (
+      leaderEmail &&
+      leaderEmail.toLowerCase() === email.trim().toLowerCase()
+    ) {
+      res.json({ success: true, message: "Login successful!", data: team });
+    } else {
+      res.status(401).json({ message: "Invalid Team Lead Email." });
+    }
+  } catch (err) {
+    res.status(500).json({ message: "Server Error: " + err.message });
+  }
+});
+
 // Get all registrations
 app.get("/registrations", async (req, res) => {
   try {
@@ -124,13 +167,46 @@ app.patch("/registrations/:id/status", async (req, res) => {
       if (!team.uniqueId) {
         team.uniqueId = await generateUniqueId(team.domain, team.teamName);
       }
-      const repoUrl = `https://github.com/hackabhigna/${team.uniqueId.toLowerCase()}`;
-      team.githubRepo = repoUrl;
-      team.qrCode = repoUrl; // Set QR code to be the same as the GitHub repo URL
+      team.githubRepo = `https://github.com/hackabhigna/${team.uniqueId.toLowerCase()}`;
+      team.qrCode = team.uniqueId.toLowerCase();
     }
 
     await team.save();
     res.json({ message: `Team ${status} successfully!`, data: team });
+  } catch (err) {
+    res.status(400).json({ message: "Error: " + err.message });
+  }
+});
+
+// Add a new endpoint for submitting scores
+app.patch("/teams/:id/score", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { round, score, remarks, judge } = req.body;
+
+    if (!round || !score || !remarks || !judge) {
+      return res
+        .status(400)
+        .json({ message: "Missing required score fields." });
+    }
+
+    const team = await Team.findById(id);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found." });
+    }
+
+    // Ensure scores object exists
+    if (!team.scores) {
+      team.scores = {};
+    }
+
+    team.scores[round] = { score, remarks, judge };
+
+    // Mark the path as modified if it's a mixed type
+    team.markModified("scores");
+
+    await team.save();
+    res.json({ message: "Score submitted successfully!", data: team });
   } catch (err) {
     res.status(400).json({ message: "Error: " + err.message });
   }

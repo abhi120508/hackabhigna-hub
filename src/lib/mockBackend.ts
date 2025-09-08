@@ -20,6 +20,13 @@ export interface TeamRegistration {
   approvedAt?: string;
   qrCode?: string;
   githubRepo?: string;
+  scores?: {
+    [round: string]: {
+      score: number;
+      remarks: string;
+      judge: string;
+    };
+  };
 }
 
 // Mock registration counter for unique ID generation
