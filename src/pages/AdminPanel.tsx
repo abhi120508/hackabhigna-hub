@@ -455,11 +455,23 @@ const AdminPanel = () => {
                           className="flex items-center justify-between p-4 border rounded-lg"
                         >
                           <div>
-                            <h4 className="font-semibold">{team.teamName}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              Members:{" "}
-                              {team.participants.map((p) => p.name).join(", ")}
-                            </p>
+                            <h4 className="font-semibold flex items-center gap-2">
+                              {team.teamName}
+                              <Badge variant="secondary">{team.uniqueId}</Badge>
+                            </h4>
+                            <div className="text-sm text-muted-foreground mt-2 space-y-1">
+                              {team.participants.map((p, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Mail className="w-3 h-3" />
+                                  <span>
+                                    {p.name} - {p.email}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                           <Button
                             variant="hero"
