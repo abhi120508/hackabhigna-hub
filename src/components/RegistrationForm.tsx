@@ -245,16 +245,29 @@ export function RegistrationForm() {
               Team Members (2-4 people) - Select a Leader
             </Label>
             {participants.map((participant, index) => (
-              <div key={index} className="flex gap-2 items-center">
-                <div className="flex-1 space-y-2">
+              <div key={index} className="space-y-2">
+                <div className="relative">
                   <Input
                     value={participant.name}
                     onChange={(e) =>
                       updateParticipant(index, "name", e.target.value)
                     }
-                    placeholder={`Member ${index + 1} Name`}
-                    className="bg-input/50"
+                    onClick={() => setLeaderIndex(index)}
+                    placeholder={`Member ${index + 1} Name ${leaderIndex === index ? "(Team Leader)" : "- Click to set as leader"}`}
+                    className={`bg-input/50 pr-20 h-12 text-base cursor-pointer transition-all ${
+                      leaderIndex === index 
+                        ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20" 
+                        : "hover:border-primary/30"
+                    }`}
                   />
+                  {leaderIndex === index && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                      <ShieldCheck className="w-4 h-4 text-primary" />
+                      <span className="text-xs font-medium text-primary">Leader</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2">
                   <Input
                     type="email"
                     value={participant.email}
@@ -262,29 +275,20 @@ export function RegistrationForm() {
                       updateParticipant(index, "email", e.target.value)
                     }
                     placeholder={`Member ${index + 1} Email`}
-                    className="bg-input/50"
+                    className="bg-input/50 flex-1"
                   />
+                  {participants.length > 2 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeParticipant(index)}
+                      className="px-3"
+                    >
+                      <MinusCircle className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
-                <Button
-                  type="button"
-                  variant={leaderIndex === index ? "default" : "outline"}
-                  size="xs"
-                  onClick={() => setLeaderIndex(index)}
-                  className="flex items-center gap-2"
-                >
-                  <ShieldCheck className="w-4 h-4" />
-                  {leaderIndex === index ? "Leader" : "Set Leader"}
-                </Button>
-                {participants.length > 2 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="xs"
-                    onClick={() => removeParticipant(index)}
-                  >
-                    <MinusCircle className="w-4 h-4" />
-                  </Button>
-                )}
               </div>
             ))}
             {participants.length < 4 && (
