@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Trophy, Users } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
+import { CountdownTimer } from "@/components/CountdownTimer";
 
 export function HeroSection() {
   const scrollToRegistration = () => {
@@ -37,6 +38,14 @@ export function HeroSection() {
           Where Innovation Meets Excellence. Join the ultimate hackathon
           experience and turn your ideas into reality.
         </p>
+
+        {/* Countdown Timer */}
+        <div className="mb-8">
+          <h3 className="text-lg md:text-xl font-semibold mb-4 text-foreground">
+            Event Starts In:
+          </h3>
+          <CountdownTimer />
+        </div>
 
         {/* Event Details */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto">
