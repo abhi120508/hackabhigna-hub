@@ -116,14 +116,8 @@ const ParticipantPanel = () => {
     );
   }
 
-  const allMembers = [
-    {
-      name: teamData.leaderName,
-      email: teamData.leaderEmail,
-      phone: teamData.leaderPhone,
-    },
-    ...teamData.members,
-  ];
+  const leader = teamData.participants[teamData.leaderIndex];
+  const allMembers = teamData.participants;
 
   return (
     <div className="min-h-screen pt-20 px-4">
@@ -217,14 +211,14 @@ const ParticipantPanel = () => {
                       <Badge
                         key={index}
                         variant={
-                          participant.email === teamData.leaderEmail
+                          participant.email === leader.email
                             ? "default"
                             : "secondary"
                         }
                       >
                         <Users className="w-3 h-3 mr-1" />
                         {participant.name}
-                        {participant.email === teamData.leaderEmail &&
+                        {participant.email === leader.email &&
                           " (Lead)"}
                       </Badge>
                     ))}
