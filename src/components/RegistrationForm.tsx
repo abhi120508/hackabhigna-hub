@@ -252,8 +252,7 @@ export function RegistrationForm() {
                     onChange={(e) =>
                       updateParticipant(index, "name", e.target.value)
                     }
-                    onFocus={() => setLeaderIndex(index)}
-                    placeholder={`Member ${index + 1} Name ${leaderIndex === index ? "(Team Leader)" : "- Click to set as leader"}`}
+                    placeholder={`Member ${index + 1} Name ${leaderIndex === index ? "(Team Leader)" : ""}`}
                     className={`bg-input/50 pr-20 h-12 text-base transition-all ${
                       leaderIndex === index 
                         ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20" 
