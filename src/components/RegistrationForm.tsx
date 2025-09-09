@@ -252,20 +252,24 @@ export function RegistrationForm() {
                     onChange={(e) =>
                       updateParticipant(index, "name", e.target.value)
                     }
-                    onClick={() => setLeaderIndex(index)}
+                    onFocus={() => setLeaderIndex(index)}
                     placeholder={`Member ${index + 1} Name ${leaderIndex === index ? "(Team Leader)" : "- Click to set as leader"}`}
-                    className={`bg-input/50 pr-20 h-12 text-base cursor-pointer transition-all ${
+                    className={`bg-input/50 pr-20 h-12 text-base transition-all ${
                       leaderIndex === index 
                         ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20" 
                         : "hover:border-primary/30"
                     }`}
                   />
-                  {leaderIndex === index && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                      <ShieldCheck className="w-4 h-4 text-primary" />
-                      <span className="text-xs font-medium text-primary">Leader</span>
-                    </div>
-                  )}
+                  <Button
+                    type="button"
+                    variant={leaderIndex === index ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setLeaderIndex(index)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-3 text-xs"
+                  >
+                    <ShieldCheck className="w-3 h-3 mr-1" />
+                    {leaderIndex === index ? "Leader" : "Set Leader"}
+                  </Button>
                 </div>
                 <div className="flex gap-2">
                   <Input
