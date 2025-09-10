@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Trophy, Users } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
+import { CountdownTimer } from "@/components/CountdownTimer";
 
 export function HeroSection() {
   const scrollToRegistration = () => {
@@ -38,11 +39,19 @@ export function HeroSection() {
           experience and turn your ideas into reality.
         </p>
 
+        {/* Countdown Timer */}
+        <div className="mb-8">
+          <h3 className="text-lg md:text-xl font-semibold mb-4 text-foreground">
+            Event Starts In:
+          </h3>
+          <CountdownTimer />
+        </div>
+
         {/* Event Details */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto">
           <div className="flex items-center justify-center gap-2 text-foreground">
             <Calendar className="w-5 h-5 text-primary" />
-            <span>Oct 17-18, 2024</span>
+            <span>Oct 16-17</span>
           </div>
           <div className="flex items-center justify-center gap-2 text-foreground">
             <MapPin className="w-5 h-5 text-primary" />
@@ -89,7 +98,7 @@ export function HeroSection() {
             <div className="text-sm text-muted-foreground">Hours</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-primary">₹1L</div>
+            <div className="text-3xl font-bold text-primary">₹1L+</div>
             <div className="text-sm text-muted-foreground">Total Prize</div>
           </div>
         </div>
