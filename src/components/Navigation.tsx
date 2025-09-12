@@ -4,9 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Code, Shield, QrCode, Scale, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
-const publicNavItems = [
-  { name: "Home", path: "/", icon: Code },
-];
+const publicNavItems = [{ name: "Home", path: "/", icon: Code }];
 
 const coordinatorNavItems = [
   { name: "Home", path: "/", icon: Code },
@@ -19,7 +17,7 @@ const coordinatorNavItems = [
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  
+
   // Show only home link on registration page, full navigation elsewhere
   const isRegistrationPage = location.pathname === "/";
   const navItems = isRegistrationPage ? publicNavItems : coordinatorNavItems;

@@ -26,6 +26,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import QRCodeGenerator from "@/components/QRCodeGenerator";
 
 interface Statistics {
   total?: number;
@@ -288,6 +289,15 @@ const AdminPanel = () => {
                                 {registration.githubRepo}
                               </a>
                             </div>
+                          </div>
+                          <div className="mt-4">
+                            <span className="font-semibold">QR Code:</span>
+                            <QRCodeGenerator
+                              value={
+                                registration.qrcode || registration.uniqueId
+                              }
+                              size={128}
+                            />
                           </div>
                         </div>
                       )}

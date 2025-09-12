@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Redirecting...</title>
+    <script type="text/javascript">
+      // Redirect all 404 requests to index.html for SPA routing on GitHub Pages
+      var redirectTo = "/hackabhigna-hub/";
+      if (window.location.pathname !== redirectTo) {
+        window.location.replace(redirectTo + "#!" + window.location.pathname);
+      }
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to the app...</p>
+  </body>
+</html>
