@@ -26,6 +26,16 @@ const QRPanel = () => {
   const [isActivating, setIsActivating] = useState(false);
   const { toast } = useToast();
 
+  // Backend API URL
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+  // Refs for camera scanning
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  // Manual input fallback
+  const [manualInput, setManualInput] = useState("");
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === "volunteer123" && selectedDomains.length > 0) {
@@ -50,16 +60,6 @@ const QRPanel = () => {
       setSelectedDomains(prev => prev.filter(id => id !== domainId));
     }
   };
-
-  // Backend API URL
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-  // Refs for camera scanning
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-
-  // Manual input fallback
-  const [manualInput, setManualInput] = useState("");
 
   const stopScan = () => {
     setIsScanning(false);
@@ -154,6 +154,7 @@ const QRPanel = () => {
           title: "Camera scanning not supported",
           description: "Paste the QR content or enter Unique ID below.",
         });
+        setIsScanning(false);
       }
     } catch (error) {
       setIsScanning(false);
@@ -293,6 +294,9 @@ const QRPanel = () => {
                     onClick={isScanning ? stopScan : startCameraScan}
                     variant="hero"
                     size="lg"
+                  >
+                    {isScanning ? "Stop Scanning" : "Start Camera Scan"}
+                  </Button>
 
                   <div className="space-y-2">
                     <Label htmlFor="manual-input">Or paste QR URL / Unique ID</Label>
@@ -308,6 +312,7 @@ const QRPanel = () => {
                       </Button>
                     </div>
                   </div>
+                </>
               ) : (
                 <div className="space-y-6">
                   <div className="w-16 h-16 mx-auto bg-accent/20 rounded-full flex items-center justify-center">
