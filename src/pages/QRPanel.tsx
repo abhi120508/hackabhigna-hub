@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { QrCode, Scan, CheckCircle, Users, Github, Shield, Phone, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { MockAPI, TeamRegistration } from "@/lib/mockBackend";
-import { MockQRScanner, parseQRCode } from "@/lib/qrUtils";
+import { TeamRegistration } from "@/lib/mockBackend";
+import { parseQRCode } from "@/lib/qrUtils";
 
 const domains = [
   { id: "web", label: "Web Development" },
@@ -51,57 +51,123 @@ const QRPanel = () => {
     }
   };
 
-  const simulateQRScan = async () => {
-    setIsScanning(true);
-    
+  // Backend API URL
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+  // Refs for camera scanning
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  // Manual input fallback
+  const [manualInput, setManualInput] = useState("");
+
+  const stopScan = () => {
+    setIsScanning(false);
     try {
-      // Use mock QR scanner
-      const scanResult = await MockQRScanner.startScan();
-      
-      if (scanResult.success && scanResult.data) {
-        // Parse the QR code data
-        const parsed = parseQRCode(scanResult.data);
-        
-        if (parsed) {
-          // Get team data from backend
-          const teamResult = await MockAPI.getTeamByQR(parsed.uniqueId);
-          
-          if (teamResult.success && teamResult.data) {
-            setScannedData(teamResult.data);
-            toast({
-              title: "QR Code Scanned Successfully!",
-              description: `Team: ${teamResult.data.teamName} (${teamResult.data.uniqueId})`,
-            });
-          } else {
-            toast({
-              variant: "destructive",
-              title: "Team Not Found",
-              description: "No team found with this QR code.",
-            });
-          }
-        } else {
+      const tracks = streamRef.current?.getTracks();
+      tracks?.forEach((t) => t.stop());
+      streamRef.current = null;
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    } catch {}
+  };
+
+  const fetchTeamByUniqueId = async (uniqueId: string) => {
+    try {
+      const response = await fetch(`${API_URL}/teams/${uniqueId}`);
+      if (!response.ok) {
+        if (response.status === 404) {
           toast({
             variant: "destructive",
-            title: "Invalid QR Code",
-            description: "QR code format is invalid.",
+            title: "Team Not Found",
+            description: "No team found with this Unique ID.",
           });
+          return;
         }
-      } else {
+        throw new Error("Failed to fetch team");
+      }
+      const result = await response.json();
+      if (result.success && result.data) {
+        setScannedData(result.data);
         toast({
-          variant: "destructive",
-          title: "Scan Failed",
-          description: "Could not read QR code. Please try again.",
+          title: "QR Code Scanned Successfully!",
+          description: `Team: ${result.data.teamName} (${result.data.uniqueId})`,
         });
+        stopScan();
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Scanning Error",
-        description: "An error occurred while scanning.",
+        title: "Network Error",
+        description: "Could not fetch team details. Please try again.",
       });
-    } finally {
-      setIsScanning(false);
     }
+  };
+
+  const handleQRData = async (data: string) => {
+    const parsed = parseQRCode(data);
+    if (!parsed) {
+      toast({
+        variant: "destructive",
+        title: "Invalid QR Code",
+        description: "QR code format is invalid.",
+      });
+      return;
+    }
+    await fetchTeamByUniqueId(parsed.uniqueId);
+  };
+
+  const startCameraScan = async () => {
+    setIsScanning(true);
+    try {
+      // Use native BarcodeDetector if available
+      // @ts-ignore
+      if ("BarcodeDetector" in window) {
+        // @ts-ignore
+        const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" } },
+          audio: false,
+        });
+        streamRef.current = stream;
+        if (videoRef.current) {
+          (videoRef.current as any).srcObject = stream;
+          await videoRef.current.play();
+        }
+
+        const scanLoop = async () => {
+          if (!isScanning || !videoRef.current) return;
+          try {
+            const codes = await detector.detect(videoRef.current);
+            if (codes && codes.length > 0) {
+              await handleQRData(codes[0].rawValue);
+              return;
+            }
+          } catch {}
+          requestAnimationFrame(scanLoop);
+        };
+        requestAnimationFrame(scanLoop);
+      } else {
+        // Fallback: prompt user to paste QR content or Unique ID
+        toast({
+          title: "Camera scanning not supported",
+          description: "Paste the QR content or enter Unique ID below.",
+        });
+      }
+    } catch (error) {
+      setIsScanning(false);
+      toast({
+        variant: "destructive",
+        title: "Camera Error",
+        description: "Unable to access camera. Check permissions and try again.",
+      });
+    }
+  };
+
+  const handleManualFetch = async () => {
+    if (!manualInput.trim()) return;
+    await handleQRData(manualInput.trim());
   };
 
   const handleActivateRepository = async () => {
@@ -207,12 +273,14 @@ const QRPanel = () => {
             <CardContent className="text-center space-y-6">
               {!scannedData ? (
                 <>
-                  <div className="w-64 h-64 mx-auto border-2 border-dashed border-border rounded-lg flex items-center justify-center bg-muted/20">
+                  <div className="w-64 h-64 mx-auto border-2 border-dashed border-border rounded-lg overflow-hidden bg-muted/20 relative flex items-center justify-center">
                     {isScanning ? (
-                      <div className="text-center">
-                        <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground">Scanning QR Code...</p>
-                      </div>
+                      <video
+                        ref={videoRef}
+                        className="w-full h-full object-cover"
+                        muted
+                        playsInline
+                      />
                     ) : (
                       <div className="text-center">
                         <Scan className="w-16 h-16 text-muted-foreground mx-auto mb-2" />
@@ -222,14 +290,24 @@ const QRPanel = () => {
                   </div>
                   
                   <Button 
-                    onClick={simulateQRScan}
-                    disabled={isScanning}
+                    onClick={isScanning ? stopScan : startCameraScan}
                     variant="hero"
                     size="lg"
-                  >
-                    {isScanning ? "Scanning..." : "Scan QR Code"}
-                  </Button>
-                </>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="manual-input">Or paste QR URL / Unique ID</Label>
+                    <div className="flex gap-2 max-w-md mx-auto">
+                      <Input
+                        id="manual-input"
+                        value={manualInput}
+                        onChange={(e) => setManualInput(e.target.value)}
+                        placeholder="https://hackabhigna.com/qr/ABCD001 or ABCD001"
+                      />
+                      <Button onClick={handleManualFetch} variant="outline" disabled={!manualInput.trim()}>
+                        Fetch Team
+                      </Button>
+                    </div>
+                  </div>
               ) : (
                 <div className="space-y-6">
                   <div className="w-16 h-16 mx-auto bg-accent/20 rounded-full flex items-center justify-center">

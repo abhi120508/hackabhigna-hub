@@ -10,17 +10,19 @@ export interface QRCodeData {
 // Mock QR code scanning result
 export function parseQRCode(qrData: string): { uniqueId: string } | null {
   try {
+    const data = qrData.trim();
+
     // Extract unique ID from QR URL format: https://hackabhigna.com/qr/UNIQUEID
-    const match = qrData.match(/\/qr\/([A-Z0-9]+)$/);
-    if (match && match[1]) {
-      return { uniqueId: match[1] };
+    const urlMatch = data.match(/\/qr\/([A-Za-z0-9]+)$/i);
+    if (urlMatch && urlMatch[1]) {
+      return { uniqueId: urlMatch[1].toUpperCase() };
     }
-    
-    // If direct unique ID is provided
-    if (/^[A-Z]{4}\d{3}$/.test(qrData)) {
-      return { uniqueId: qrData };
+
+    // If direct unique ID is provided (case-insensitive)
+    if (/^[A-Za-z]{4}\d{3}$/i.test(data)) {
+      return { uniqueId: data.toUpperCase() };
     }
-    
+
     return null;
   } catch (error) {
     return null;
