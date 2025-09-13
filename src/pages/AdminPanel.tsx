@@ -294,7 +294,7 @@ const AdminPanel = () => {
                             <span className="font-semibold">QR Code:</span>
                             <QRCodeGenerator
                               value={
-                                registration.qrcode || registration.uniqueId
+                                registration.qrCode || registration.uniqueId
                               }
                               size={128}
                             />
