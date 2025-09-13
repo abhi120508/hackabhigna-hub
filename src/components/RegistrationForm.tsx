@@ -246,7 +246,33 @@ export function RegistrationForm() {
             </Label>
             {participants.map((participant, index) => (
               <div key={index} className="space-y-2">
-                <div className="relative">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id={`leader-${index}`}
+                      name="teamLeader"
+                      checked={leaderIndex === index}
+                      onChange={() => setLeaderIndex(index)}
+                      className="w-4 h-4 text-primary"
+                    />
+                    <Label htmlFor={`leader-${index}`} className="text-sm font-medium">
+                      {leaderIndex === index ? "Team Leader" : "Make Leader"}
+                    </Label>
+                  </div>
+                  {participants.length > 2 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeParticipant(index)}
+                      className="px-3 ml-auto"
+                    >
+                      <MinusCircle className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <Input
                     value={participant.name}
                     onChange={(e) =>
@@ -262,19 +288,8 @@ export function RegistrationForm() {
                       updateParticipant(index, "email", e.target.value)
                     }
                     placeholder={`Member ${index + 1} Email`}
-                    className="bg-input/50 flex-1"
+                    className="bg-input/50"
                   />
-                  {participants.length > 2 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeParticipant(index)}
-                      className="px-3"
-                    >
-                      <MinusCircle className="w-4 h-4" />
-                    </Button>
-                  )}
                 </div>
               </div>
             ))}
