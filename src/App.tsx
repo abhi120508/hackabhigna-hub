@@ -18,7 +18,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <HashRouter basename="/hackabhigna-hub">
+      <HashRouter>
         <Navigation />
         <Routes>
           <Route path="/" element={<Index />} />
