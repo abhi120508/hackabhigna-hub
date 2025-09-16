@@ -246,50 +246,48 @@ export function RegistrationForm() {
             </Label>
             {participants.map((participant, index) => (
               <div key={index} className="space-y-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      id={`leader-${index}`}
-                      name="teamLeader"
-                      checked={leaderIndex === index}
-                      onChange={() => setLeaderIndex(index)}
-                      className="w-4 h-4 text-primary"
+                <div className="relative">
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Input
+                        value={participant.name}
+                        onChange={(e) =>
+                          updateParticipant(index, "name", e.target.value)
+                        }
+                        placeholder={`Member ${index + 1} Name`}
+                        className="bg-input/50 pr-32"
+                      />
+                      <Button
+                        type="button"
+                        variant={leaderIndex === index ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setLeaderIndex(index)}
+                        className="absolute right-1 top-1/2 -translate-y-1/2 px-2 py-1 h-7 text-xs"
+                      >
+                        {leaderIndex === index ? "Leader" : "Set Leader"}
+                      </Button>
+                    </div>
+                    <Input
+                      type="email"
+                      value={participant.email}
+                      onChange={(e) =>
+                        updateParticipant(index, "email", e.target.value)
+                      }
+                      placeholder={`Member ${index + 1} Email`}
+                      className="bg-input/50 flex-1"
                     />
-                    <Label htmlFor={`leader-${index}`} className="text-sm font-medium">
-                      {leaderIndex === index ? "Team Leader" : "Make Leader"}
-                    </Label>
+                    {participants.length > 2 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeParticipant(index)}
+                        className="px-3"
+                      >
+                        <MinusCircle className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
-                  {participants.length > 2 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeParticipant(index)}
-                      className="px-3 ml-auto"
-                    >
-                      <MinusCircle className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <Input
-                    value={participant.name}
-                    onChange={(e) =>
-                      updateParticipant(index, "name", e.target.value)
-                    }
-                    placeholder={`Member ${index + 1} Name`}
-                    className="bg-input/50"
-                  />
-                  <Input
-                    type="email"
-                    value={participant.email}
-                    onChange={(e) =>
-                      updateParticipant(index, "email", e.target.value)
-                    }
-                    placeholder={`Member ${index + 1} Email`}
-                    className="bg-input/50"
-                  />
                 </div>
               </div>
             ))}
