@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/hackabhigna-hub/",
+  base: "/",
   plugins: [react(), mode === "development" && componentTagger()].filter(
     Boolean
   ),
