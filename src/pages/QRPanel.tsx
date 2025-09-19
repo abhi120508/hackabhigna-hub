@@ -5,16 +5,25 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { QrCode, Scan, CheckCircle, Users, Github, Shield, Phone, Mail } from "lucide-react";
+import {
+  QrCode,
+  Scan,
+  CheckCircle,
+  Users,
+  Github,
+  Shield,
+  Phone,
+  Mail,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { TeamRegistration } from "@/lib/mockBackend";
 import { parseQRCode } from "@/lib/qrUtils";
 
 const domains = [
-  { id: "web", label: "Web Development" },
-  { id: "mobile", label: "Mobile Development" },
-  { id: "ai", label: "Artificial Intelligence" },
-  { id: "wildcard", label: "Wildcard" }
+  { id: "GenAI", label: "GenAI" },
+  { id: "FinTech", label: "FinTech" },
+  { id: "Healthcare", label: "Healthcare" },
+  { id: "wildcard", label: "Wildcard" },
 ];
 
 const QRPanel = () => {
@@ -42,22 +51,22 @@ const QRPanel = () => {
       setIsAuthenticated(true);
       toast({
         title: "Access Granted",
-        description: `Volunteer access granted for ${selectedDomains.length} domain(s)`
+        description: `Volunteer access granted for ${selectedDomains.length} domain(s)`,
       });
     } else {
       toast({
         variant: "destructive",
         title: "Access Denied",
-        description: "Invalid password or no domains selected"
+        description: "Invalid password or no domains selected",
       });
     }
   };
 
   const handleDomainChange = (domainId: string, checked: boolean) => {
     if (checked) {
-      setSelectedDomains(prev => [...prev, domainId]);
+      setSelectedDomains((prev) => [...prev, domainId]);
     } else {
-      setSelectedDomains(prev => prev.filter(id => id !== domainId));
+      setSelectedDomains((prev) => prev.filter((id) => id !== domainId));
     }
   };
 
@@ -161,7 +170,8 @@ const QRPanel = () => {
       toast({
         variant: "destructive",
         title: "Camera Error",
-        description: "Unable to access camera. Check permissions and try again.",
+        description:
+          "Unable to access camera. Check permissions and try again.",
       });
     }
   };
@@ -173,19 +183,19 @@ const QRPanel = () => {
 
   const handleActivateRepository = async () => {
     if (!scannedData || !scannedData.githubRepo) return;
-    
+
     setIsActivating(true);
-    
+
     // Simulate repository activation (opening in new tab)
-    window.open(scannedData.githubRepo, '_blank');
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    window.open(scannedData.githubRepo, "_blank");
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     toast({
       title: "Repository Opened!",
       description: `GitHub repository opened for ${scannedData.teamName}`,
     });
-    
+
     setIsActivating(false);
   };
 
@@ -197,29 +207,43 @@ const QRPanel = () => {
             <div className="mx-auto mb-4 w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
               <Shield className="w-6 h-6 text-primary-foreground" />
             </div>
-            <CardTitle className="text-2xl text-gradient">Volunteer Access</CardTitle>
-            <p className="text-muted-foreground">Select domains and enter volunteer password</p>
+            <CardTitle className="text-2xl text-gradient">
+              Volunteer Access
+            </CardTitle>
+            <p className="text-muted-foreground">
+              Select domains and enter volunteer password
+            </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">
               <div>
-                <Label className="text-base font-medium">Select Domains to Manage</Label>
+                <Label className="text-base font-medium">
+                  Select Domains to Manage
+                </Label>
                 <div className="mt-3 space-y-3">
                   {domains.map((domain) => (
-                    <div key={domain.id} className="flex items-center space-x-3">
+                    <div
+                      key={domain.id}
+                      className="flex items-center space-x-3"
+                    >
                       <Checkbox
                         id={domain.id}
                         checked={selectedDomains.includes(domain.id)}
-                        onCheckedChange={(checked) => handleDomainChange(domain.id, checked as boolean)}
+                        onCheckedChange={(checked) =>
+                          handleDomainChange(domain.id, checked as boolean)
+                        }
                       />
-                      <Label htmlFor={domain.id} className="text-sm font-normal cursor-pointer">
+                      <Label
+                        htmlFor={domain.id}
+                        className="text-sm font-normal cursor-pointer"
+                      >
                         {domain.label}
                       </Label>
                     </div>
                   ))}
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="password">Volunteer Password</Label>
                 <Input
@@ -231,7 +255,7 @@ const QRPanel = () => {
                   required
                 />
               </div>
-              
+
               <Button type="submit" className="w-full" variant="hero">
                 Access QR Scanner
               </Button>
@@ -251,8 +275,8 @@ const QRPanel = () => {
             Scan team QR codes to activate repositories on hackathon day
           </p>
           <div className="mt-2 flex flex-wrap justify-center gap-2">
-            {selectedDomains.map(domainId => {
-              const domain = domains.find(d => d.id === domainId);
+            {selectedDomains.map((domainId) => {
+              const domain = domains.find((d) => d.id === domainId);
               return (
                 <Badge key={domainId} variant="outline">
                   {domain?.label}
@@ -285,12 +309,14 @@ const QRPanel = () => {
                     ) : (
                       <div className="text-center">
                         <Scan className="w-16 h-16 text-muted-foreground mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground">Click scan to read QR code</p>
+                        <p className="text-sm text-muted-foreground">
+                          Click scan to read QR code
+                        </p>
                       </div>
                     )}
                   </div>
-                  
-                  <Button 
+
+                  <Button
                     onClick={isScanning ? stopScan : startCameraScan}
                     variant="hero"
                     size="lg"
@@ -299,7 +325,9 @@ const QRPanel = () => {
                   </Button>
 
                   <div className="space-y-2">
-                    <Label htmlFor="manual-input">Or paste QR URL / Unique ID</Label>
+                    <Label htmlFor="manual-input">
+                      Or paste QR URL / Unique ID
+                    </Label>
                     <div className="flex gap-2 max-w-md mx-auto">
                       <Input
                         id="manual-input"
@@ -307,7 +335,11 @@ const QRPanel = () => {
                         onChange={(e) => setManualInput(e.target.value)}
                         placeholder="https://hackabhigna.com/qr/ABCD001 or ABCD001"
                       />
-                      <Button onClick={handleManualFetch} variant="outline" disabled={!manualInput.trim()}>
+                      <Button
+                        onClick={handleManualFetch}
+                        variant="outline"
+                        disabled={!manualInput.trim()}
+                      >
                         Fetch Team
                       </Button>
                     </div>
@@ -336,79 +368,100 @@ const QRPanel = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div className="space-y-4">
-                     <div>
-                       <h4 className="font-semibold text-sm text-muted-foreground mb-1">Team Name</h4>
-                       <p className="text-lg font-medium">{scannedData.teamName}</p>
-                     </div>
-                     <div>
-                       <h4 className="font-semibold text-sm text-muted-foreground mb-1">Unique ID</h4>
-                       <p className="font-mono text-sm bg-muted/50 px-2 py-1 rounded text-primary">
-                         {scannedData.uniqueId}
-                       </p>
-                     </div>
-                     <div>
-                       <h4 className="font-semibold text-sm text-muted-foreground mb-1">Domain</h4>
-                       <Badge variant="outline">{scannedData.domain}</Badge>
-                     </div>
-                     <div>
-                       <h4 className="font-semibold text-sm text-muted-foreground mb-2">Contact Info</h4>
-                       <div className="space-y-1 text-sm">
-                         <div className="flex items-center gap-2">
-                           <Phone className="w-3 h-3" />
-                           <span>Leader: {scannedData.leaderMobile}</span>
-                         </div>
-                         <div className="flex items-center gap-2">
-                           <Phone className="w-3 h-3" />
-                           <span>Alt: {scannedData.alternateMobile}</span>
-                         </div>
-                       </div>
-                     </div>
-                   </div>
-                   
-                   <div className="space-y-4">
-                     <div>
-                       <h4 className="font-semibold text-sm text-muted-foreground mb-2">Team Members</h4>
-                       <div className="space-y-1">
-                         {scannedData.participants.map((participant, index) => (
-                           <div key={index} className="text-sm flex items-center justify-between">
-                             <span>{participant.name}
-                               {index === scannedData.leaderIndex && (
-                                 <Badge variant="outline" className="ml-2 text-xs">Leader</Badge>
-                               )}
-                             </span>
-                             <div className="text-xs text-muted-foreground flex items-center gap-1">
-                               <Mail className="w-3 h-3" />
-                               {participant.email}
-                             </div>
-                           </div>
-                         ))}
-                       </div>
-                     </div>
-                     <div>
-                       <h4 className="font-semibold text-sm text-muted-foreground mb-1">
-                         GitHub Repository
-                       </h4>
-                       <p className="text-sm font-mono bg-muted/50 px-2 py-1 rounded break-all text-primary">
-                         {scannedData.githubRepo}
-                       </p>
-                     </div>
-                     <div>
-                       <h4 className="font-semibold text-sm text-muted-foreground mb-1">
-                         Original Repository
-                       </h4>
-                       <a
-                         href={scannedData.gitRepo}
-                         target="_blank"
-                         rel="noopener noreferrer"
-                         className="text-sm font-mono bg-muted/50 px-2 py-1 rounded break-all text-blue-500 hover:underline block"
-                       >
-                         {scannedData.gitRepo}
-                       </a>
-                     </div>
-                   </div>
-                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">
+                        Team Name
+                      </h4>
+                      <p className="text-lg font-medium">
+                        {scannedData.teamName}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">
+                        Unique ID
+                      </h4>
+                      <p className="font-mono text-sm bg-muted/50 px-2 py-1 rounded text-primary">
+                        {scannedData.teamCode}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">
+                        Domain
+                      </h4>
+                      <Badge variant="outline">{scannedData.domain}</Badge>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-2">
+                        Contact Info
+                      </h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3 h-3" />
+                          <span>Leader: {scannedData.leaderMobile}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3 h-3" />
+                          <span>Alt: {scannedData.alternateMobile}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-2">
+                        Team Members
+                      </h4>
+                      <div className="space-y-1">
+                        {scannedData.participants.map((participant, index) => (
+                          <div
+                            key={index}
+                            className="text-sm flex items-center justify-between"
+                          >
+                            <span>
+                              {participant.name}
+                              {index === scannedData.leaderIndex && (
+                                <Badge
+                                  variant="outline"
+                                  className="ml-2 text-xs"
+                                >
+                                  Leader
+                                </Badge>
+                              )}
+                            </span>
+                            <div className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Mail className="w-3 h-3" />
+                              {participant.email}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">
+                        GitHub Repository
+                      </h4>
+                      <p className="text-sm font-mono bg-muted/50 px-2 py-1 rounded break-all text-primary">
+                        {scannedData.githubRepo}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">
+                        Original Repository
+                      </h4>
+                      <a
+                        href={scannedData.gitRepo}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-mono bg-muted/50 px-2 py-1 rounded break-all text-blue-500 hover:underline block"
+                      >
+                        {scannedData.gitRepo}
+                      </a>
+                    </div>
+                  </div>
+                </div>
 
                 <div className="pt-6 border-t text-center">
                   <Button
@@ -419,10 +472,13 @@ const QRPanel = () => {
                     className="px-8"
                   >
                     <Github className="w-5 h-5 mr-2" />
-                    {isActivating ? "Activating Repository..." : "Activate Repository"}
+                    {isActivating
+                      ? "Activating Repository..."
+                      : "Activate Repository"}
                   </Button>
                   <p className="text-sm text-muted-foreground mt-2">
-                    This will unlock the repository and send access details to the team lead
+                    This will unlock the repository and send access details to
+                    the team lead
                   </p>
                 </div>
               </CardContent>

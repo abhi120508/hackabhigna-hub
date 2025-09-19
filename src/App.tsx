@@ -5,6 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import Index from "./pages/Index";
+import Register from "./pages/Register";
+import { Brochure } from "@/components/Brochure";
+import { AboutUs } from "@/components/AboutUs";
+import { Contact } from "@/components/Contact";
 import AdminPanel from "./pages/AdminPanel";
 import QRPanel from "./pages/QRPanel";
 import JudgePanel from "./pages/JudgePanel";
@@ -22,6 +26,10 @@ const App = () => (
         <Navigation />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/brochure" element={<Brochure />} />
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/qr-panel" element={<QRPanel />} />
           <Route path="/judge" element={<JudgePanel />} />

@@ -3,6 +3,10 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
+const cloudinary = require("cloudinary").v2;
+const streamifier = require("streamifier");
+const QRCode = require("qrcode");
+const axios = require("axios");
 require("dotenv").config();
 
 const app = express();
@@ -10,25 +14,36 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Remove static serving of uploads since we use Cloudinary
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 const connection = mongoose.connection;
-connection.once("open", () => {
+connection.once("open", async () => {
   console.log("MongoDB database connection established successfully");
+  // Initialize settings
+  await initializeDomainSettings();
+  await initializeGlobalSettings();
+  // Test Cloudinary configuration
+  cloudinary.api.ping((error, result) => {
+    if (error) {
+      console.error("Cloudinary connection failed:", error);
+    } else {
+      console.log("Cloudinary connection established successfully");
+    }
+  });
 });
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const upload = multer({ storage: storage });
+// Use multer memory storage to get file buffer
+const upload = multer({ storage: multer.memoryStorage() });
 
 const participantSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -44,6 +59,7 @@ const teamSchema = new mongoose.Schema({
   gitRepo: { type: String, required: true },
   leaderMobile: { type: String, required: true },
   alternateMobile: { type: String },
+  utrNumber: { type: String, required: true }, // Added UTR number as required
   paymentProof: { type: String, required: true },
   status: {
     type: String,
@@ -52,9 +68,9 @@ const teamSchema = new mongoose.Schema({
   },
   submittedAt: { type: Date, default: Date.now },
   approvedAt: { type: Date },
-  uniqueId: { type: String, unique: true, sparse: true },
+  teamCode: { type: String, unique: true, sparse: true }, // renamed from uniqueId
   githubRepo: { type: String },
-  qrCode: { type: String },
+  qrCodeImageUrl: { type: String }, // renamed from qrCode
   scores: {
     round1: { score: Number, remarks: String, judge: String },
     round2: { score: Number, remarks: String, judge: String },
@@ -62,7 +78,21 @@ const teamSchema = new mongoose.Schema({
   },
 });
 
+const domainSettingsSchema = new mongoose.Schema({
+  domain: { type: String, required: true, unique: true },
+  maxSlots: { type: Number, default: 50 },
+  pausedRegistrations: { type: Boolean, default: false },
+});
+
+const globalSettingsSchema = new mongoose.Schema({
+  pausedLeaderboard: { type: Boolean, default: false },
+});
+
 const Team = mongoose.model("Team", teamSchema);
+
+const DomainSettings = mongoose.model("DomainSettings", domainSettingsSchema);
+
+const GlobalSettings = mongoose.model("GlobalSettings", globalSettingsSchema);
 
 // Helper to generate unique ID
 const generateUniqueId = async (domain, teamName) => {
@@ -76,15 +106,37 @@ const generateUniqueId = async (domain, teamName) => {
 app.post("/register", upload.single("paymentProof"), async (req, res) => {
   try {
     const teamData = JSON.parse(req.body.team);
-    const paymentProofPath = req.file ? req.file.path : null;
 
-    if (!paymentProofPath) {
+    if (!req.file) {
       return res.status(400).json({ message: "Payment proof is required." });
     }
 
+    if (!teamData.utrNumber || teamData.utrNumber.trim() === "") {
+      return res.status(400).json({ message: "UTR number is required." });
+    }
+
+    // Upload file buffer to Cloudinary
+    const streamUpload = (req) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "paymentProofs" },
+          (error, result) => {
+            if (result) {
+              resolve(result);
+            } else {
+              reject(error);
+            }
+          }
+        );
+        streamifier.createReadStream(req.file.buffer).pipe(stream);
+      });
+    };
+
+    const result = await streamUpload(req);
+
     const newTeam = new Team({
       ...teamData,
-      paymentProof: paymentProofPath,
+      paymentProof: result.secure_url,
     });
 
     await newTeam.save();
@@ -102,19 +154,24 @@ app.post("/login/participant", async (req, res) => {
   try {
     const { uniqueId, email } = req.body;
 
+    console.log("Participant login attempt:", { uniqueId, email });
+
     if (!uniqueId || !email) {
+      console.log("Missing uniqueId or email");
       return res
         .status(400)
         .json({ message: "Unique ID and Email are required." });
     }
 
-    const team = await Team.findOne({ uniqueId: uniqueId.trim() });
+    const team = await Team.findOne({ teamCode: uniqueId.trim() });
 
     if (!team) {
+      console.log("No team found with uniqueId:", uniqueId);
       return res.status(404).json({ message: "Invalid Unique ID." });
     }
 
     if (team.status !== "approved") {
+      console.log("Team not approved:", team.teamName);
       return res
         .status(403)
         .json({ message: "This team has not been approved yet." });
@@ -122,15 +179,20 @@ app.post("/login/participant", async (req, res) => {
 
     const leaderEmail = team.participants[team.leaderIndex]?.email;
 
+    console.log("Leader email:", leaderEmail);
+
     if (
       leaderEmail &&
       leaderEmail.toLowerCase() === email.trim().toLowerCase()
     ) {
+      console.log("Login successful for team:", team.teamName);
       res.json({ success: true, message: "Login successful!", data: team });
     } else {
+      console.log("Invalid team lead email:", email);
       res.status(401).json({ message: "Invalid Team Lead Email." });
     }
   } catch (err) {
+    console.error("Server error during participant login:", err);
     res.status(500).json({ message: "Server Error: " + err.message });
   }
 });
@@ -146,6 +208,8 @@ app.get("/registrations", async (req, res) => {
 });
 
 // Update registration status
+const { sendMail } = require("./mailer");
+
 app.patch("/registrations/:id/status", async (req, res) => {
   try {
     const { status } = req.body;
@@ -164,11 +228,164 @@ app.patch("/registrations/:id/status", async (req, res) => {
 
     if (status === "approved") {
       team.approvedAt = new Date();
-      if (!team.uniqueId) {
-        team.uniqueId = await generateUniqueId(team.domain, team.teamName);
+      if (!team.teamCode) {
+        team.teamCode = await generateUniqueId(team.domain, team.teamName);
       }
-      team.githubRepo = `https://github.com/hackabhigna/${team.uniqueId.toLowerCase()}`;
-      team.qrCode = team.uniqueId.toLowerCase();
+      team.githubRepo = `https://github.com/hackabhigna2025-hub/${team.teamCode}`;
+
+      console.log("Generating QR code for teamCode:", team.teamCode);
+      // Generate QR code image buffer for teamCode (ensure only teamCode string is used)
+      const qrCodeDataUrl = await QRCode.toDataURL(team.teamCode);
+      // Convert base64 data URL to buffer
+      const base64Data = qrCodeDataUrl.replace(/^data:image\/png;base64,/, "");
+      const imgBuffer = Buffer.from(base64Data, "base64");
+
+      // Upload QR code image buffer to Cloudinary
+      const uploadFromBuffer = (buffer) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "qrCodes" },
+            (error, result) => {
+              if (result) {
+                resolve(result);
+              } else {
+                reject(error);
+              }
+            }
+          );
+          streamifier.createReadStream(buffer).pipe(stream);
+        });
+      };
+
+      const uploadResult = await uploadFromBuffer(imgBuffer);
+      team.qrCodeImageUrl = uploadResult.secure_url;
+
+      // Create GitHub repo for the team
+      async function createRepoFromTeam(team) {
+        try {
+          console.log(
+            `🔨 Creating private repository for team: ${team.teamName}`
+          );
+          console.log(
+            `📝 Repository name will be: https://github.com/${process.env.GITHUB_OWNER}/${team.teamCode}`
+          );
+
+          const repoRes = await axios.post(
+            "https://api.github.com/user/repos",
+            {
+              name: team.teamCode,
+              private: true,
+              description: `Hackathon repo for team ${team.teamName}`,
+              auto_init: true,
+              gitignore_template: "Node",
+            },
+            {
+              headers: {
+                Authorization: `token ${process.env.GITHUB_TOKEN}`,
+                Accept: "application/vnd.github+json",
+                "User-Agent": "hackabhigna-repo-creator",
+              },
+            }
+          );
+
+          console.log(
+            `✅ Private repo created successfully: ${repoRes.data.html_url}`
+          );
+          console.log(`🔒 Repository is private: ${repoRes.data.private}`);
+
+          team.githubRepoLink = repoRes.data.html_url;
+          team.githubRepo = repoRes.data.html_url;
+          await team.save();
+          console.log(`💾 Database updated for team: ${team.teamName}`);
+        } catch (err) {
+          console.error(
+            `❌ Error creating repo for team ${team.teamName}:`,
+            err.response?.data || err.message
+          );
+          if (err.response?.status === 401) {
+            console.error(
+              "🔑 GitHub token authentication failed. Please check your GITHUB_TOKEN."
+            );
+          } else if (err.response?.status === 422) {
+            console.error(
+              "📝 Repository name might already exist or be invalid."
+            );
+          }
+        }
+      }
+
+      try {
+        await createRepoFromTeam(team);
+      } catch (repoError) {
+        console.error("Error in createRepoFromTeam:", repoError);
+      }
+
+      // Prepare email options
+      const mailOptions = {
+        from: `"HackAbhigna" <${process.env.SMTP_USER}>`,
+        to: team.participants[team.leaderIndex]?.email,
+        subject: "HackAbhigna Registration Approved",
+        text: `Dear ${team.participants[team.leaderIndex]?.name},
+
+Congratulations! Your team ${
+          team.teamName
+        } has been approved for HackAbhigna in the domain ${team.domain}.
+
+Please find your QR code attached.
+
+Best regards,
+HackAbhigna Team`,
+        html: `
+        <p>Dear ${team.participants[team.leaderIndex]?.name},</p>
+        <p>Congratulations! Your team <strong>${
+          team.teamName
+        }</strong> has been approved for HackAbhigna in the domain <strong>${
+          team.domain
+        }</strong>.</p>
+        <p>Please find your QR code attached.</p>
+        <p>Best regards,<br/>HackAbhigna Team</p>
+      `,
+        attachments: [
+          {
+            filename: "qr-code.png",
+            content: Buffer.from(base64Data, "base64"),
+            encoding: "base64",
+          },
+        ],
+      };
+
+      // Send the email
+      try {
+        await sendMail(mailOptions);
+        console.log("Approval email sent successfully");
+      } catch (error) {
+        console.error("Error sending approval email:", error);
+      }
+    } else if (status === "rejected") {
+      // Prepare rejection email options
+      const mailOptions = {
+        from: `"HackAbhigna" <${process.env.SMTP_USER}>`,
+        to: team.participants[team.leaderIndex]?.email,
+        subject: "HackAbhigna Registration Update",
+        text: `Dear ${team.participants[team.leaderIndex]?.name},
+
+We regret to inform you that your team "${
+          team.teamName
+        }" registration for HackAbhigna has been rejected.
+
+If you have any questions, please contact us.
+
+Best regards,
+HackAbhigna Team`,
+      };
+
+      // Send the email
+      try {
+        await sendMail(mailOptions);
+        console.log("Rejection email sent successfully");
+      } catch (error) {
+        console.error("Error sending rejection email:", error);
+      }
     }
 
     await team.save();
@@ -254,6 +471,188 @@ app.get("/teams/:uniqueId", async (req, res) => {
     }
   } catch (err) {
     res.status(400).json({ success: false, message: "Error: " + err.message });
+  }
+});
+
+app.post("/regenerate-qr-codes", async (req, res) => {
+  try {
+    const approvedTeams = await Team.find({ status: "approved" });
+
+    const uploadFromBuffer = (buffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "qrCodes" },
+          (error, result) => {
+            if (result) {
+              resolve(result);
+            } else {
+              reject(error);
+            }
+          }
+        );
+        streamifier.createReadStream(buffer).pipe(stream);
+      });
+    };
+
+    for (const team of approvedTeams) {
+      console.log("Regenerating QR code for teamCode:", team.teamCode);
+      const qrCodeDataUrl = await QRCode.toDataURL(team.teamCode);
+      const base64Data = qrCodeDataUrl.replace(/^data:image\/png;base64,/, "");
+      const imgBuffer = Buffer.from(base64Data, "base64");
+
+      const uploadResult = await uploadFromBuffer(imgBuffer);
+      team.qrCodeImageUrl = uploadResult.secure_url;
+      await team.save();
+    }
+
+    res.json({ message: "QR codes regenerated for all approved teams." });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error regenerating QR codes: " + err.message });
+  }
+});
+
+const initializeDomainSettings = async () => {
+  // Keep only the present 4 domains and remove others
+  const domains = [
+    "GenAI/AgenticAI in Agriculture",
+    "GenAI/AgenticAI in FinTech",
+    "GenAI/AgenticAI in Education",
+    "Wildcard",
+  ];
+  // Remove all existing domain settings first to ensure order
+  await DomainSettings.deleteMany({});
+  for (const domain of domains) {
+    await DomainSettings.create({
+      domain,
+      maxSlots: domain === "Wildcard" ? 15 : 30,
+      pausedRegistrations: false,
+    });
+  }
+  // Remove other domains that are not in the present 4
+  await DomainSettings.deleteMany({
+    domain: { $nin: domains },
+  });
+  // After creation, log current domain settings for debugging
+  const allSettings = await DomainSettings.find();
+  console.log("Initialized Domain Settings:", allSettings);
+};
+
+const initializeGlobalSettings = async () => {
+  const existing = await GlobalSettings.findOne();
+  if (!existing) {
+    await GlobalSettings.create({ pausedLeaderboard: false });
+  }
+};
+
+// Get domain settings
+app.get("/domain-settings", async (req, res) => {
+  try {
+    let domainSettings = await DomainSettings.find();
+    if (domainSettings.length === 0) {
+      // Initialize if no settings exist
+      await initializeDomainSettings();
+      domainSettings = await DomainSettings.find();
+    }
+    const settingsWithSlots = await Promise.all(
+      domainSettings.map(async (setting) => {
+        const approvedCount = await Team.countDocuments({
+          domain: setting.domain,
+          status: "approved",
+        });
+        const slotsLeft = setting.maxSlots - approvedCount;
+        return {
+          domain: setting.domain,
+          maxSlots: setting.maxSlots,
+          paused: setting.pausedRegistrations,
+          slotsLeft: Math.max(0, slotsLeft),
+        };
+      })
+    );
+    res.json(settingsWithSlots);
+  } catch (err) {
+    res.status(400).json({ message: "Error: " + err.message });
+  }
+});
+
+app.patch("/domain-settings/:domain", async (req, res) => {
+  try {
+    const { domain } = req.params;
+    const { paused } = req.body;
+
+    if (typeof paused !== "boolean") {
+      return res.status(400).json({ message: "Invalid paused value" });
+    }
+
+    const setting = await DomainSettings.findOne({ domain });
+    if (!setting) {
+      return res.status(404).json({ message: "Domain not found." });
+    }
+
+    setting.pausedRegistrations = paused;
+    await setting.save();
+
+    res.json({ message: "Updated successfully.", data: setting });
+  } catch (err) {
+    res.status(500).json({ message: "Server error: " + err.message });
+  }
+});
+
+// Get global settings
+app.get("/global-settings", async (req, res) => {
+  try {
+    let settings = await GlobalSettings.findOne();
+    if (!settings) {
+      settings = await GlobalSettings.create({ pausedLeaderboard: false });
+    }
+    res.json(settings);
+  } catch (err) {
+    res.status(400).json({ message: "Error: " + err.message });
+  }
+});
+
+// Toggle pause leaderboard
+app.patch("/global-settings", async (req, res) => {
+  try {
+    const { pausedLeaderboard } = req.body;
+    let settings = await GlobalSettings.findOneAndUpdate(
+      {},
+      { pausedLeaderboard },
+      { new: true, upsert: true }
+    );
+    res.json({ message: "Updated successfully.", data: settings });
+  } catch (err) {
+    res.status(400).json({ message: "Error: " + err.message });
+  }
+});
+
+// Get leaderboard
+app.get("/leaderboard", async (req, res) => {
+  try {
+    const teams = await Team.find({ status: "approved" });
+    const leaderboard = teams
+      .map((team) => {
+        let totalScore = 0;
+        if (team.scores) {
+          if (team.scores.round1 && team.scores.round1.score)
+            totalScore += team.scores.round1.score;
+          if (team.scores.round2 && team.scores.round2.score)
+            totalScore += team.scores.round2.score;
+          if (team.scores.final && team.scores.final.score)
+            totalScore += team.scores.final.score;
+        }
+        return {
+          teamName: team.teamName,
+          domain: team.domain,
+          totalScore,
+          teamCode: team.teamCode,
+        };
+      })
+      .sort((a, b) => b.totalScore - a.totalScore);
+    res.json(leaderboard);
+  } catch (err) {
+    res.status(400).json({ message: "Error: " + err.message });
   }
 });
 

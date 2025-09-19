@@ -35,10 +35,10 @@ const JudgePanel = () => {
   const API_URL = "http://localhost:5000";
 
   const domains = [
-    { value: "web", label: "Web Development" },
-    { value: "mobile", label: "Mobile Development" },
-    { value: "ai", label: "Artificial Intelligence" },
-    { value: "wildcard", label: "Wildcard" },
+    { value: "GenAI", label: "GenAI" },
+    { value: "FinTech", label: "FinTech" },
+    { value: "Healthcare", label: "Healthcare" },
+    { value: "wildcard", label: "wildcard" },
   ];
 
   const loadApprovedTeams = useCallback(async () => {
@@ -250,7 +250,7 @@ const JudgePanel = () => {
                             onClick={() => setSelectedTeam(team)}
                           >
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline">{team.uniqueId}</Badge>
+                              <Badge variant="outline">{team.teamCode}</Badge>
                               <span>{team.teamName}</span>
                             </div>
                           </Button>
@@ -285,7 +285,7 @@ const JudgePanel = () => {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Github className="w-5 h-5" />
-                        {selectedTeam.uniqueId} - {selectedTeam.teamName}
+                        {selectedTeam.teamCode} - {selectedTeam.teamName}
                       </CardTitle>
                       <Badge variant="outline">{selectedTeam.domain}</Badge>
                     </CardHeader>
@@ -372,7 +372,7 @@ const JudgePanel = () => {
                   <Card className="bg-card/50 backdrop-blur-sm">
                     <CardHeader>
                       <CardTitle>
-                        Submit Score for {selectedTeam.uniqueId} -{" "}
+                        Submit Score for {selectedTeam.teamCode} -{" "}
                         {selectedTeam.teamName}
                       </CardTitle>
                     </CardHeader>
@@ -441,7 +441,7 @@ const JudgePanel = () => {
                   <Card className="bg-card/50 backdrop-blur-sm">
                     <CardHeader>
                       <CardTitle>
-                        Score History for {selectedTeam.uniqueId} -{" "}
+                        Score History for {selectedTeam.teamCode} -{" "}
                         {selectedTeam.teamName}
                       </CardTitle>
                     </CardHeader>
