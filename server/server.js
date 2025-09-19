@@ -461,8 +461,13 @@ app.get("/statistics", async (req, res) => {
 // Get team by QR unique ID
 app.get("/teams/:uniqueId", async (req, res) => {
   try {
-    const { uniqueId } = req.params;
-    const team = await Team.findOne({ uniqueId });
+    let { uniqueId } = req.params;
+    uniqueId = uniqueId.trim().toUpperCase();
+    console.log("Fetching team with teamCode:", uniqueId);
+    const team = await Team.findOne({
+      teamCode: { $regex: new RegExp(`^${uniqueId}$`, "i") },
+    });
+    console.log("Team found:", team ? true : false);
 
     if (team) {
       res.json({ success: true, data: team });
@@ -471,6 +476,118 @@ app.get("/teams/:uniqueId", async (req, res) => {
     }
   } catch (err) {
     res.status(400).json({ success: false, message: "Error: " + err.message });
+  }
+});
+
+app.post("/give-access", async (req, res) => {
+  const { teamCode } = req.body;
+
+  if (!teamCode) {
+    return res.status(400).json({ message: "Team code is required" });
+  }
+
+  try {
+    const team = await Team.findOne({ teamCode: teamCode });
+
+    if (!team) {
+      return res
+        .status(404)
+        .json({ message: `Team with code '${teamCode}' not found` });
+    }
+
+    const gitRepoUrl = team.gitRepo;
+    if (!gitRepoUrl || !gitRepoUrl.includes("github.com/")) {
+      return res.status(400).json({ message: "Invalid GitHub repository URL" });
+    }
+
+    const urlParts = gitRepoUrl.split("github.com/");
+    const pathPart = urlParts[1];
+    if (!pathPart) {
+      return res
+        .status(400)
+        .json({ message: "Could not extract GitHub username" });
+    }
+
+    const leaderUsername = pathPart.split("/")[0].trim();
+
+    const repoName = team.teamCode;
+    if (!repoName) {
+      return res.status(400).json({ message: "No repository name found" });
+    }
+
+    // Send collaboration invitation via GitHub API
+    await axios.put(
+      `https://api.github.com/repos/${process.env.GITHUB_OWNER}/${repoName}/collaborators/${leaderUsername}`,
+      { permission: "push" },
+      {
+        headers: {
+          Authorization: `token ${process.env.GITHUB_TOKEN}`,
+          Accept: "application/vnd.github+json",
+        },
+      }
+    );
+
+    // Send email to team leader with GitHub repo and participant login credentials
+    const teamLeaderEmail = team.participants[team.leaderIndex]?.email;
+    const teamLeaderName = team.participants[team.leaderIndex]?.name;
+
+    console.log("Preparing to send notification email...");
+    console.log("Team Leader Email:", teamLeaderEmail);
+    console.log("Team Leader Name:", teamLeaderName);
+    console.log("Team Code:", team.teamCode);
+    console.log(
+      "Repository URL:",
+      `https://github.com/${process.env.GITHUB_OWNER}/${repoName}`
+    );
+
+    const mailOptions = {
+      from: `"HackAbhigna" <${process.env.SMTP_USER}>`,
+      to: teamLeaderEmail,
+      subject: "GitHub Repository Access Granted",
+      text: `Dear ${teamLeaderName},
+
+Your GitHub repository has been activated: https://github.com/${process.env.GITHUB_OWNER}/${repoName}
+Please accept the collaboration request
+
+Participant Login Credentials:
+Team Code: ${team.teamCode}
+Team Leader Email: ${teamLeaderEmail}
+
+Best regards,
+HackAbhigna Team`,
+    };
+
+    console.log("Mail options prepared:", {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+    });
+
+    try {
+      console.log("Attempting to send email...");
+      await sendMail(mailOptions);
+      console.log(
+        `✅ Notification email sent successfully to ${mailOptions.to}`
+      );
+    } catch (emailError) {
+      console.error("❌ Error sending notification email:", emailError);
+      console.error("Email error details:", emailError.message);
+    }
+
+    res.json({
+      message: `Repository ${repoName} is ready and ${leaderUsername} has been invited with push access`,
+      details: {
+        teamCode: teamCode,
+        teamName: team.teamName,
+        githubUsername: leaderUsername,
+        repositoryName: repoName,
+        repositoryUrl: `https://github.com/${process.env.GITHUB_OWNER}/${repoName}`,
+      },
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Something went wrong", error: err.message });
   }
 });
 

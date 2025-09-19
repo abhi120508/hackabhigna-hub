@@ -212,11 +212,14 @@ const AdminPanel = () => {
         )
       );
 
-      const response = await fetch(`${API_URL}/domain-settings/${domain}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paused }),
-      });
+      const response = await fetch(
+        `${API_URL}/domain-settings/${encodeURIComponent(domain)}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paused }),
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to update domain settings");
 
