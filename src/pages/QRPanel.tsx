@@ -20,10 +20,13 @@ import { TeamRegistration } from "@/lib/mockBackend";
 import { parseQRCode } from "@/lib/qrUtils";
 
 const domains = [
-  { id: "GenAI", label: "GenAI" },
-  { id: "FinTech", label: "FinTech" },
-  { id: "Healthcare", label: "Healthcare" },
-  { id: "wildcard", label: "Wildcard" },
+  {
+    id: "GenAI/AgenticAI in Agriculture",
+    label: "GenAI/AgenticAI in Agriculture",
+  },
+  { id: "GenAI/AgenticAI in FinTech", label: "GenAI/AgenticAI in FinTech" },
+  { id: "GenAI/AgenticAI in Education", label: "GenAI/AgenticAI in Education" },
+  { id: "Wildcard", label: "Wildcard" },
 ];
 
 const QRPanel = () => {
@@ -84,13 +87,14 @@ const QRPanel = () => {
 
   const fetchTeamByUniqueId = async (uniqueId: string) => {
     try {
-      const response = await fetch(`${API_URL}/teams/${uniqueId}`);
+      const normalizedId = uniqueId.toUpperCase();
+      const response = await fetch(`${API_URL}/teams/${normalizedId}`);
       if (!response.ok) {
         if (response.status === 404) {
           toast({
             variant: "destructive",
             title: "Team Not Found",
-            description: "No team found with this Unique ID.",
+            description: "No team found with this Team Code.",
           });
           return;
         }
@@ -101,7 +105,7 @@ const QRPanel = () => {
         setScannedData(result.data);
         toast({
           title: "QR Code Scanned Successfully!",
-          description: `Team: ${result.data.teamName} (${result.data.uniqueId})`,
+          description: `Team: ${result.data.teamName} (${result.data.teamCode})`,
         });
         stopScan();
       }
@@ -182,19 +186,46 @@ const QRPanel = () => {
   };
 
   const handleActivateRepository = async () => {
-    if (!scannedData || !scannedData.githubRepo) return;
+    if (!scannedData || !scannedData.githubRepo || !scannedData.teamCode)
+      return;
 
     setIsActivating(true);
 
-    // Simulate repository activation (opening in new tab)
-    window.open(scannedData.githubRepo, "_blank");
+    try {
+      const response = await fetch(`${API_URL}/give-access`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ teamCode: scannedData.teamCode }),
+      });
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+      const data = await response.json();
 
-    toast({
-      title: "Repository Opened!",
-      description: `GitHub repository opened for ${scannedData.teamName}`,
-    });
+      if (response.ok) {
+        toast({
+          title: "Repository Activated!",
+          description: `GitHub repository access granted for ${scannedData.teamName}. Collaboration request sent.`,
+        });
+
+        // Reset state to be ready for next scan
+        setScannedData(null);
+        setManualInput("");
+        stopScan();
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Activation Failed",
+          description: data.message || "Failed to activate repository access",
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Network Error",
+        description: "Could not activate repository access. Please try again.",
+      });
+    }
 
     setIsActivating(false);
   };

@@ -23,7 +23,7 @@ export function Brochure() {
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             <span className="text-gradient">HackAbhigna</span>
-            <span className="text-accent-gradient"> 2024</span>
+            <span className="text-accent-gradient"> 2025</span>
           </h1>
           <p className="text-xl text-muted-foreground">
             Official Event Brochure
@@ -45,7 +45,7 @@ export function Brochure() {
                   <div>
                     <h3 className="font-semibold">Date</h3>
                     <p className="text-sm text-muted-foreground">
-                      October 16-17, 2024
+                      October 16-17, 2025
                     </p>
                   </div>
                 </div>
@@ -54,7 +54,7 @@ export function Brochure() {
                   <div>
                     <h3 className="font-semibold">Venue</h3>
                     <p className="text-sm text-muted-foreground">
-                      AIT Campus, Bangalore
+                      AIT Campus, Chikkamagaluru
                     </p>
                   </div>
                 </div>
