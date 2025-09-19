@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import {
   Shield,
   Users,
@@ -18,7 +19,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 // import { MockDatabase, MockAPI, TeamRegistration } from "@/lib/mockBackend";
 import { TeamRegistration } from "@/lib/mockBackend"; // Keep type definition
-import { AnyCaaRecord } from "dns";
+
 import {
   Dialog,
   DialogContent,
@@ -38,9 +39,12 @@ interface Statistics {
   };
 }
 
-// Using TeamRegistration interface from mockBackend
-
-// Using mock data from MockDatabase
+interface DomainSetting {
+  domain: string;
+  maxSlots: number;
+  paused: boolean;
+  slotsLeft: number;
+}
 
 const AdminPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -49,6 +53,10 @@ const AdminPanel = () => {
   const [selectedDomain, setSelectedDomain] = useState("all");
   const [statistics, setStatistics] = useState<Statistics>({});
   const [selectedProof, setSelectedProof] = useState<string | null>(null);
+  const [domainSettings, setDomainSettings] = useState<DomainSetting[]>([]);
+  const [globalSettings, setGlobalSettings] = useState({
+    pausedLeaderboard: false,
+  });
   const { toast } = useToast();
 
   const API_URL = "http://localhost:5000"; // Your backend URL
@@ -59,7 +67,12 @@ const AdminPanel = () => {
       if (!response.ok) throw new Error("Failed to fetch");
       const data: (TeamRegistration & { _id: string })[] =
         await response.json();
-      const formattedData = data.map((item) => ({ ...item, id: item._id }));
+      // Map _id to id and ensure utrNumber is included if present
+      const formattedData = data.map((item) => ({
+        ...item,
+        id: item._id,
+        utrNumber: item.utrNumber || "", // Ensure utrNumber is fetched properly
+      }));
       setRegistrations(formattedData);
     } catch (error) {
       toast({
@@ -85,12 +98,57 @@ const AdminPanel = () => {
     }
   }, [toast]);
 
+  const loadDomainSettings = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/domain-settings`);
+      if (!response.ok) throw new Error("Failed to fetch domain settings");
+      const data = await response.json();
+      setDomainSettings(data);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error loading domain settings",
+        description: (error as Error).message,
+      });
+    }
+  }, [toast]);
+
+  const loadGlobalSettings = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/global-settings`);
+      if (!response.ok) throw new Error("Failed to fetch global settings");
+      const data = await response.json();
+      setGlobalSettings(data);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error loading global settings",
+        description: (error as Error).message,
+      });
+    }
+  }, [toast]);
+
   useEffect(() => {
     if (isAuthenticated) {
       loadRegistrations();
       loadStatistics();
+      loadDomainSettings();
+      loadGlobalSettings();
     }
-  }, [isAuthenticated, loadRegistrations, loadStatistics]);
+  }, [
+    isAuthenticated,
+    loadRegistrations,
+    loadStatistics,
+    loadDomainSettings,
+    loadGlobalSettings,
+  ]);
+
+  // Reload domain settings after toggle to reflect changes immediately
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadDomainSettings();
+    }
+  }, [domainSettings, isAuthenticated]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,12 +203,84 @@ const AdminPanel = () => {
     }
   };
 
+  const handleDomainToggle = async (domain: string, paused: boolean) => {
+    try {
+      // Optimistically update UI
+      setDomainSettings((prevSettings) =>
+        prevSettings.map((setting) =>
+          setting.domain === domain ? { ...setting, paused } : setting
+        )
+      );
+
+      const response = await fetch(`${API_URL}/domain-settings/${domain}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paused }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update domain settings");
+
+      toast({
+        title: "Domain settings updated",
+        description: `${domain} registrations ${paused ? "paused" : "resumed"}`,
+      });
+
+      loadDomainSettings();
+    } catch (error) {
+      // Revert optimistic update on error
+      setDomainSettings((prevSettings) =>
+        prevSettings.map((setting) =>
+          setting.domain === domain ? { ...setting, paused: !paused } : setting
+        )
+      );
+      toast({
+        variant: "destructive",
+        title: "Update Error",
+        description: (error as Error).message,
+      });
+    }
+  };
+
+  const handleGlobalToggle = async (setting: string, value: boolean) => {
+    try {
+      const response = await fetch(`${API_URL}/global-settings`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [setting]: value }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update global settings");
+
+      toast({
+        title: "Global settings updated",
+        description: `${setting} ${value ? "enabled" : "disabled"}`,
+      });
+
+      loadGlobalSettings();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Update Error",
+        description: (error as Error).message,
+      });
+    }
+  };
+
   const domains = [
     { value: "all", label: "All Domains" },
-    { value: "web", label: "Web Development" },
-    { value: "mobile", label: "Mobile Development" },
-    { value: "ai", label: "Artificial Intelligence" },
-    { value: "wildcard", label: "Wildcard" },
+    {
+      value: "GenAI/AgenticAI in Agriculture",
+      label: "GenAI/AgenticAI in Agriculture",
+    },
+    {
+      value: "GenAI/AgenticAI in FinTech",
+      label: "GenAI/AgenticAI in FinTech",
+    },
+    {
+      value: "GenAI/AgenticAI in Education",
+      label: "GenAI/AgenticAI in Education",
+    },
+    { value: "Wildcard", label: "Wildcard" },
   ];
 
   const filteredRegistrations =
@@ -211,6 +341,7 @@ const AdminPanel = () => {
             <TabsTrigger value="registrations">Registrations</TabsTrigger>
             <TabsTrigger value="certificates">Certificates</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="registrations" className="space-y-6">
@@ -261,18 +392,22 @@ const AdminPanel = () => {
                             ?.label
                         }
                       </Badge>
+                      {/* Removed UTR display from top right */}
+                      {/* <div className="ml-4 font-mono text-sm">
+                        UTR: {registration.utrNumber || "N/A"}
+                      </div> */}
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* Show unique ID and GitHub repo for approved teams */}
                     {registration.status === "approved" &&
-                      registration.uniqueId && (
+                      registration.teamCode && (
                         <div className="bg-accent/10 p-4 rounded-lg border">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <span className="font-semibold">Unique ID:</span>
                               <span className="text-primary ml-2 font-mono text-lg">
-                                {registration.uniqueId}
+                                {registration.teamCode}
                               </span>
                             </div>
                             <div>
@@ -292,12 +427,21 @@ const AdminPanel = () => {
                           </div>
                           <div className="mt-4">
                             <span className="font-semibold">QR Code:</span>
-                            <QRCodeGenerator
-                              value={
-                                registration.qrCode || registration.uniqueId
-                              }
-                              size={128}
-                            />
+                            {registration.qrCodeImageUrl &&
+                            registration.qrCodeImageUrl.startsWith("http") ? (
+                              <img
+                                src={registration.qrCodeImageUrl}
+                                alt={`QR Code for ${registration.teamCode}`}
+                                width={128}
+                                height={128}
+                                className="mx-auto"
+                              />
+                            ) : (
+                              <QRCodeGenerator
+                                value={registration.teamCode}
+                                size={128}
+                              />
+                            )}
                           </div>
                         </div>
                       )}
@@ -377,31 +521,39 @@ const AdminPanel = () => {
                           </a>
                         </div>
                         <div>
-                          <span className="font-semibold">Payment Proof:</span>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="ml-2"
-                              >
-                                <Download className="w-4 h-4 mr-1" />
-                                View
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-3xl">
-                              <DialogHeader>
-                                <DialogTitle>Payment Proof</DialogTitle>
-                              </DialogHeader>
-                              <div className="mt-4">
-                                <img
-                                  src={`${API_URL}/${registration.paymentProof}`}
-                                  alt="Payment Proof"
-                                  className="max-w-full h-auto rounded-md"
-                                />
-                              </div>
-                            </DialogContent>
-                          </Dialog>
+                          <span className="font-semibold">UTR Number: </span>
+                          <span className="mb-2 font-mono">
+                            {registration.utrNumber || "N/A"}
+                          </span>
+                          <div className="mt-2">
+                            <span className="font-semibold">
+                              Payment Proof:
+                            </span>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="ml-2"
+                                >
+                                  <Download className="w-4 h-4 mr-1" />
+                                  View
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-3xl">
+                                <DialogHeader>
+                                  <DialogTitle>Payment Proof</DialogTitle>
+                                </DialogHeader>
+                                <div className="mt-4">
+                                  <img
+                                    src={registration.paymentProof}
+                                    alt="Payment Proof"
+                                    className="max-w-full h-auto rounded-md"
+                                  />
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -467,7 +619,7 @@ const AdminPanel = () => {
                           <div>
                             <h4 className="font-semibold flex items-center gap-2">
                               {team.teamName}
-                              <Badge variant="secondary">{team.uniqueId}</Badge>
+                              <Badge variant="secondary">{team.teamCode}</Badge>
                             </h4>
                             <div className="text-sm text-muted-foreground mt-2 space-y-1">
                               {team.participants.map((p, i) => (
@@ -543,6 +695,123 @@ const AdminPanel = () => {
                     {statistics.pending ??
                       registrations.filter((r) => r.status === "pending")
                         .length}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="bg-card/50 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle>Domain Settings</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Control registration availability per domain
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {domainSettings.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">
+                      No domain settings available.
+                    </p>
+                  ) : (
+                    domainSettings.slice(0, 4).map((setting: DomainSetting) => {
+                      // Map backend domain keys to frontend domain values for label and toggle
+                      const domainKeyMap: { [key: string]: string } = {
+                        "GenAI/AgenticAI in Agriculture":
+                          "GenAI/AgenticAI in Agriculture",
+                        "GenAI/AgenticAI in FinTech":
+                          "GenAI/AgenticAI in FinTech",
+                        "GenAI/AgenticAI in Education":
+                          "GenAI/AgenticAI in Education",
+                        Wildcard: "Wildcard",
+                      };
+                      const mappedDomainValue =
+                        domainKeyMap[setting.domain] || setting.domain;
+                      const domainLabel =
+                        domains.find((d) => d.value === mappedDomainValue)
+                          ?.label || setting.domain;
+                      return (
+                        <div
+                          key={setting.domain}
+                          className="flex items-center justify-between"
+                        >
+                          <div>
+                            <Label className="text-sm font-medium">
+                              {domainLabel}
+                            </Label>
+                            <p className="text-xs text-muted-foreground">
+                              Slots Remaining:{" "}
+                              {
+                                // Map slotsLeft from backend domain keys to frontend domain keys
+                                (() => {
+                                  const slotsMap: { [key: string]: number } =
+                                    {};
+                                  domainSettings.forEach((ds) => {
+                                    const domainKeyMap: {
+                                      [key: string]: string;
+                                    } = {
+                                      "GenAI/AgenticAI in Agriculture":
+                                        "GenAI/AgenticAI in Agriculture",
+                                      "GenAI/AgenticAI in FinTech":
+                                        "GenAI/AgenticAI in FinTech",
+                                      "GenAI/AgenticAI in Education":
+                                        "GenAI/AgenticAI in Education",
+                                      Wildcard: "Wildcard",
+                                    };
+                                    const mappedKey =
+                                      domainKeyMap[ds.domain] || ds.domain;
+                                    slotsMap[mappedKey] = ds.slotsLeft;
+                                  });
+                                  return (
+                                    slotsMap[mappedDomainValue] ??
+                                    setting.slotsLeft
+                                  );
+                                })()
+                              }
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Registrations are{" "}
+                              {setting.paused ? "Paused" : "Enabled"}
+                            </p>
+                          </div>
+                          <Switch
+                            checked={!setting.paused}
+                            onCheckedChange={(checked) =>
+                              handleDomainToggle(setting.domain, !checked)
+                            }
+                          />
+                        </div>
+                      );
+                    })
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card/50 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle>Global Settings</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    System-wide configuration
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-medium">
+                        Pause Leaderboard
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Hide leaderboard from participants
+                      </p>
+                    </div>
+                    <Switch
+                      checked={globalSettings.pausedLeaderboard}
+                      onCheckedChange={(checked) =>
+                        handleGlobalToggle("pausedLeaderboard", checked)
+                      }
+                    />
                   </div>
                 </CardContent>
               </Card>

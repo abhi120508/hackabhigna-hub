@@ -2,7 +2,7 @@
 
 export interface TeamRegistration {
   id?: string;
-  uniqueId?: string;
+  teamCode?: string; // renamed from uniqueId
   teamName: string;
   participants: Array<{
     name: string;
@@ -12,13 +12,15 @@ export interface TeamRegistration {
   leaderIndex: number;
   domain: string;
   gitRepo: string;
+  utrNumber?: string;
   leaderMobile: string;
   alternateMobile: string;
   paymentProof: string;
   status: "pending" | "approved" | "rejected";
   submittedAt: string;
   approvedAt?: string;
-  qrCode?: string;
+  qrCodeImageUrl?: string; // renamed from qrCode
+  qrCode?: string; // Cloudinary URL for QR code image
   githubRepo?: string;
   scores?: {
     [round: string]: {
@@ -56,7 +58,7 @@ export class MockDatabase {
   private static registrations: TeamRegistration[] = [
     {
       id: "1",
-      uniqueId: "WETE001",
+      teamCode: "WETE001",
       teamName: "TechInnovators",
       participants: [
         { name: "John Doe", email: "john@example.com", mobile: "9876543210" },
@@ -71,12 +73,12 @@ export class MockDatabase {
       status: "approved",
       submittedAt: "2024-09-01T10:00:00Z",
       approvedAt: "2024-09-02T14:30:00Z",
-      qrCode: "https://hackabhigna.com/qr/WETE001",
+      qrCodeImageUrl: "https://hackabhigna.com/qr/WETE001",
       githubRepo: "https://github.com/hackabhigna/wete001",
     },
     {
       id: "2",
-      uniqueId: "AICO002",
+      teamCode: "AICO002",
       teamName: "CodeMasters",
       participants: [
         {
@@ -102,7 +104,7 @@ export class MockDatabase {
     },
     {
       id: "3",
-      uniqueId: "MOAP003",
+      teamCode: "MOAP003",
       teamName: "AppBuilders",
       participants: [
         { name: "David Lee", email: "david@example.com", mobile: "9876543215" },
@@ -117,7 +119,7 @@ export class MockDatabase {
       status: "approved",
       submittedAt: "2024-09-03T09:30:00Z",
       approvedAt: "2024-09-03T16:45:00Z",
-      qrCode: "https://hackabhigna.com/qr/MOAP003",
+      qrCodeImageUrl: "https://hackabhigna.com/qr/MOAP003",
       githubRepo: "https://github.com/hackabhigna/moap003",
     },
   ];
@@ -130,10 +132,10 @@ export class MockDatabase {
     return this.registrations.filter((reg) => reg.domain === domain);
   }
 
-  static getRegistrationByUniqueId(
-    uniqueId: string
+  static getRegistrationByTeamCode(
+    teamCode: string
   ): TeamRegistration | undefined {
-    return this.registrations.find((reg) => reg.uniqueId === uniqueId);
+    return this.registrations.find((reg) => reg.teamCode === teamCode);
   }
 
   static addRegistration(
@@ -162,14 +164,14 @@ export class MockDatabase {
 
     if (status === "approved") {
       registration.approvedAt = new Date().toISOString();
-      if (!registration.uniqueId) {
-        registration.uniqueId = generateUniqueId(
+      if (!registration.teamCode) {
+        registration.teamCode = generateUniqueId(
           registration.domain,
           registration.teamName
         );
       }
-      registration.qrCode = generateQRCodeData(registration.uniqueId);
-      registration.githubRepo = generateGithubRepo(registration.uniqueId);
+      registration.qrCodeImageUrl = generateQRCodeData(registration.teamCode);
+      registration.githubRepo = generateGithubRepo(registration.teamCode);
     }
 
     this.registrations[registrationIndex] = registration;
@@ -217,7 +219,7 @@ export class MockDatabase {
 export const MockAPI = {
   // Register a new team
   registerTeam: async (
-    teamData: any
+    teamData: Omit<TeamRegistration, "id" | "submittedAt" | "status">
   ): Promise<{
     success: boolean;
     message: string;
@@ -272,15 +274,15 @@ export const MockAPI = {
     };
   },
 
-  // Get team by QR unique ID
+  // Get team by QR team code
   getTeamByQR: async (
-    uniqueId: string
+    teamCode: string
   ): Promise<{
     success: boolean;
     data?: TeamRegistration;
     message?: string;
   }> => {
-    const team = MockDatabase.getRegistrationByUniqueId(uniqueId);
+    const team = MockDatabase.getRegistrationByTeamCode(teamCode);
 
     if (team) {
       return {
@@ -301,7 +303,7 @@ export const MockAPI = {
   ): Promise<{ success: boolean; message: string }> => {
     // Mock email sending
     console.log(`Sending QR code email to team: ${teamData.teamName}`);
-    console.log(`QR Code: ${teamData.qrCode}`);
+    console.log(`QR Code: ${teamData.qrCodeImageUrl}`);
     console.log(`GitHub Repo: ${teamData.githubRepo}`);
 
     return {

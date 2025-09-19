@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,13 +10,58 @@ import { User, Trophy, GitCommit, Users, Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { TeamRegistration } from "@/lib/mockBackend"; // Using the shared interface
 
+interface LeaderboardItem {
+  teamName: string;
+  domain: string;
+  totalScore: number;
+  teamCode: string;
+}
+
 const ParticipantPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [uniqueId, setUniqueId] = useState("");
   const [email, setEmail] = useState("");
   const [teamData, setTeamData] = useState<TeamRegistration | null>(null);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
+  const [globalSettings, setGlobalSettings] = useState({
+    pausedLeaderboard: false,
+  });
   const { toast } = useToast();
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const fetchSettings = async () => {
+        try {
+          const response = await axios.get(`${API_URL}/global-settings`);
+          setGlobalSettings(response.data);
+          if (!response.data.pausedLeaderboard && teamData) {
+            const lbResponse = await axios.get(`${API_URL}/leaderboard`);
+            // Filter leaderboard to only include teams in the same domain as the logged-in team
+            const domainLeaderboard = lbResponse.data.filter(
+              (item: LeaderboardItem) => item.domain === teamData.domain
+            );
+            setLeaderboard(domainLeaderboard);
+          }
+        } catch (error) {
+          console.error("Error fetching settings or leaderboard", error);
+        }
+      };
+      fetchSettings();
+
+      // Setup polling to fetch global settings every 10 seconds for real-time pause updates
+      const intervalId = setInterval(async () => {
+        try {
+          const response = await axios.get(`${API_URL}/global-settings`);
+          setGlobalSettings(response.data);
+        } catch (error) {
+          console.error("Error fetching global settings during polling", error);
+        }
+      }, 10000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [isAuthenticated, API_URL, teamData]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -244,17 +289,40 @@ const ParticipantPanel = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Trophy className="w-5 h-5" />
-                  Live Leaderboard (Coming Soon)
+                  Live Leaderboard
                 </CardTitle>
                 <p className="text-muted-foreground">
-                  Current standings will be displayed here once the competition
-                  progresses.
+                  Current standings of all teams.
                 </p>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {/* Leaderboard data will be fetched here */}
-                </div>
+                {globalSettings.pausedLeaderboard ? (
+                  <p className="text-center text-muted-foreground">
+                    Leaderboard is currently paused.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {leaderboard.map((item, index) => (
+                      <div
+                        key={item.teamCode}
+                        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Badge variant={index < 3 ? "default" : "secondary"}>
+                            {index + 1}
+                          </Badge>
+                          <div>
+                            <p className="font-semibold">{item.teamName}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {item.domain}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge variant="outline">{item.totalScore}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

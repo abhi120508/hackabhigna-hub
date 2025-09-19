@@ -1,13 +1,30 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Code, Shield, QrCode, Scale, User } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import {
+  Menu,
+  Code,
+  Shield,
+  QrCode,
+  Scale,
+  User,
+  Users,
+  FileText,
+  Heart,
+  Mail,
+} from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
-const publicNavItems = [{ name: "Home", path: "/", icon: Code }];
+const publicNavItems = [
+  { name: "Register", path: "registration", icon: Users },
+  { name: "Brochure", path: "brochure", icon: FileText },
+  { name: "About Us", path: "about-us", icon: Heart },
+  { name: "Contact", path: "contact", icon: Mail },
+];
+
+const restrictedPages = ["/brochure", "/about-us", "/contact"];
 
 const coordinatorNavItems = [
-  { name: "Home", path: "/", icon: Code },
   { name: "Admin", path: "/admin", icon: Shield },
   { name: "QR Panel", path: "/qr-panel", icon: QrCode },
   { name: "Judge Panel", path: "/judge", icon: Scale },
@@ -17,10 +34,32 @@ const coordinatorNavItems = [
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // Show only home link on registration page, full navigation elsewhere
-  const isRegistrationPage = location.pathname === "/";
-  const navItems = isRegistrationPage ? publicNavItems : coordinatorNavItems;
+  // Hide navigation on admin, qr-panel, judge, participant pages
+  const hideNavPaths = ["/admin", "/qr-panel", "/judge", "/participant"];
+  if (hideNavPaths.includes(location.pathname)) {
+    return null;
+  }
+
+  // Show public nav items on home page and register page, else coordinator nav items
+  const isHomeOrRegister =
+    location.pathname === "/" || location.pathname === "/register";
+  const navItems = isHomeOrRegister ? publicNavItems : coordinatorNavItems;
+
+  const handleScroll = (path: string) => {
+    if (location.pathname === "/") {
+      // Scroll to section on homepage
+      const element = document.getElementById(path);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // Navigate to homepage and scroll after navigation
+      navigate("/", { state: { scrollTo: path } });
+    }
+    setIsOpen(false);
+  };
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
@@ -39,20 +78,35 @@ export function Navigation() {
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{item.name}</span>
-                </Link>
-              );
+              if (item.path.startsWith("/")) {
+                // Normal link for external pages
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      isActive
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              } else {
+                // Scroll link for homepage sections
+                return (
+                  <button
+                    key={item.name}
+                    onClick={() => handleScroll(item.path)}
+                    className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-foreground hover:bg-muted"
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                  </button>
+                );
+              }
             })}
           </div>
 
@@ -69,21 +123,36 @@ export function Navigation() {
                   {navItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = location.pathname === item.path;
-                    return (
-                      <Link
-                        key={item.name}
-                        to={item.path}
-                        onClick={() => setIsOpen(false)}
-                        className={`flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                          isActive
-                            ? "text-primary bg-primary/10"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                        }`}
-                      >
-                        <Icon className="w-5 h-5" />
-                        <span>{item.name}</span>
-                      </Link>
-                    );
+                    if (item.path.startsWith("/")) {
+                      return (
+                        <Link
+                          key={item.name}
+                          to={item.path}
+                          onClick={() => setIsOpen(false)}
+                          className={`flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                            isActive
+                              ? "text-primary bg-primary/10"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          }`}
+                        >
+                          <Icon className="w-5 h-5" />
+                          <span>{item.name}</span>
+                        </Link>
+                      );
+                    } else {
+                      return (
+                        <button
+                          key={item.name}
+                          onClick={() => {
+                            handleScroll(item.path);
+                          }}
+                          className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-foreground hover:bg-muted"
+                        >
+                          <Icon className="w-5 h-5" />
+                          <span>{item.name}</span>
+                        </button>
+                      );
+                    }
                   })}
                 </div>
               </SheetContent>

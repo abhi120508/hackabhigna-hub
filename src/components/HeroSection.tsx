@@ -1,8 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Trophy, Users } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Calendar,
+  MapPin,
+  Trophy,
+  Users,
+  ChevronDown,
+  FileText,
+  Heart,
+  Mail,
+} from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 import { CountdownTimer } from "@/components/CountdownTimer";
+import { Link } from "react-router-dom";
 
 export function HeroSection() {
   const scrollToRegistration = () => {
@@ -68,18 +84,16 @@ export function HeroSection() {
           <Button
             variant="hero"
             size="lg"
-            onClick={scrollToRegistration}
             className="text-lg px-8 py-6"
+            onClick={() => {
+              const element = document.getElementById("registration");
+              if (element) {
+                element.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
           >
             <Users className="w-5 h-5 mr-2" />
             Register Now
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            className="text-lg px-8 py-6 bg-card/50 backdrop-blur-sm border-border/50"
-          >
-            Learn More
           </Button>
         </div>
 

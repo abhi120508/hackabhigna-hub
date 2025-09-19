@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,11 +31,23 @@ interface Participant {
   mobile?: string;
 }
 
+interface DomainSetting {
+  domain: string;
+  slotsLeft: number;
+  paused: boolean;
+}
+
 const domains = [
-  { value: "web", label: "Web Development" },
-  { value: "mobile", label: "Mobile Development" },
-  { value: "ai", label: "Artificial Intelligence" },
-  { value: "wildcard", label: "Wildcard (Open Innovation)" },
+  {
+    value: "GenAI/AgenticAI in Agriculture",
+    label: "GenAI/AgenticAI in Agriculture",
+  },
+  { value: "GenAI/AgenticAI in FinTech", label: "GenAI/AgenticAI in FinTech" },
+  {
+    value: "GenAI/AgenticAI in Education",
+    label: "GenAI/AgenticAI in Education",
+  },
+  { value: "Wildcard", label: "Wildcard" },
 ];
 
 export function RegistrationForm() {
@@ -47,11 +59,59 @@ export function RegistrationForm() {
   const [leaderIndex, setLeaderIndex] = useState(0);
   const [selectedDomain, setSelectedDomain] = useState("");
   const [gitRepo, setGitRepo] = useState("");
+  const [utrNumber, setUtrNumber] = useState("");
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [leaderMobile, setLeaderMobile] = useState("");
   const [alternateMobile, setAlternateMobile] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [domainSlotsLeft, setDomainSlotsLeft] = useState<
+    Record<string, number>
+  >({});
+  const [domainPaused, setDomainPaused] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Fetch real domain settings including slots left from backend
+    // Poll every 10 seconds for real-time updates
+    const fetchDomainSettings = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/domain-settings"
+        );
+        const slotsMap: { [key: string]: number } = {};
+        const pausedMap: { [key: string]: boolean } = {};
+        response.data.forEach((domainSetting: any) => {
+          // Defensive check for slotsLeft property existence and type
+          const slotsLeft =
+            typeof domainSetting.slotsLeft === "number"
+              ? domainSetting.slotsLeft
+              : 0;
+          // Defensive check for paused property
+          const paused = Boolean(domainSetting.paused);
+          // Defensive check for domain property existence and type
+          const domain =
+            typeof domainSetting.domain === "string"
+              ? domainSetting.domain.toLowerCase()
+              : "";
+          if (domain) {
+            slotsMap[domain] = slotsLeft;
+            pausedMap[domain] = paused;
+          }
+        });
+        setDomainSlotsLeft(slotsMap);
+        setDomainPaused(pausedMap);
+      } catch (error: any) {
+        toast({
+          variant: "destructive",
+          title: "Error fetching domain slots",
+          description: error.message || "Failed to fetch domain slots left",
+        });
+      }
+    };
+    fetchDomainSettings();
+    const interval = setInterval(fetchDomainSettings, 10000);
+    return () => clearInterval(interval);
+  }, [toast]);
 
   const addParticipant = () => {
     if (participants.length < 4) {
@@ -86,6 +146,7 @@ export function RegistrationForm() {
     if (!teamName.trim()) return "Team name is required";
     if (!selectedDomain) return "Please select a domain";
     if (!gitRepo.trim()) return "Git repository URL is required";
+    if (!utrNumber.trim()) return "UTR number is required"; // Added UTR validation
     if (!paymentProof) return "Payment proof is required";
     if (!leaderMobile.trim()) return "Team leader mobile number is required";
     if (!alternateMobile.trim()) return "Alternate mobile number is required";
@@ -163,6 +224,7 @@ export function RegistrationForm() {
       leaderIndex,
       domain: selectedDomain,
       gitRepo,
+      utrNumber,
       leaderMobile,
       alternateMobile,
     };
@@ -247,25 +309,40 @@ export function RegistrationForm() {
             {participants.map((participant, index) => (
               <div key={index} className="space-y-2">
                 <div className="relative">
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <Input
-                        value={participant.name}
-                        onChange={(e) =>
-                          updateParticipant(index, "name", e.target.value)
-                        }
-                        placeholder={`Member ${index + 1} Name`}
-                        className="bg-input/50 pr-32"
-                      />
-                      <Button
-                        type="button"
-                        variant={leaderIndex === index ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setLeaderIndex(index)}
-                        className="absolute right-1 top-1/2 -translate-y-1/2 px-2 py-1 h-7 text-xs"
-                      >
-                        {leaderIndex === index ? "Leader" : "Set Leader"}
-                      </Button>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2 relative">
+                      <div className="relative flex-1">
+                        <Input
+                          value={participant.name}
+                          onChange={(e) =>
+                            updateParticipant(index, "name", e.target.value)
+                          }
+                          placeholder={`Member ${index + 1} Name`}
+                          className="bg-input/50 pr-32"
+                        />
+                        <Button
+                          type="button"
+                          variant={
+                            leaderIndex === index ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() => setLeaderIndex(index)}
+                          className="absolute right-1 top-1/2 -translate-y-1/2 px-2 py-1 h-7 text-xs"
+                        >
+                          {leaderIndex === index ? "Leader" : "Set Leader"}
+                        </Button>
+                      </div>
+                      {participants.length > 2 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeParticipant(index)}
+                          className="px-3"
+                        >
+                          <MinusCircle className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                     <Input
                       type="email"
@@ -276,17 +353,6 @@ export function RegistrationForm() {
                       placeholder={`Member ${index + 1} Email`}
                       className="bg-input/50 flex-1"
                     />
-                    {participants.length > 2 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeParticipant(index)}
-                        className="px-3"
-                      >
-                        <MinusCircle className="w-4 h-4" />
-                      </Button>
-                    )}
                   </div>
                 </div>
               </div>
@@ -350,11 +416,32 @@ export function RegistrationForm() {
                 <SelectValue placeholder="Select your competition domain" />
               </SelectTrigger>
               <SelectContent>
-                {domains.map((domain) => (
-                  <SelectItem key={domain.value} value={domain.value}>
-                    {domain.label}
-                  </SelectItem>
-                ))}
+                {domains.map((domain) => {
+                  // Use lowercase key to match domainSlotsLeft keys
+                  const domainKey = domain.value.toLowerCase();
+                  const slotsLeft = domainSlotsLeft[domainKey];
+                  const paused = domainPaused[domainKey];
+                  let label = domain.label;
+                  if (paused) {
+                    label = `${domain.label} (Paused)`;
+                  }
+                  return (
+                    <SelectItem
+                      key={domain.value}
+                      value={domain.value}
+                      disabled={slotsLeft === 0 || paused}
+                    >
+                      {domain.label}
+                      <div className="text-xs text-muted-foreground ml-2">
+                        {paused
+                          ? "(Paused)"
+                          : slotsLeft !== undefined
+                          ? `(${slotsLeft} slots left)`
+                          : ""}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>
@@ -372,6 +459,22 @@ export function RegistrationForm() {
               onChange={(e) => setGitRepo(e.target.value)}
               placeholder="https://github.com/yourusername"
               className="bg-input/50"
+            />
+          </div>
+
+          {/* UTR Number */}
+          <div className="space-y-2">
+            <Label htmlFor="utr-number" className="flex items-center gap-2">
+              <CreditCard className="w-4 h-4" />
+              UTR Number
+            </Label>
+            <Input
+              id="utr-number"
+              type="text"
+              placeholder="Enter UTR Number"
+              className="bg-input/50"
+              value={utrNumber}
+              onChange={(e) => setUtrNumber(e.target.value)}
             />
           </div>
 
