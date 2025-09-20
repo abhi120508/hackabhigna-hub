@@ -60,7 +60,7 @@ const AdminPanel = () => {
   const [allDomainsPaused, setAllDomainsPaused] = useState(false);
   const { toast } = useToast();
 
-  const API_URL = "http://localhost:5000"; // Your backend URL
+  const API_URL = "https://hackabhigna-hub.onrender.com"; // Your backend URL
 
   const loadRegistrations = useCallback(async () => {
     try {
