@@ -55,29 +55,39 @@ const sendMail = async (mailOptions) => {
         const axios = require("axios");
         const apiKey = process.env.SENDGRID_API_KEY;
 
+        // Reconstruct the message object for alternative method
+        const altMsg = {
+          personalizations: [
+            {
+              to: [{ email: mailOptions.to }],
+            },
+          ],
+          from: {
+            email:
+              mailOptions.from ||
+              process.env.FROM_EMAIL ||
+              "noreply@hackabhigna.com",
+          },
+          subject: mailOptions.subject,
+          content: [
+            { type: "text/plain", value: mailOptions.text },
+            { type: "text/html", value: mailOptions.html },
+          ],
+        };
+
+        // Handle attachments if present
+        if (mailOptions.attachments && mailOptions.attachments.length > 0) {
+          altMsg.attachments = mailOptions.attachments.map((att) => ({
+            content: att.content.toString("base64"),
+            filename: att.filename,
+            type: att.type || "image/png",
+            disposition: att.disposition || "attachment",
+          }));
+        }
+
         const response = await axios.post(
           "https://api.sendgrid.com/v3/mail/send",
-          {
-            personalizations: [
-              {
-                to: [{ email: msg.to }],
-              },
-            ],
-            from: { email: msg.from },
-            subject: msg.subject,
-            content: [
-              { type: "text/plain", value: msg.text },
-              { type: "text/html", value: msg.html },
-            ],
-            attachments: msg.attachments
-              ? msg.attachments.map((att) => ({
-                  content: att.content,
-                  filename: att.filename,
-                  type: att.type,
-                  disposition: att.disposition,
-                }))
-              : undefined,
-          },
+          altMsg,
           {
             headers: {
               Authorization: `Bearer ${apiKey}`,
