@@ -817,90 +817,122 @@ app.post("/download-all-teams-pdf", async (req, res) => {
 
     // Import pdfmake
     const PdfPrinter = require("pdfmake");
-    const path = require("path");
-    const fs = require("fs");
 
     // Define fonts
     const fonts = {
       Roboto: {
         normal: "Helvetica",
-        bold: path.join(__dirname, "fonts/Roboto-Medium.ttf"),
-        italics: path.join(__dirname, "fonts/Roboto-Italic.ttf"),
-        bolditalics: path.join(__dirname, "fonts/Roboto-MediumItalic.ttf"),
+        bold: "Helvetica",
+        italics: "Helvetica",
+        bolditalics: "Helvetica",
       },
     };
 
     const printer = new PdfPrinter(fonts);
 
-    // Prepare table data
-    const tableBody = [
-      // Header row
-      [
-        { text: "Team Name", style: "tableHeader" },
-        { text: "Team Code", style: "tableHeader" },
-        { text: "Domain", style: "tableHeader" },
-        { text: "Members", style: "tableHeader" },
-        { text: "Contact Details", style: "tableHeader" },
-      ],
+    // Group teams by domain
+    const teamsByDomain = approvedTeams.reduce((acc, team) => {
+      if (!acc[team.domain]) {
+        acc[team.domain] = [];
+      }
+      acc[team.domain].push(team);
+      return acc;
+    }, {});
+
+    // Prepare content with domain sections
+    const content = [
+      {
+        text: "HackAbhigna - All Teams Report",
+        style: "header",
+        alignment: "center",
+        margin: [0, 0, 0, 20],
+      },
+      {
+        text: `Generated on: ${new Date().toLocaleDateString()}`,
+        style: "subheader",
+        alignment: "center",
+        margin: [0, 0, 0, 30],
+      },
+      {
+        text: `Total Teams: ${approvedTeams.length}`,
+        style: "info",
+        margin: [0, 0, 0, 20],
+      },
     ];
 
-    // Add team data
-    approvedTeams.forEach((team, index) => {
-      const members = team.participants
-        .map(
-          (p, i) =>
-            `${p.name}${i === team.leaderIndex ? " (Leader)" : ""}\n${p.email}${
-              p.mobile ? `\n${p.mobile}` : ""
-            }`
-        )
-        .join("\n\n");
+    // Add each domain section
+    Object.entries(teamsByDomain).forEach(([domain, teams], index) => {
+      // Add page break before each domain except the first
+      if (index > 0) {
+        content.push({ text: "", pageBreak: "before" });
+      }
 
-      const contactDetails = `Leader: ${team.leaderMobile}${
-        team.alternateMobile ? `\nAlternate: ${team.alternateMobile}` : ""
-      }`;
+      // Domain header
+      content.push(
+        {
+          text: domain,
+          style: "domainHeader",
+          margin: [0, 0, 0, 10],
+        },
+        {
+          text: `Teams in ${domain}: ${teams.length}`,
+          style: "domainInfo",
+          margin: [0, 0, 0, 15],
+        }
+      );
 
-      tableBody.push([
-        { text: team.teamName, style: "tableCell" },
-        { text: team.teamCode || "N/A", style: "tableCell" },
-        { text: team.domain, style: "tableCell" },
-        { text: members, style: "tableCell" },
-        { text: contactDetails, style: "tableCell" },
-      ]);
+      // Table for this domain
+      const tableBody = [
+        // Header row
+        [
+          { text: "Team Name", style: "tableHeader" },
+          { text: "Team Code", style: "tableHeader" },
+          { text: "Members", style: "tableHeader" },
+          { text: "Contact Details", style: "tableHeader" },
+        ],
+      ];
+
+      // Add team data for this domain
+      teams.forEach((team) => {
+        const members = team.participants
+          .map(
+            (p, i) =>
+              `${p.name}${i === team.leaderIndex ? " (L)" : ""}\n${p.email}${
+                p.mobile ? `\n${p.mobile}` : ""
+              }`
+          )
+          .join("\n\n");
+
+        const contactDetails = `Leader: ${team.leaderMobile}${
+          team.alternateMobile ? `\nAlt: ${team.alternateMobile}` : ""
+        }`;
+
+        tableBody.push([
+          { text: team.teamName, style: "tableCell" },
+          { text: team.teamCode || "N/A", style: "tableCell" },
+          { text: members, style: "tableCell" },
+          { text: contactDetails, style: "tableCell" },
+        ]);
+      });
+
+      content.push({
+        table: {
+          headerRows: 1,
+          widths: [100, 70, 130, 140],
+          body: tableBody,
+        },
+        layout: {
+          fillColor: function (rowIndex, node, columnIndex) {
+            return rowIndex === 0 ? "#CCCCCC" : null;
+          },
+        },
+        margin: [0, 0, 0, 30],
+      });
     });
 
     // Document definition
     const docDefinition = {
-      content: [
-        {
-          text: "HackAbhigna - All Teams Report",
-          style: "header",
-          alignment: "center",
-          margin: [0, 0, 0, 20],
-        },
-        {
-          text: `Generated on: ${new Date().toLocaleDateString()}`,
-          style: "subheader",
-          alignment: "center",
-          margin: [0, 0, 0, 30],
-        },
-        {
-          text: `Total Teams: ${approvedTeams.length}`,
-          style: "info",
-          margin: [0, 0, 0, 20],
-        },
-        {
-          table: {
-            headerRows: 1,
-            widths: ["*", "auto", "*", "*", "*"],
-            body: tableBody,
-          },
-          layout: {
-            fillColor: function (rowIndex, node, columnIndex) {
-              return rowIndex === 0 ? "#CCCCCC" : null;
-            },
-          },
-        },
-      ],
+      content: content,
       styles: {
         header: {
           fontSize: 20,
@@ -916,16 +948,27 @@ app.post("/download-all-teams-pdf", async (req, res) => {
           fontSize: 12,
           color: "#333333",
         },
+        domainHeader: {
+          fontSize: 16,
+          bold: true,
+          color: "#1B5E20",
+          margin: [0, 10, 0, 5],
+        },
+        domainInfo: {
+          fontSize: 11,
+          color: "#666666",
+          italics: true,
+        },
         tableHeader: {
           bold: true,
-          fontSize: 12,
+          fontSize: 11,
           color: "black",
           fillColor: "#f0f0f0",
-          margin: [5, 8, 5, 8],
+          margin: [8, 10, 8, 10],
         },
         tableCell: {
-          fontSize: 10,
-          margin: [5, 5, 5, 5],
+          fontSize: 9,
+          margin: [8, 8, 8, 8],
         },
       },
       defaultStyle: {

@@ -824,9 +824,9 @@ app.post("/download-all-teams-pdf", async (req, res) => {
     const fonts = {
       Roboto: {
         normal: "Helvetica",
-        bold: path.join(__dirname, "fonts/Roboto-Medium.ttf"),
-        italics: path.join(__dirname, "fonts/Roboto-Italic.ttf"),
-        bolditalics: path.join(__dirname, "fonts/Roboto-MediumItalic.ttf"),
+        bold: "Helvetica",
+        italics: "Helvetica",
+        bolditalics: "Helvetica",
       },
     };
 
