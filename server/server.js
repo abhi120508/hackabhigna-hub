@@ -226,7 +226,7 @@ app.get("/registrations", async (req, res) => {
 });
 
 // Update registration status
-const { sendMail } = require("./mailer");
+const { sendMail } = require("./sendgridMailer");
 
 app.patch("/registrations/:id/status", async (req, res) => {
   try {
