@@ -57,6 +57,7 @@ const AdminPanel = () => {
   const [globalSettings, setGlobalSettings] = useState({
     pausedLeaderboard: false,
   });
+  const [allDomainsPaused, setAllDomainsPaused] = useState(false);
   const { toast } = useToast();
 
   const API_URL = "http://localhost:5000"; // Your backend URL
@@ -268,6 +269,58 @@ const AdminPanel = () => {
       });
     }
   };
+
+  // Check if all domains are paused
+  const checkAllDomainsPaused = useCallback(() => {
+    const allPaused =
+      domainSettings.length > 0 &&
+      domainSettings.every((setting) => setting.paused);
+    setAllDomainsPaused(allPaused);
+  }, [domainSettings]);
+
+  // Handle PDF download
+  const handleDownloadPDF = async () => {
+    try {
+      const response = await fetch(`${API_URL}/download-all-teams-pdf`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to download PDF");
+      }
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `hackabhigna-teams-report-${
+        new Date().toISOString().split("T")[0]
+      }.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "Download Successful",
+        description: "Teams report PDF has been downloaded successfully",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Download Failed",
+        description: (error as Error).message,
+      });
+    }
+  };
+
+  // Update allDomainsPaused whenever domainSettings change
+  useEffect(() => {
+    checkAllDomainsPaused();
+  }, [checkAllDomainsPaused]);
 
   const domains = [
     { value: "all", label: "All Domains" },
@@ -705,6 +758,31 @@ const AdminPanel = () => {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
+            {/* Download Teams Report */}
+            {allDomainsPaused && (
+              <Card className="bg-card/50 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle>Download Teams Report</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Download a comprehensive PDF report of all approved teams
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    onClick={handleDownloadPDF}
+                    variant="hero"
+                    className="w-full"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download All Teams PDF Report
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    This option is available when all domains are paused
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="bg-card/50 backdrop-blur-sm">
                 <CardHeader>
