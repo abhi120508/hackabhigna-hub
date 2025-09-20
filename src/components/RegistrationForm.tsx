@@ -76,7 +76,7 @@ export function RegistrationForm() {
     const fetchDomainSettings = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/domain-settings"
+          "https://hackabhigna-hub.onrender.com/domain-settings"
         );
         const slotsMap: { [key: string]: number } = {};
         const pausedMap: { [key: string]: boolean } = {};
@@ -235,7 +235,7 @@ export function RegistrationForm() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/register",
+        "https://hackabhigna-hub.onrender.com/register",
         formData,
         {
           headers: {

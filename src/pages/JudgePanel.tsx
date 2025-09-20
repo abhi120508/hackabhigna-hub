@@ -32,7 +32,7 @@ const JudgePanel = () => {
   const [judgeName, setJudgeName] = useState<string>("");
   const { toast } = useToast();
 
-  const API_URL = "http://localhost:5000";
+  const API_URL = "https://hackabhigna-hub.onrender.com";
 
   const domains = [
     { value: "GenAI", label: "GenAI" },
