@@ -1,6 +1,6 @@
 const sgMail = require("@sendgrid/mail");
 
-// Set SendGrid API key
+// Set SendGrid API key with proper encoding
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const sendMail = async (mailOptions) => {
@@ -30,14 +30,70 @@ const sendMail = async (mailOptions) => {
     console.log("To:", msg.to);
     console.log("Subject:", msg.subject);
 
+    // Send email with error handling
     const result = await sgMail.send(msg);
     console.log("✅ Email sent successfully via SendGrid");
     return result;
   } catch (error) {
-    console.error("❌ Error sending email via SendGrid:", error);
+    console.error("❌ Error sending email via SendGrid:", error.message);
+
+    // More detailed error logging
     if (error.response) {
       console.error("SendGrid error details:", error.response.body);
+      console.error("SendGrid error status:", error.response.status);
     }
+
+    // If it's an authorization error, try alternative approach
+    if (
+      error.message.includes("Invalid character") ||
+      error.message.includes("Authorization")
+    ) {
+      console.log("🔄 Attempting alternative email sending method...");
+
+      try {
+        // Alternative approach using direct axios call
+        const axios = require("axios");
+        const apiKey = process.env.SENDGRID_API_KEY;
+
+        const response = await axios.post(
+          "https://api.sendgrid.com/v3/mail/send",
+          {
+            personalizations: [
+              {
+                to: [{ email: msg.to }],
+              },
+            ],
+            from: { email: msg.from },
+            subject: msg.subject,
+            content: [
+              { type: "text/plain", value: msg.text },
+              { type: "text/html", value: msg.html },
+            ],
+            attachments: msg.attachments
+              ? msg.attachments.map((att) => ({
+                  content: att.content,
+                  filename: att.filename,
+                  type: att.type,
+                  disposition: att.disposition,
+                }))
+              : undefined,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        console.log("✅ Email sent successfully via alternative method");
+        return response.data;
+      } catch (altError) {
+        console.error("❌ Alternative method also failed:", altError.message);
+        throw altError;
+      }
+    }
+
     throw error;
   }
 };
