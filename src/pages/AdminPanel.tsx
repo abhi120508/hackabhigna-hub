@@ -324,7 +324,6 @@ const AdminPanel = () => {
           "GitHub URL",
           "Leader Mobile",
           "Alternate Mobile",
-          "Member Mobile Numbers",
         ]);
         // Add team rows with members in separate rows
         teams.forEach((team) => {
