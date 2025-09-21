@@ -49,6 +49,7 @@ const sendMail = async (mailOptions) => {
       subject: mailOptions.subject,
       text: mailOptions.text,
       html: mailOptions.html,
+      attachments: mailOptions.attachments || [],
     };
 
     // Send email
