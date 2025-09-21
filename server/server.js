@@ -361,7 +361,7 @@ HackAbhigna Team`,
           team.domain
         }</strong>.</p>
         <p>Please find your QR code attached below:</p>
-        <img src="cid:qrCodeImage" alt="QR Code" style="width:200px; height:200px;" />
+        <img src="cid:qrCodeImage" style="width:200px; height:200px;" />
         <p>Best regards,<br/>HackAbhigna Team</p>
       `,
         attachments: [
