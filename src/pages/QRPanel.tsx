@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { TeamRegistration } from "@/lib/mockBackend";
 import { parseQRCode } from "@/lib/qrUtils";
+import jsQR from "jsqr";
 
 const domains = [
   {
@@ -43,6 +44,7 @@ const QRPanel = () => {
 
   // Refs for camera scanning
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
   // Manual input fallback
@@ -137,43 +139,16 @@ const QRPanel = () => {
   const startCameraScan = async () => {
     setIsScanning(true);
     try {
-      // Use native BarcodeDetector if available
-      // @ts-expect-error
-      if ("BarcodeDetector" in window) {
-        // @ts-expect-error
-        const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "environment" } },
-          audio: false,
-        });
-        streamRef.current = stream;
-        if (videoRef.current) {
-          (videoRef.current as any).srcObject = stream;
-          await videoRef.current.play();
-        }
-
-        const scanLoop = async () => {
-          if (!isScanning || !videoRef.current) return;
-          try {
-            const codes = await detector.detect(videoRef.current);
-            if (codes && codes.length > 0) {
-              await handleQRData(codes[0].rawValue);
-              return;
-            }
-          } catch {
-            // ignore errors
-          }
-          requestAnimationFrame(scanLoop);
-        };
-        requestAnimationFrame(scanLoop);
-      } else {
-        // Fallback: prompt user to paste QR content or Unique ID
-        toast({
-          title: "Camera scanning not supported",
-          description: "Paste the QR content or enter Unique ID below.",
-        });
-        setIsScanning(false);
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+        audio: false,
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
       }
+      scanLoop();
     } catch (error) {
       setIsScanning(false);
       toast({
@@ -183,6 +158,29 @@ const QRPanel = () => {
           "Unable to access camera. Check permissions and try again.",
       });
     }
+  };
+
+  const scanLoop = () => {
+    if (!isScanning || !videoRef.current || !canvasRef.current) return;
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    const code = jsQR(imageData.data, imageData.width, imageData.height);
+    if (code && code.data) {
+      handleQRData(code.data);
+      return;
+    }
+
+    requestAnimationFrame(scanLoop);
   };
 
   const handleManualFetch = async () => {
@@ -335,21 +333,13 @@ const QRPanel = () => {
               {!scannedData ? (
                 <>
                   <div className="w-64 h-64 mx-auto border-2 border-dashed border-border rounded-lg overflow-hidden bg-muted/20 relative flex items-center justify-center">
-                    {isScanning ? (
-                      <video
-                        ref={videoRef}
-                        className="w-full h-full object-cover"
-                        muted
-                        playsInline
-                      />
-                    ) : (
-                      <div className="text-center">
-                        <Scan className="w-16 h-16 text-muted-foreground mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground">
-                          Click scan to read QR code
-                        </p>
-                      </div>
-                    )}
+                    <video
+                      ref={videoRef}
+                      className="w-full h-full object-cover"
+                      muted
+                      playsInline
+                    />
+                    <canvas ref={canvasRef} className="hidden" />
                   </div>
 
                   <Button
