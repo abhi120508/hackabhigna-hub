@@ -338,7 +338,7 @@ app.patch("/registrations/:id/status", async (req, res) => {
         console.error("Error in createRepoFromTeam:", repoError);
       }
 
-      // Prepare email options
+      // Prepare email options with inline QR code attachment
       const mailOptions = {
         from: `"HackAbhigna" <${process.env.SMTP_USER}>`,
         to: team.participants[team.leaderIndex]?.email,
@@ -360,14 +360,17 @@ HackAbhigna Team`,
         }</strong> has been approved for HackAbhigna in the domain <strong>${
           team.domain
         }</strong>.</p>
-        <p>Please find your QR code attached.</p>
+        <p>Please find your QR code attached below:</p>
+        <img src="cid:qrCodeImage" alt="QR Code" />
         <p>Best regards,<br/>HackAbhigna Team</p>
       `,
         attachments: [
           {
             filename: "qr-code.png",
-            content: Buffer.from(base64Data, "base64"),
-            encoding: "base64",
+            content: base64Data,
+            type: "image/png",
+            disposition: "inline",
+            content_id: "qrCodeImage",
           },
         ],
       };
