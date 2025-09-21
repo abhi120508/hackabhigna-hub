@@ -322,6 +322,8 @@ const AdminPanel = () => {
           "Member Names",
           "Member Emails",
           "GitHub URL",
+          "Leader Mobile",
+          "Alternate Mobile",
           "Member Mobile Numbers",
         ]);
         // Add team rows with members in separate rows
@@ -335,7 +337,9 @@ const AdminPanel = () => {
               index === 0 ? team.teamCode : "",
               memberName,
               member.email,
-              index === 0 ? team.githubRepo || "" : "",
+              index === 0 ? team.gitRepo || "" : "",
+              index === 0 ? team.leaderMobile || "" : "",
+              index === 0 ? team.alternateMobile || "" : "",
               member.mobile ?? "",
             ]);
           });
