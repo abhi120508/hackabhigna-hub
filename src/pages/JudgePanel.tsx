@@ -22,6 +22,9 @@ const JudgePanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [teams, setTeams] = useState<TeamRegistration[]>([]);
+  const [domains, setDomains] = useState<{ value: string; label: string }[]>(
+    []
+  );
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
   const [selectedTeam, setSelectedTeam] = useState<TeamRegistration | null>(
     null
@@ -34,12 +37,29 @@ const JudgePanel = () => {
 
   const API_URL = "https://hackabhigna-hub.onrender.com";
 
-  const domains = [
-    { value: "GenAI", label: "GenAI" },
-    { value: "FinTech", label: "FinTech" },
-    { value: "Healthcare", label: "Healthcare" },
-    { value: "wildcard", label: "wildcard" },
-  ];
+  const loadDomains = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/domain-settings`);
+      if (!response.ok) throw new Error("Failed to fetch domains");
+      const data: {
+        domain: string;
+        maxSlots: number;
+        paused: boolean;
+        slotsLeft: number;
+      }[] = await response.json();
+      const domainOptions = data.map((d) => ({
+        value: d.domain,
+        label: d.domain,
+      }));
+      setDomains(domainOptions);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: (error as Error).message,
+      });
+    }
+  }, [toast]);
 
   const loadApprovedTeams = useCallback(async () => {
     try {
@@ -62,13 +82,13 @@ const JudgePanel = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      loadDomains();
       loadApprovedTeams();
     }
-  }, [isAuthenticated, loadApprovedTeams]);
+  }, [isAuthenticated, loadDomains, loadApprovedTeams]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would be a secure check
     if (password === "judge123") {
       setIsAuthenticated(true);
       toast({ title: "Login Successful" });
@@ -127,9 +147,7 @@ const JudgePanel = () => {
         description: `Score for ${selectedTeam.teamName} has been saved.`,
       });
 
-      // Refresh data
       loadApprovedTeams();
-      // Reset form
       setScore("");
       setRemarks("");
     } catch (error) {
@@ -207,7 +225,6 @@ const JudgePanel = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Teams List */}
           <div className="lg:col-span-1">
             <Card className="bg-card/50 backdrop-blur-sm">
               <CardHeader>
@@ -217,7 +234,6 @@ const JudgePanel = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {/* Domain Accordion */}
                 {domains.map((domain) => (
                   <div key={domain.value}>
                     <Button
@@ -268,7 +284,6 @@ const JudgePanel = () => {
             </Card>
           </div>
 
-          {/* Team Details & Scoring */}
           <div className="lg:col-span-2">
             {selectedTeam ? (
               <Tabs defaultValue="activity" className="space-y-6">
@@ -324,7 +339,6 @@ const JudgePanel = () => {
                         </a>
                       </div>
 
-                      {/* Mock activity data for now */}
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <Card>
                           <CardContent className="p-4 text-center">
