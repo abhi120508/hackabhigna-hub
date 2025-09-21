@@ -34,7 +34,7 @@ const sendMail = async (mailOptions) => {
         from:
           mailOptions.from ||
           process.env.FROM_EMAIL ||
-          "noreply@hackabhigna.com",
+          "hackabhigna2025@gmail.com",
         to: mailOptions.to,
         subject: mailOptions.subject,
         text: mailOptions.text,
@@ -61,7 +61,7 @@ const sendMail = async (mailOptions) => {
         });
 
         const gmailOptions = {
-          from: process.env.GMAIL_USER || "hackabhigna-hub@gmail.com",
+          from: process.env.GMAIL_USER || "hackabhigna2025@gmail.com",
           to: mailOptions.to,
           subject: mailOptions.subject,
           text: mailOptions.text,
@@ -89,7 +89,7 @@ const sendMail = async (mailOptions) => {
               email:
                 mailOptions.from ||
                 process.env.FROM_EMAIL ||
-                "noreply@hackabhigna.com",
+                "hackabhigna2025@gmail.com",
             },
             subject: mailOptions.subject,
             content: [
