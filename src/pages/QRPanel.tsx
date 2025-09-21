@@ -82,7 +82,9 @@ const QRPanel = () => {
       if (videoRef.current) {
         videoRef.current.srcObject = null;
       }
-    } catch {}
+    } catch {
+      // ignore errors
+    }
   };
 
   const fetchTeamByUniqueId = async (uniqueId: string) => {
@@ -128,6 +130,7 @@ const QRPanel = () => {
       });
       return;
     }
+    setManualInput(parsed.uniqueId); // Set the scanned team code in the manual input textbox
     await fetchTeamByUniqueId(parsed.uniqueId);
   };
 
@@ -135,9 +138,9 @@ const QRPanel = () => {
     setIsScanning(true);
     try {
       // Use native BarcodeDetector if available
-      // @ts-ignore
+      // @ts-expect-error
       if ("BarcodeDetector" in window) {
-        // @ts-ignore
+        // @ts-expect-error
         const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: { ideal: "environment" } },
@@ -157,7 +160,9 @@ const QRPanel = () => {
               await handleQRData(codes[0].rawValue);
               return;
             }
-          } catch {}
+          } catch {
+            // ignore errors
+          }
           requestAnimationFrame(scanLoop);
         };
         requestAnimationFrame(scanLoop);
