@@ -372,13 +372,54 @@ const QRPanel = () => {
                     <canvas ref={canvasRef} className="hidden" />
                   </div>
 
-                  <Button
-                    onClick={isScanning ? stopScan : startCameraScan}
-                    variant="hero"
-                    size="lg"
-                  >
-                    {isScanning ? "Stop Scanning" : "Start Camera Scan"}
-                  </Button>
+                  <div className="flex justify-center space-x-4">
+                    <Button
+                      onClick={isScanning ? stopScan : startCameraScan}
+                      variant="hero"
+                      size="lg"
+                    >
+                      {isScanning ? "Stop Scanning" : "Start Camera Scan"}
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        if (!videoRef.current || !canvasRef.current) return;
+                        const video = videoRef.current;
+                        const canvas = canvasRef.current;
+                        const ctx = canvas.getContext("2d");
+                        if (!ctx) return;
+
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const imageData = ctx.getImageData(
+                          0,
+                          0,
+                          canvas.width,
+                          canvas.height
+                        );
+                        const code = jsQR(
+                          imageData.data,
+                          imageData.width,
+                          imageData.height
+                        );
+                        if (code && code.data) {
+                          handleQRData(code.data);
+                        } else {
+                          toast({
+                            variant: "destructive",
+                            title: "No QR Code Detected",
+                            description:
+                              "No QR code could be detected in the captured image.",
+                          });
+                        }
+                      }}
+                      variant="outline"
+                      size="lg"
+                    >
+                      Capture & Scan QR
+                    </Button>
+                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="manual-input">
