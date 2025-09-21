@@ -168,16 +168,33 @@ const QRPanel = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      // Video not ready yet, try again shortly
+      requestAnimationFrame(scanLoop);
+      return;
+    }
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
+    // Debug: log video and canvas dimensions
+    console.log("Video dimensions:", video.videoWidth, video.videoHeight);
+    console.log("Canvas dimensions:", canvas.width, canvas.height);
+
     const code = jsQR(imageData.data, imageData.width, imageData.height);
     if (code && code.data) {
+      console.log("QR code detected:", code.data);
+      toast({
+        title: "QR Code Detected",
+        description: code.data,
+      });
       handleQRData(code.data);
       return;
+    } else {
+      console.log("No QR code detected in this frame");
     }
 
     requestAnimationFrame(scanLoop);
