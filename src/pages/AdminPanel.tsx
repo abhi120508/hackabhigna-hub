@@ -307,7 +307,7 @@ const AdminPanel = () => {
       });
 
       // Prepare worksheet data
-      const wsData: any[] = [];
+      const wsData: Array<Array<string | number>> = [];
       const domainRowIndices: number[] = [];
 
       // For each domain, add a header row and team rows
@@ -321,18 +321,22 @@ const AdminPanel = () => {
           "Team Code",
           "Member Names",
           "Member Emails",
+          "GitHub URL",
           "Member Mobile Numbers",
         ]);
         // Add team rows with members in separate rows
         teams.forEach((team) => {
           const members = team.participants;
           members.forEach((member, index) => {
+            const memberName =
+              index === team.leaderIndex ? `${member.name} (L)` : member.name;
             wsData.push([
               index === 0 ? team.teamName : "",
               index === 0 ? team.teamCode : "",
-              member.name,
+              memberName,
               member.email,
-              member.mobile || "",
+              index === 0 ? team.githubRepo || "" : "",
+              member.mobile ?? "",
             ]);
           });
           // Add empty row for spacing between teams
