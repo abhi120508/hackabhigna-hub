@@ -308,10 +308,12 @@ const AdminPanel = () => {
 
       // Prepare worksheet data
       const wsData: any[] = [];
+      const domainRowIndices: number[] = [];
 
       // For each domain, add a header row and team rows
       Object.entries(groupedByDomain).forEach(([domain, teams]) => {
         // Add domain as a merged header row
+        domainRowIndices.push(wsData.length);
         wsData.push([domain]);
         // Add column headers
         wsData.push([
@@ -321,27 +323,37 @@ const AdminPanel = () => {
           "Member Emails",
           "Member Mobile Numbers",
         ]);
-        // Add team rows
+        // Add team rows with members in separate rows
         teams.forEach((team) => {
-          const memberNames = team.participants.map((p) => p.name).join(", ");
-          const memberEmails = team.participants.map((p) => p.email).join(", ");
-          const memberMobiles = team.participants
-            .map((p) => p.mobile || "")
-            .join(", ");
-          wsData.push([
-            team.teamName,
-            team.teamCode,
-            memberNames,
-            memberEmails,
-            memberMobiles,
-          ]);
+          const members = team.participants;
+          members.forEach((member, index) => {
+            wsData.push([
+              index === 0 ? team.teamName : "",
+              index === 0 ? team.teamCode : "",
+              member.name,
+              member.email,
+              member.mobile || "",
+            ]);
+          });
+          // Add empty row for spacing between teams
+          wsData.push([]);
         });
-        // Add empty row for spacing
+        // Add empty row for spacing between domains
         wsData.push([]);
       });
 
       // Create worksheet and workbook
       const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+      // Apply bold font style to domain rows
+      domainRowIndices.forEach((rowIndex) => {
+        const cellAddress = XLSX.utils.encode_cell({ c: 0, r: rowIndex });
+        if (!ws[cellAddress]) return;
+        ws[cellAddress].s = {
+          font: { bold: true },
+        };
+      });
+
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Teams");
 
