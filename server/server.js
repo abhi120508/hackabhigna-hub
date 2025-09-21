@@ -361,12 +361,18 @@ HackAbhigna Team`,
           team.domain
         }</strong>.</p>
         <p>Please find your QR code attached below:</p>
-        <p><img src="${
-          team.qrCodeImageUrl
-        }" alt="QR Code" style="width:200px; height:200px;" /></p>
+        <img src="cid:qrCodeImage" alt="QR Code" style="width:200px; height:200px;" />
         <p>Best regards,<br/>HackAbhigna Team</p>
       `,
-        attachments: [],
+        attachments: [
+          {
+            filename: "qr-code.png",
+            content: Buffer.from(base64Data, "base64"),
+            type: "image/png",
+            disposition: "inline",
+            cid: "qrCodeImage",
+          },
+        ],
       };
 
       // Send the email
