@@ -372,7 +372,7 @@ const QRPanel = () => {
                     <canvas ref={canvasRef} className="hidden" />
                   </div>
 
-                  <div className="flex justify-center space-x-4">
+                  <div className="flex justify-center space-x-4 mt-4">
                     <Button
                       onClick={isScanning ? stopScan : startCameraScan}
                       variant="hero"
