@@ -20,6 +20,8 @@ import { useToast } from "@/hooks/use-toast";
 // import { MockDatabase, MockAPI, TeamRegistration } from "@/lib/mockBackend";
 import { TeamRegistration } from "@/lib/mockBackend"; // Keep type definition
 
+import * as XLSX from "xlsx";
+
 import {
   Dialog,
   DialogContent,
@@ -280,33 +282,80 @@ const AdminPanel = () => {
 
   // Handle PDF download
   const handleDownloadPDF = async () => {
-    try {
-      const response = await fetch(`${API_URL}/download-all-teams-pdf`, {
-        method: "POST",
-      });
+    // Deprecated: replaced by Excel download
+  };
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to download PDF");
+  // Handle Excel download
+  const handleDownloadExcel = () => {
+    try {
+      if (registrations.length === 0) {
+        toast({
+          variant: "destructive",
+          title: "No Data",
+          description: "No registrations available to export.",
+        });
+        return;
       }
 
-      // Create blob and download
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.style.display = "none";
-      a.href = url;
-      a.download = `hackabhigna-teams-report-${
-        new Date().toISOString().split("T")[0]
-      }.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      // Group registrations by domain
+      const groupedByDomain: { [domain: string]: TeamRegistration[] } = {};
+      registrations.forEach((reg) => {
+        if (!groupedByDomain[reg.domain]) {
+          groupedByDomain[reg.domain] = [];
+        }
+        groupedByDomain[reg.domain].push(reg);
+      });
+
+      // Prepare worksheet data
+      const wsData: any[] = [];
+
+      // For each domain, add a header row and team rows
+      Object.entries(groupedByDomain).forEach(([domain, teams]) => {
+        // Add domain as a merged header row
+        wsData.push([domain]);
+        // Add column headers
+        wsData.push([
+          "Team Name",
+          "Team Code",
+          "Member Names",
+          "Member Emails",
+          "Member Mobile Numbers",
+        ]);
+        // Add team rows
+        teams.forEach((team) => {
+          const memberNames = team.participants.map((p) => p.name).join(", ");
+          const memberEmails = team.participants.map((p) => p.email).join(", ");
+          const memberMobiles = team.participants
+            .map((p) => p.mobile || "")
+            .join(", ");
+          wsData.push([
+            team.teamName,
+            team.teamCode,
+            memberNames,
+            memberEmails,
+            memberMobiles,
+          ]);
+        });
+        // Add empty row for spacing
+        wsData.push([]);
+      });
+
+      // Create worksheet and workbook
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Teams");
+
+      // Generate Excel file and trigger download
+      XLSX.writeFile(
+        wb,
+        `hackabhigna-teams-report-${
+          new Date().toISOString().split("T")[0]
+        }.xlsx`
+      );
 
       toast({
         title: "Download Successful",
-        description: "Teams report PDF has been downloaded successfully",
+        description: "Teams report Excel file has been downloaded successfully",
       });
     } catch (error) {
       toast({
@@ -769,12 +818,12 @@ const AdminPanel = () => {
                 </CardHeader>
                 <CardContent>
                   <Button
-                    onClick={handleDownloadPDF}
+                    onClick={handleDownloadExcel}
                     variant="hero"
                     className="w-full"
                   >
                     <Download className="w-4 h-4 mr-2" />
-                    Download All Teams PDF Report
+                    Download All Teams Excel Report
                   </Button>
                   <p className="text-xs text-muted-foreground mt-2">
                     This option is available when all domains are paused
