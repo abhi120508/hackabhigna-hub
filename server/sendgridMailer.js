@@ -61,7 +61,7 @@ const sendMail = async (mailOptions) => {
         });
 
         const gmailOptions = {
-          from: process.env.GMAIL_USER || "hackabhigna2025@gmail.com",
+          from: process.env.GMAIL_USER || "hackabhigna-hub@gmail.com",
           to: mailOptions.to,
           subject: mailOptions.subject,
           text: mailOptions.text,
