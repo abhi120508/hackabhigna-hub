@@ -148,6 +148,18 @@ const QRPanel = () => {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
       }
+      // Wait for video metadata to be loaded before starting scan loop
+      if (videoRef.current) {
+        await new Promise((resolve) => {
+          if (videoRef.current?.readyState >= 2) {
+            resolve(true);
+          } else {
+            videoRef.current?.addEventListener("loadedmetadata", () => {
+              resolve(true);
+            });
+          }
+        });
+      }
       scanLoop();
     } catch (error) {
       setIsScanning(false);
@@ -170,6 +182,7 @@ const QRPanel = () => {
 
     if (video.videoWidth === 0 || video.videoHeight === 0) {
       // Video not ready yet, try again shortly
+      console.log("Video not ready, waiting...");
       requestAnimationFrame(scanLoop);
       return;
     }
