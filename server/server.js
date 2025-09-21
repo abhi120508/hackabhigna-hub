@@ -349,7 +349,7 @@ Congratulations! Your team ${
           team.teamName
         } has been approved for HackAbhigna in the domain ${team.domain}.
 
-Please find your QR code attached.
+Please find your QR code attached below:
 
 Best regards,
 HackAbhigna Team`,
@@ -361,18 +361,12 @@ HackAbhigna Team`,
           team.domain
         }</strong>.</p>
         <p>Please find your QR code attached below:</p>
-        <img src="cid:qrCodeImage" alt="QR Code" style="width:200px; height:200px;" />
+        <p><img src="${
+          team.qrCodeImageUrl
+        }" alt="QR Code" style="width:200px; height:200px;" /></p>
         <p>Best regards,<br/>HackAbhigna Team</p>
       `,
-        attachments: [
-          {
-            filename: "qr-code.png",
-            content: Buffer.from(base64Data, "base64"),
-            type: "image/png",
-            disposition: "inline",
-            cid: "qrCodeImage",
-          },
-        ],
+        attachments: [],
       };
 
       // Send the email
