@@ -370,7 +370,7 @@ HackAbhigna Team`,
             content: base64Data,
             type: "image/png",
             disposition: "inline",
-            cid: "qrCodeImage",
+            content_id: "qrCodeImage",
           },
         ],
       };
