@@ -367,7 +367,7 @@ HackAbhigna Team`,
         attachments: [
           {
             filename: "qr-code.png",
-            content: Buffer.from(base64Data, "base64"),
+            content: base64Data,
             type: "image/png",
             disposition: "inline",
             cid: "qrCodeImage",
