@@ -19,14 +19,14 @@ export function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 text-center max-w-4xl mx-auto px-4 space-y-4">
-        {/* Badge */}
-        <span
-          className={`registration-badge font-ui-label transition-all duration-700 transform ${
+        <p
+          className={`hack-subtitle transition-all duration-700 transform ${
             show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
           REGISTRATION OPEN
-        </span>
+        </p>
+
 
 
         {/* Title */}

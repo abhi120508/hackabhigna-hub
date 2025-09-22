@@ -34,20 +34,13 @@ body {
   overflow-x: hidden;
 }
 
-/* Hero Section Layout */
 .hero-section {
   position: relative;
-  min-height: 80vh; /* reduced from 100vh */
-  display: flex;
-  justify-content: center;
-  align-items: flex-start; /* align to top */
-  flex-direction: column;
-  text-align: center;
-  padding-top: 1rem; /* small top padding */
+  padding-top: 5rem; /* space for fixed navbar */
   padding-bottom: 2rem;
-  margin-top: 0; /* remove unnecessary margin */
+  text-align: center;
+  margin-top: 0;
 }
-
 
 /* Overlay (optional) */
 .bg-overlay {
@@ -147,7 +140,21 @@ body {
 }
 
 
+.badge{
 
+  font-family: var(--font-title);
+  font-size: 2.5em; /* increased font size */
+  text-align: center;
+  color: #74e1ed; /* lighter pink for subtitle */
+  text-shadow:
+    0 0 4px #aee1bf,
+    0 0 8px #5be59b,
+    -1px 0 var(--accent-color-2),
+    1px 0 var(--accent-color-1);
+  margin-top: 1.5rem;
+  animation: slowDeblur 3s ease-out forwards, flickerAnim 1.5s infinite;
+
+}
 
 /* Retro Subtitle */
 .hack-subtitle {
@@ -171,46 +178,65 @@ body {
   .hack-subtitle { font-size: 1.5em; }
   h3 { font-size: 1.5em; }
 }
-
 .register-btn {
-  background-color: #000; /* black background */
-  color: #ffffff; /* white text */
-  border: 2px solid #000; /* initial border same as background */
+  font-size: 1.5rem; /* Larger text */
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  background-color: #000; /* Initial black */
+  color: #ffffff; /* White text */
+  border: 2px solid transparent;
   position: relative;
   overflow: hidden;
   transition: all 0.4s ease-in-out;
+  z-index: 1;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 2px;
 }
 
 .register-btn:hover {
-  background-color: #fdc5fd; /* neon pink background on hover */
-  color: #fff;
-  border-color: #fbb8fb;
+  color: #ffffff;
+  background: transparent;
+  border-color: transparent;
 }
 
 .register-btn::before {
   content: "";
   position: absolute;
-  top: -50%;
-  left: -50%;
+  top: 0;
+  left: -100%;
   width: 200%;
-  height: 200%;
-  background: linear-gradient(270deg, #edbaed, #ffb9ff, #ffcaff, #ff00ff, #641064);
-  background-size: 600% 600%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 123, 255, 1),
+    rgba(0, 123, 255, 0.2),
+    transparent
+  );
   z-index: 0;
-  transition: all 0.4s ease-in-out;
-  animation: neon-border 6s linear infinite;
-  opacity: 0.5;
+  transition: all 0.6s ease-in-out;
+  animation: blue-glow-slide 3s linear infinite;
+  opacity: 1;
+}
+
+.register-btn:hover::before {
+  left: 0;
 }
 
 .register-btn span,
 .register-btn svg {
-  position: relative; /* content above pseudo-element */
-  z-index: 1;
+  position: relative;
+  z-index: 2;
 }
 
-@keyframes neon-border {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+@keyframes blue-glow-slide {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
-
