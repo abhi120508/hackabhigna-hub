@@ -1,0 +1,133 @@
+/* ====================================================
+   Global Styles - Retro Futuristic Theme
+   ==================================================== */
+
+/* Import Retro & Futuristic Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@700&family=Audiowide&family=Rajdhani:wght@400;600&family=Roboto:wght@400;500&family=Montserrat:wght@600&display=swap');
+
+/* =====================
+   Root Variables
+   ===================== */
+:root {
+  --font-title: 'Orbitron', 'Audiowide', sans-serif;
+  --font-subtitle: 'Rajdhani', sans-serif;
+  --font-body: 'Roboto', sans-serif;
+  --font-ui-label: 'Montserrat', sans-serif;
+
+  --background-color: #1a0033;
+  --text-color: #ffffff;
+  --accent-color: #00FFFF;
+  --accent-color-secondary: #B300FF;
+  --accent-color-1: red;
+  --accent-color-2: cyan;
+  --accent-color-3: magenta;
+
+  --button-bg: #007BFF;
+  --button-hover-bg: #8000FF;
+  --button-text: #ffffff;
+}
+
+/* =====================
+   Global Reset
+   ===================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  font-family: var(--font-body);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+/* Invisible Scrollbar - Chrome, Safari, Edge */
+body::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+/* Invisible Scrollbar - Firefox and IE/Edge */
+body {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE & Edge */
+}
+
+/* Scrollable container (optional) */
+.scroll-container {
+  overflow: auto;
+}
+
+.scroll-container::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+/* =====================
+   Main Full-Screen Content
+   ===================== */
+.main-content {
+  width: 100%;
+  height: 100vh;
+  display: flex; 
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Overlay for better readability */
+.main-content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6); /* semi-transparent dark overlay */
+  z-index: 1;
+}
+
+/* Ensure children appear above overlay */
+.main-content > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* =====================
+   Hero Section Layout
+   ===================== */
+.hero-section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+/* =====================
+   Utility Font Classes
+   ===================== */
+.font-title { font-family: var(--font-title); }
+.font-subtitle { font-family: var(--font-subtitle); }
+.font-body { font-family: var(--font-body); }
+.font-ui-label { font-family: var(--font-ui-label); font-weight: 600; }
+
+/* =====================
+   Responsive Scaling
+   ===================== */
+@media screen and (max-width: 768px) {
+  html { font-size: 14px; }
+  .hero-section { padding: 1rem; }
+}

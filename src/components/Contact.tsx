@@ -11,7 +11,6 @@ import {
   Clock,
   Send,
   MessageSquare,
-  Users,
   HelpCircle,
 } from "lucide-react";
 import { useState } from "react";
@@ -33,7 +32,6 @@ export function Contact() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
     alert("Thank you for your message! We'll get back to you soon.");
     setFormData({ name: "", email: "", subject: "", message: "" });
   };
@@ -88,17 +86,20 @@ export function Contact() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 py-20 px-4">
+    <div
+      id="contact"
+      className="w-full bg-gradient-to-br from-background to-muted/20 py-20 scroll-mt-32 mb-0"
+    >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4">
+          <Badge className="mb-4 text-white text-2xl font-bold bg-transparent border-none">
             Get In Touch
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            <span className="text-gradient">Contact</span>
-            <span className="text-accent-gradient"> Us</span>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6" style={{ color: ' rgb(201, 114, 219)'}}>
+            Contact Us
           </h1>
+
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Have questions about HackAbhigna? We're here to help! Reach out to
             us through any of the channels below.

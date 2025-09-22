@@ -1,6 +1,8 @@
+import "./domains.css";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Globe, Smartphone, Brain, Lightbulb } from "lucide-react";
+import "./global.css";
 
 const domains = [
   {
@@ -39,45 +41,34 @@ const domains = [
 
 export function DomainsSection() {
   return (
-    <section className="py-20 px-4">
+    <section className="w-full bg-gradient-to-br from-background to-muted/20 py-20 scroll-mt-32 mb-40">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">
-            <span className="text-gradient">Competition Domains</span>
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <h2 className="dom_text">Competition Domains</h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-white">
             Choose your battleground and showcase your skills in these exciting
             domains
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="domains-grid">
           {domains.map((domain, index) => {
             const Icon = domain.icon;
             return (
-              <Card
-                key={index}
-                className="bg-card/50 backdrop-blur-sm border-border/50 hover:bg-card/70 transition-all duration-300 hover:scale-105"
-              >
+              <Card key={index} className="cards">
                 <CardHeader>
                   <div className="flex items-center gap-3">
-                    <div
-                      className={`p-2 rounded-lg bg-muted/50 ${domain.color}`}
-                    >
+                    <div className={`domain-icon ${domain.color}`}>
                       <Icon className="w-6 h-6" />
                     </div>
                     <CardTitle className="text-xl">{domain.title}</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-muted-foreground">{domain.description}</p>
+                  <p className="domain-description">{domain.description}</p>
                   <div className="flex flex-wrap gap-2">
                     {domain.technologies.map((tech, techIndex) => (
-                      <Badge
-                        key={techIndex}
-                        variant="secondary"
-                        className="bg-muted/50 text-foreground"
-                      >
+                      <Badge key={techIndex} className="domain-badge">
                         {tech}
                       </Badge>
                     ))}

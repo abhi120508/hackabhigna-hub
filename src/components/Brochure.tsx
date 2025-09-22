@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import "./global.css";
+import "./Brochure.css";
 import {
   Download,
   FileText,
@@ -13,26 +15,41 @@ import {
 
 export function Brochure() {
   const handleDownload = () => {
-    // In a real app, this would download the actual brochure PDF
     alert("Brochure download will be available soon!");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 py-20 px-4">
-      <div className="max-w-4xl mx-auto">
+    <section
+        className="w-full bg-gradient-to-br from-background to-muted/20 py-20 scroll-mt-102 mb-40"
+         style={{ marginTop: "260px" }}
+          >
+
+      <div className="max-w-6xl mx-auto px-4 ">
+        {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="text-gradient">HackAbhigna</span>
-            <span className="text-accent-gradient"> 2025</span>
+            <span
+              className="text-white font-bold"
+              style={{ fontSize: "1em", fontFamily: 'Orbitron, sans-serif',color: 'rgb(201, 114, 219)' }}
+            >
+              HackAbhigna
+            </span>
+            <span
+              className="text-white font-bold"
+              style={{ fontSize: "1em", fontFamily: 'Orbitron, sans-serif',color: 'rgb(201, 114, 219)' }}
+            >
+              2025
+            </span>
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-white font-bold" style={{ fontSize: "1.25em" }}>
             Official Event Brochure
           </p>
         </div>
 
-        <Card className="mb-8">
+        {/* Event Overview Card */}
+        <Card className="mb-8 mt-20">
           <CardHeader className="text-center">
-            <CardTitle className="flex items-center justify-center gap-2">
+            <CardTitle className="flex items-center justify-center gap-2" style={{ fontSize: "20px" }}>
               <FileText className="w-6 h-6" />
               Event Overview
             </CardTitle>
@@ -68,6 +85,7 @@ export function Brochure() {
                   </div>
                 </div>
               </div>
+
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Clock className="w-5 h-5 text-primary" />
@@ -104,7 +122,8 @@ export function Brochure() {
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Competition Domains Card */}
+        <Card className="mt-10">
           <CardHeader>
             <CardTitle>Competition Domains</CardTitle>
           </CardHeader>
@@ -138,6 +157,6 @@ export function Brochure() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </section>
   );
 }

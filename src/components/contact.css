@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+
+.orbitron-neon {
+  font-family: 'Orbitron', sans-serif;
+  text-align: center;
+  color: var(--text-color, #fff);
+  --background-color: transparent;
+}
+
+/* Make cards transparent with optional blur for readability */
+.card-transparent {
+  background-color: rgba(255, 255, 255, 0.05); /* very subtle transparency */
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Remove any text gradients */
+.text-gradient, .text-accent-gradient {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+}

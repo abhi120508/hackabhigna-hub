@@ -1,0 +1,200 @@
+/* ===============================
+   Import Orbitron Font
+================================ */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+
+/* ===============================
+   Global Variables (optional)
+================================ */
+:root {
+  --text-color: #fff;
+  --muted-foreground: #ccc;
+  --primary-color: #65b8c7;
+  --accent-color: #c56ef4;
+  --secondary-color: #f783ac;
+  --background-color: transparent;
+}
+
+/* ===============================
+   Orbitron Neon Title Style
+================================ */
+.dom_text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.5rem;
+  text-align: center;
+  color: rgb(201, 114, 219);
+  margin-bottom: 0.5rem;
+
+  /* Neon Text Shadow */
+  text-shadow: 
+    0 0 5px #7aeef0,
+    0 0 10px #7aeef0,
+    0 0 20px #7aeef0,
+    
+   
+}
+
+
+/* ===============================
+   Section Styles
+================================ */
+.domains-section {
+  padding: 5rem 1rem;
+  background-color: var(--background-color);
+  
+}
+
+/* ===============================
+   Grid Layout
+================================ */
+.domains-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1fr;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .domains-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ===============================
+   Card Styling (renamed to .cards)
+================================ */
+.cards {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.cards:hover {
+  background: rgba(255, 192, 203, 0.1);
+  border-color: rgba(219, 222, 198, 0.5);
+  transform: scale(1.05);
+  box-shadow: none;
+}
+
+/* ===============================
+   Icon Wrapper
+================================ */
+.domain-icon {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease, transform 0.3s ease;
+  color: var(--text-color);
+}
+
+.text-primary {
+  color: #65b8c7;
+}
+.text-accent {
+  color: #c56ef4;
+}
+.text-secondary {
+  color: #f783ac;
+}
+
+.cards:hover .domain-icon {
+  transform: rotate(-5deg) scale(1.1);
+}
+
+/* ===============================
+   Text Styles
+================================ */
+.domain-description {
+  color: var(--muted-foreground);
+  transition: color 0.3s ease;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.cards:hover .domain-description {
+  color: var(--primary-color);
+}
+
+/* ===============================
+   Badge Styles
+================================ */
+.domain-badge {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-color);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-family: 'Orbitron', sans-serif;
+  transition: all 0.3s ease;
+  user-select: none;
+  cursor: default;
+}
+
+.domain-badge:hover {
+  background: #448daf;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* ===============================
+   Neon Rotating Border Card
+================================ */
+.cards {
+  position: relative;
+  border-radius: 20px;
+  background-color: #07182e;
+  overflow: hidden;
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.cards:hover {
+  transform: scale(1.05);
+}
+
+.cards::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 24px;
+  padding: 4px;
+  background: conic-gradient(
+    #ff30ff 0% 20%,
+    #9b00ff 20% 40%,
+    transparent 40% 100%
+  );
+  animation: rotateBorder 3s linear infinite;
+  z-index: 1;
+}
+
+.cards::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 20px;
+  background: #07182e;
+  z-index: 2;
+}
+
+.cards * {
+  position: relative;
+  z-index: 3;
+}
+
+@keyframes rotateBorder {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

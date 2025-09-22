@@ -23,6 +23,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <HashRouter>
+        {/* Background Video */}
+        <div className="fixed inset-0 -z-10">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover brightness-50"
+            src="/robo.mp4"
+          />
+          <div className="absolute inset-0 bg-black/60" />
+        </div>
         <Navigation />
         <Routes>
           <Route path="/" element={<Index />} />

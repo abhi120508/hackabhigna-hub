@@ -76,7 +76,7 @@ export function RegistrationForm() {
     const fetchDomainSettings = async () => {
       try {
         const response = await axios.get(
-          "https://hackabhigna-hub.onrender.com/domain-settings"
+          "http://localhost:5000/domain-settings"
         );
         const slotsMap: { [key: string]: number } = {};
         const pausedMap: { [key: string]: boolean } = {};
@@ -235,7 +235,7 @@ export function RegistrationForm() {
 
     try {
       const response = await axios.post(
-        "https://hackabhigna-hub.onrender.com/register",
+        "http://localhost:5000/register",
         formData,
         {
           headers: {
@@ -274,12 +274,13 @@ export function RegistrationForm() {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto bg-card/50 backdrop-blur-sm border-border/50">
+    <Card className="w-full max-w-2xl mx-auto bg-card/50 backdrop-blur-sm border-border/50 mt-20 mb-100">
+
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl text-gradient">
+        <CardTitle className="text-4xl " style={{ color: ' rgb(201, 114, 219)'}}>
           Register Your Team
         </CardTitle>
-        <p className="text-muted-foreground">
+        <p className="text-xl text-pink">
           Join HackAbhigna and showcase your innovation
         </p>
       </CardHeader>
