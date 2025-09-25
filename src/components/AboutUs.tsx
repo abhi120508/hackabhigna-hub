@@ -54,7 +54,7 @@ export function AboutUs() {
       description: "123456789",
     }
   ];
-
+/*need to fill the detailed inf0 will do kt after sometime */
   const studentCoordinators = [
     {
       name: "ABHISHEK D S",
