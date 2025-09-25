@@ -102,6 +102,14 @@ const extractDomainName = (fullDomain) => {
     return domainMatch[1];
   }
 
+  // For Wildcard sub-domains
+  if (fullDomain === "Wildcard - Environment") {
+    return "Environment";
+  }
+  if (fullDomain === "Wildcard - Food Production") {
+    return "Food Production";
+  }
+
   // For "Wildcard" or other simple domain names
   if (fullDomain === "Wildcard") {
     return "Wildcard";
@@ -114,7 +122,15 @@ const extractDomainName = (fullDomain) => {
 // Helper to generate unique ID
 const generateUniqueId = async (domain, teamName) => {
   const domainName = extractDomainName(domain);
-  const domainPrefix = domainName.substring(0, 2).toUpperCase();
+  // Map domain names to specific prefixes
+  const prefixMap = {
+    Agriculture: "AG",
+    Education: "ED",
+    Environment: "WE",
+    "Food Production": "WF",
+  };
+  const domainPrefix =
+    prefixMap[domainName] || domainName.substring(0, 2).toUpperCase();
   const teamPrefix = teamName.substring(0, 2).toUpperCase();
   const count = await Team.countDocuments({ domain });
   const number = String(count + 1).padStart(3, "0");
@@ -656,19 +672,19 @@ app.post("/regenerate-qr-codes", async (req, res) => {
 });
 
 const initializeDomainSettings = async () => {
-  // Keep only the present 4 domains and remove others
+  // Updated domains: removed FinTech, split Wildcard into Environment and Food Production
   const domains = [
     "GenAI/AgenticAI in Agriculture",
-    "GenAI/AgenticAI in FinTech",
     "GenAI/AgenticAI in Education",
-    "Wildcard",
+    "Wildcard - Environment",
+    "Wildcard - Food Production",
   ];
   // Remove all existing domain settings first to ensure order
   await DomainSettings.deleteMany({});
   for (const domain of domains) {
     await DomainSettings.create({
       domain,
-      maxSlots: domain === "Wildcard" ? 15 : 30,
+      maxSlots: domain.includes("Wildcard") ? 15 : 35,
       pausedRegistrations: false,
     });
   }

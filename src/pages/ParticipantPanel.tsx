@@ -20,30 +20,8 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { TeamRegistration } from "@/lib/mockBackend"; // Using the shared interface
-
-// GitHub API types
-interface GitHubCommit {
-  sha: string;
-  commit: {
-    message: string;
-    author: {
-      name: string;
-      email: string;
-      date: string;
-    };
-  };
-  author: {
-    login: string;
-    avatar_url: string;
-  } | null;
-}
-
-interface RepoStats {
-  commits: number;
-  branches: number;
-  lastActivity: string;
-  contributors: number;
-}
+import { useGitHubData } from "@/hooks/useGitHubData";
+import type { GitHubData } from "@/lib/types/github";
 
 interface LeaderboardItem {
   teamName: string;
@@ -61,11 +39,13 @@ const ParticipantPanel = () => {
   const [globalSettings, setGlobalSettings] = useState({
     pausedLeaderboard: false,
   });
-  const [commits, setCommits] = useState<GitHubCommit[]>([]);
-  const [repoStats, setRepoStats] = useState<RepoStats | null>(null);
-  const [loadingRepoData, setLoadingRepoData] = useState<boolean>(false);
   const { toast } = useToast();
   const API_URL = "https://hackabhigna-hub.onrender.com";
+
+  const { data, fetchRepoCommits, fetchRepoStats } = useGitHubData({
+    owner: import.meta.env.VITE_GITHUB_OWNER || "",
+    token: import.meta.env.VITE_GITHUB_TOKEN || "",
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -101,105 +81,18 @@ const ParticipantPanel = () => {
     }
   }, [isAuthenticated, API_URL, teamData]);
 
-  // Load GitHub data when team is selected
-  const fetchRepoCommits = useCallback(
-    async (repoName: string) => {
-      if (!repoName) return;
-
-      setLoadingRepoData(true);
-      try {
-        const response = await fetch(
-          `https://api.github.com/repos/${
-            import.meta.env.VITE_GITHUB_OWNER
-          }/${repoName}/commits?per_page=10`,
-          {
-            headers: {
-              Authorization: `token ${import.meta.env.VITE_GITHUB_TOKEN}`,
-              Accept: "application/vnd.github.v3+json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`GitHub API error: ${response.status}`);
-        }
-
-        const commitsData: GitHubCommit[] = await response.json();
-        setCommits(commitsData);
-      } catch (error) {
-        console.error("Error fetching commits:", error);
-        toast({
-          variant: "destructive",
-          title: "GitHub Error",
-          description: "Failed to fetch repository commits",
-        });
-      } finally {
-        setLoadingRepoData(false);
-      }
-    },
-    [toast]
-  );
-
-  const fetchRepoStats = useCallback(async (repoName: string) => {
-    if (!repoName) return;
-
-    try {
-      // Fetch repository info
-      const repoResponse = await fetch(
-        `https://api.github.com/repos/${process.env.VITE_GITHUB_OWNER}/${repoName}`,
-        {
-          headers: {
-            Authorization: `token ${process.env.VITE_GITHUB_TOKEN}`,
-            Accept: "application/vnd.github.v3+json",
-          },
-        }
-      );
-
-      // Fetch branches
-      const branchesResponse = await fetch(
-        `https://api.github.com/repos/${process.env.VITE_GITHUB_OWNER}/${repoName}/branches`,
-        {
-          headers: {
-            Authorization: `token ${process.env.VITE_GITHUB_TOKEN}`,
-            Accept: "application/vnd.github.v3+json",
-          },
-        }
-      );
-
-      // Fetch contributors
-      const contributorsResponse = await fetch(
-        `https://api.github.com/repos/${process.env.VITE_GITHUB_OWNER}/${repoName}/contributors`,
-        {
-          headers: {
-            Authorization: `token ${process.env.VITE_GITHUB_TOKEN}`,
-            Accept: "application/vnd.github.v3+json",
-          },
-        }
-      );
-
-      if (repoResponse.ok && branchesResponse.ok && contributorsResponse.ok) {
-        const repoData = await repoResponse.json();
-        const branchesData = await branchesResponse.json();
-        const contributorsData = await contributorsResponse.json();
-
-        setRepoStats({
-          commits: 0, // Will be updated from commits API
-          branches: branchesData.length,
-          lastActivity: repoData.updated_at,
-          contributors: contributorsData.length,
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching repo stats:", error);
-    }
-  }, []);
-
   useEffect(() => {
     if (teamData && teamData.githubRepo) {
       const repoName =
         teamData.githubRepo.split("/").pop() || teamData.teamCode;
-      fetchRepoCommits(repoName);
-      fetchRepoStats(repoName);
+      fetchRepoCommits({
+        owner: import.meta.env.VITE_GITHUB_OWNER || "",
+        repoName,
+      });
+      fetchRepoStats({
+        owner: import.meta.env.VITE_GITHUB_OWNER || "",
+        repoName,
+      });
     }
   }, [teamData, fetchRepoCommits, fetchRepoStats]);
 
@@ -437,7 +330,9 @@ const ParticipantPanel = () => {
                             teamData.githubRepo.split("/").pop() ||
                             teamData.teamCode;
                           window.open(
-                            `https://${process.env.VITE_GITHUB_OWNER}.github.io/${repoName}`,
+                            `https://${
+                              import.meta.env.VITE_GITHUB_OWNER
+                            }.github.io/${repoName}`,
                             "_blank"
                           );
                         }}
@@ -449,7 +344,7 @@ const ParticipantPanel = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {loadingRepoData ? (
+                  {data.loading ? (
                     <div className="text-center py-8">
                       <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
                       <p>Loading repository data...</p>
@@ -457,12 +352,12 @@ const ParticipantPanel = () => {
                   ) : (
                     <>
                       {/* Repository Stats */}
-                      {repoStats && (
+                      {data.repoStats && (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                           <div className="text-center p-4 bg-muted/50 rounded-lg">
                             <GitCommit className="w-8 h-8 mx-auto mb-2 text-primary" />
                             <div className="text-2xl font-bold">
-                              {commits.length}
+                              {data.commits.length}
                             </div>
                             <div className="text-sm text-muted-foreground">
                               Commits
@@ -471,7 +366,7 @@ const ParticipantPanel = () => {
                           <div className="text-center p-4 bg-muted/50 rounded-lg">
                             <GitBranch className="w-8 h-8 mx-auto mb-2 text-primary" />
                             <div className="text-2xl font-bold">
-                              {repoStats.branches}
+                              {data.repoStats.branches}
                             </div>
                             <div className="text-sm text-muted-foreground">
                               Branches
@@ -480,7 +375,7 @@ const ParticipantPanel = () => {
                           <div className="text-center p-4 bg-muted/50 rounded-lg">
                             <Users className="w-8 h-8 mx-auto mb-2 text-primary" />
                             <div className="text-2xl font-bold">
-                              {repoStats.contributors}
+                              {data.repoStats.contributors}
                             </div>
                             <div className="text-sm text-muted-foreground">
                               Contributors
@@ -490,7 +385,7 @@ const ParticipantPanel = () => {
                             <Clock className="w-8 h-8 mx-auto mb-2 text-primary" />
                             <div className="text-sm font-bold">
                               {new Date(
-                                repoStats.lastActivity
+                                data.repoStats.lastActivity
                               ).toLocaleDateString()}
                             </div>
                             <div className="text-sm text-muted-foreground">
@@ -506,9 +401,9 @@ const ParticipantPanel = () => {
                           <GitCommit className="w-4 h-4" />
                           Recent Commits
                         </h4>
-                        {commits.length > 0 ? (
+                        {data.commits.length > 0 ? (
                           <div className="space-y-3">
-                            {commits.slice(0, 5).map((commit) => (
+                            {data.commits.slice(0, 5).map((commit) => (
                               <div
                                 key={commit.sha}
                                 className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg"
@@ -548,7 +443,7 @@ const ParticipantPanel = () => {
                                   size="sm"
                                   onClick={() => {
                                     const commitUrl = `https://github.com/${
-                                      process.env.VITE_GITHUB_OWNER
+                                      import.meta.env.VITE_GITHUB_OWNER
                                     }/${
                                       teamData.githubRepo?.split("/").pop() ||
                                       teamData.teamCode
