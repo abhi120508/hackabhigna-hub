@@ -65,7 +65,7 @@ const ParticipantPanel = () => {
   const [repoStats, setRepoStats] = useState<RepoStats | null>(null);
   const [loadingRepoData, setLoadingRepoData] = useState<boolean>(false);
   const { toast } = useToast();
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API_URL = "https://hackabhigna-hub.onrender.com";
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -437,7 +437,7 @@ const ParticipantPanel = () => {
                             teamData.githubRepo.split("/").pop() ||
                             teamData.teamCode;
                           window.open(
-                            `${process.env.VITE_PROJECT_RUN_URL}/${repoName}`,
+                            `https://${process.env.VITE_GITHUB_OWNER}.github.io/${repoName}`,
                             "_blank"
                           );
                         }}
@@ -543,6 +543,21 @@ const ParticipantPanel = () => {
                                     </span>
                                   </div>
                                 </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    const commitUrl = `https://github.com/${
+                                      process.env.VITE_GITHUB_OWNER
+                                    }/${
+                                      teamData.githubRepo?.split("/").pop() ||
+                                      teamData.teamCode
+                                    }/commit/${commit.sha}`;
+                                    window.open(commitUrl, "_blank");
+                                  }}
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                </Button>
                               </div>
                             ))}
                           </div>

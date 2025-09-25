@@ -40,7 +40,7 @@ const QRPanel = () => {
   const { toast } = useToast();
 
   // Backend API URL
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API_URL = "https://hackabhigna-hub.onrender.com";
 
   // Refs for camera scanning
   const videoRef = useRef<HTMLVideoElement | null>(null);
