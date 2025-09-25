@@ -253,7 +253,10 @@ app.patch("/registrations/:id/status", async (req, res) => {
 
       console.log("Generating QR code for teamCode:", team.teamCode);
       // Generate QR code image buffer for teamCode (ensure only teamCode string is used)
-      const qrCodeDataUrl = await QRCode.toDataURL(team.teamCode);
+      const qrCodeDataUrl = await QRCode.toDataURL(team.teamCode, {
+        width: 300,
+        height: 300,
+      });
       // Convert base64 data URL to buffer
       const base64Data = qrCodeDataUrl.replace(/^data:image\/png;base64,/, "");
       const imgBuffer = Buffer.from(base64Data, "base64");
@@ -360,8 +363,7 @@ HackAbhigna Team`,
         }</strong> has been approved for HackAbhigna in the domain <strong>${
           team.domain
         }</strong>.</p>
-        <p>Please find your QR code attached below:</p>
-        <img src="cid:qrCodeImage" style="width:200px; height:200px;" />
+        <p>Please find your QR code attached.</p>
         <p>Best regards,<br/>HackAbhigna Team</p>
       `,
         attachments: [
@@ -369,8 +371,7 @@ HackAbhigna Team`,
             filename: "qr-code.png",
             content: base64Data,
             type: "image/png",
-            disposition: "inline",
-            content_id: "qrCodeImage",
+            disposition: "attachment",
           },
         ],
       };
@@ -634,7 +635,10 @@ app.post("/regenerate-qr-codes", async (req, res) => {
 
     for (const team of approvedTeams) {
       console.log("Regenerating QR code for teamCode:", team.teamCode);
-      const qrCodeDataUrl = await QRCode.toDataURL(team.teamCode);
+      const qrCodeDataUrl = await QRCode.toDataURL(team.teamCode, {
+        width: 300,
+        height: 300,
+      });
       const base64Data = qrCodeDataUrl.replace(/^data:image\/png;base64,/, "");
       const imgBuffer = Buffer.from(base64Data, "base64");
 
