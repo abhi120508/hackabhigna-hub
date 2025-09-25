@@ -22,31 +22,8 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useGitHubData } from "@/hooks/useGitHubData";
 import { TeamRegistration } from "@/lib/mockBackend"; // Using the same type
-
-// GitHub API types
-interface GitHubCommit {
-  sha: string;
-  commit: {
-    message: string;
-    author: {
-      name: string;
-      email: string;
-      date: string;
-    };
-  };
-  author: {
-    login: string;
-    avatar_url: string;
-  } | null;
-}
-
-interface RepoStats {
-  commits: number;
-  branches: number;
-  lastActivity: string;
-  contributors: number;
-}
 
 const JudgePanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -63,12 +40,22 @@ const JudgePanel = () => {
   const [score, setScore] = useState<string>("");
   const [remarks, setRemarks] = useState<string>("");
   const [judgeName, setJudgeName] = useState<string>("");
-  const [commits, setCommits] = useState<GitHubCommit[]>([]);
-  const [repoStats, setRepoStats] = useState<RepoStats | null>(null);
-  const [loadingRepoData, setLoadingRepoData] = useState<boolean>(false);
   const { toast } = useToast();
 
+  const { data, fetchRepoCommits, fetchRepoStats } = useGitHubData({
+    owner: import.meta.env.VITE_GITHUB_OWNER || "",
+    token: import.meta.env.VITE_GITHUB_TOKEN || "",
+  });
+
   const API_URL = "https://hackabhigna-hub.onrender.com";
+
+  const process = {
+    env: {
+      VITE_GITHUB_OWNER: import.meta.env.VITE_GITHUB_OWNER,
+      VITE_GITHUB_TOKEN: import.meta.env.VITE_GITHUB_TOKEN,
+      VITE_PROJECT_RUN_URL: import.meta.env.VITE_PROJECT_RUN_URL,
+    },
+  };
 
   const loadDomains = useCallback(async () => {
     try {
@@ -85,11 +72,12 @@ const JudgePanel = () => {
         label: d.domain,
       }));
       setDomains(domainOptions);
-    } catch (error) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Unknown error";
       toast({
         variant: "destructive",
         title: "Error",
-        description: (error as Error).message,
+        description: message,
       });
     }
   }, [toast]);
@@ -114,95 +102,7 @@ const JudgePanel = () => {
   }, [toast]);
 
   // GitHub API functions
-  const fetchRepoCommits = useCallback(
-    async (repoName: string) => {
-      if (!repoName) return;
-
-      setLoadingRepoData(true);
-      try {
-        const response = await fetch(
-          `https://api.github.com/repos/${process.env.VITE_GITHUB_OWNER}/${repoName}/commits?per_page=10`,
-          {
-            headers: {
-              Authorization: `token ${process.env.VITE_GITHUB_TOKEN}`,
-              Accept: "application/vnd.github.v3+json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`GitHub API error: ${response.status}`);
-        }
-
-        const commitsData: GitHubCommit[] = await response.json();
-        setCommits(commitsData);
-      } catch (error) {
-        console.error("Error fetching commits:", error);
-        toast({
-          variant: "destructive",
-          title: "GitHub Error",
-          description: "Failed to fetch repository commits",
-        });
-      } finally {
-        setLoadingRepoData(false);
-      }
-    },
-    [toast]
-  );
-
-  const fetchRepoStats = useCallback(async (repoName: string) => {
-    if (!repoName) return;
-
-    try {
-      // Fetch repository info
-      const repoResponse = await fetch(
-        `https://api.github.com/repos/${process.env.VITE_GITHUB_OWNER}/${repoName}`,
-        {
-          headers: {
-            Authorization: `token ${process.env.VITE_GITHUB_TOKEN}`,
-            Accept: "application/vnd.github.v3+json",
-          },
-        }
-      );
-
-      // Fetch branches
-      const branchesResponse = await fetch(
-        `https://api.github.com/repos/${process.env.VITE_GITHUB_OWNER}/${repoName}/branches`,
-        {
-          headers: {
-            Authorization: `token ${process.env.VITE_GITHUB_TOKEN}`,
-            Accept: "application/vnd.github.v3+json",
-          },
-        }
-      );
-
-      // Fetch contributors
-      const contributorsResponse = await fetch(
-        `https://api.github.com/repos/${process.env.VITE_GITHUB_OWNER}/${repoName}/contributors`,
-        {
-          headers: {
-            Authorization: `token ${process.env.VITE_GITHUB_TOKEN}`,
-            Accept: "application/vnd.github.v3+json",
-          },
-        }
-      );
-
-      if (repoResponse.ok && branchesResponse.ok && contributorsResponse.ok) {
-        const repoData = await repoResponse.json();
-        const branchesData = await branchesResponse.json();
-        const contributorsData = await contributorsResponse.json();
-
-        setRepoStats({
-          commits: 0, // Will be updated from commits API
-          branches: branchesData.length,
-          lastActivity: repoData.updated_at,
-          contributors: contributorsData.length,
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching repo stats:", error);
-    }
-  }, []);
+  // Using custom hook instead
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -213,11 +113,20 @@ const JudgePanel = () => {
 
   // Load GitHub data when team is selected
   useEffect(() => {
-    if (selectedTeam && selectedTeam.githubRepo) {
-      const repoName =
-        selectedTeam.githubRepo.split("/").pop() || selectedTeam.teamCode;
-      fetchRepoCommits(repoName);
-      fetchRepoStats(repoName);
+    if (selectedTeam) {
+      // Use the githubRepo field if available, else fallback to teamCode
+      // Extract repo owner and name from full URL if githubRepo is a URL
+      let repoOwner = import.meta.env.VITE_GITHUB_OWNER || "";
+      let repoName = selectedTeam.githubRepo || selectedTeam.teamCode;
+      if (repoName && repoName.startsWith("http")) {
+        const parts = repoName.split("/");
+        if (parts.length >= 5) {
+          repoOwner = parts[3];
+          repoName = parts[4];
+        }
+      }
+      fetchRepoCommits({ owner: repoOwner, repoName });
+      fetchRepoStats({ owner: repoOwner, repoName });
     }
   }, [selectedTeam, fetchRepoCommits, fetchRepoStats]);
 
@@ -397,7 +306,22 @@ const JudgePanel = () => {
                                 : "ghost"
                             }
                             className="w-full justify-start"
-                            onClick={() => setSelectedTeam(team)}
+                            onClick={() => {
+                              setSelectedTeam(team);
+                              // Immediately show team activity, then fetch GitHub data
+                              let repoOwner =
+                                import.meta.env.VITE_GITHUB_OWNER || "";
+                              let repoName = team.githubRepo || team.teamCode;
+                              if (repoName && repoName.startsWith("http")) {
+                                const parts = repoName.split("/");
+                                if (parts.length >= 5) {
+                                  repoOwner = parts[3];
+                                  repoName = parts[4];
+                                }
+                              }
+                              fetchRepoCommits({ owner: repoOwner, repoName });
+                              fetchRepoStats({ owner: repoOwner, repoName });
+                            }}
                           >
                             <div className="flex items-center gap-2">
                               <Badge variant="outline">{team.teamCode}</Badge>
@@ -448,17 +372,26 @@ const JudgePanel = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              const repoName =
-                                selectedTeam.githubRepo?.split("/").pop() ||
+                              let repoOwner =
+                                import.meta.env.VITE_GITHUB_OWNER || "";
+                              let repoName =
+                                selectedTeam.githubRepo ||
                                 selectedTeam.teamCode;
-                              fetchRepoCommits(repoName);
-                              fetchRepoStats(repoName);
+                              if (repoName && repoName.startsWith("http")) {
+                                const parts = repoName.split("/");
+                                if (parts.length >= 5) {
+                                  repoOwner = parts[3];
+                                  repoName = parts[4];
+                                }
+                              }
+                              fetchRepoCommits({ owner: repoOwner, repoName });
+                              fetchRepoStats({ owner: repoOwner, repoName });
                             }}
-                            disabled={loadingRepoData}
+                            disabled={data.loading}
                           >
                             <RefreshCw
                               className={`w-4 h-4 mr-2 ${
-                                loadingRepoData ? "animate-spin" : ""
+                                data.loading ? "animate-spin" : ""
                               }`}
                             />
                             Refresh
@@ -493,19 +426,34 @@ const JudgePanel = () => {
                             <h4 className="font-semibold mb-2">Repository</h4>
                             <a
                               href={`https://github.com/${
-                                process.env.VITE_GITHUB_OWNER
+                                import.meta.env.VITE_GITHUB_OWNER ||
+                                (selectedTeam.githubRepo &&
+                                selectedTeam.githubRepo.startsWith("http")
+                                  ? selectedTeam.githubRepo.split("/")[3]
+                                  : "")
                               }/${
-                                selectedTeam.githubRepo?.split("/").pop() ||
-                                selectedTeam.teamCode
+                                selectedTeam.githubRepo &&
+                                selectedTeam.githubRepo.startsWith("http")
+                                  ? selectedTeam.githubRepo.split("/").pop()
+                                  : selectedTeam.githubRepo ||
+                                    selectedTeam.teamCode
                               }`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-primary hover:underline flex items-center gap-2"
                             >
                               <Github className="w-4 h-4" />
-                              {process.env.VITE_GITHUB_OWNER}/
-                              {selectedTeam.githubRepo?.split("/").pop() ||
-                                selectedTeam.teamCode}
+                              {import.meta.env.VITE_GITHUB_OWNER ||
+                                (selectedTeam.githubRepo &&
+                                selectedTeam.githubRepo.startsWith("http")
+                                  ? selectedTeam.githubRepo.split("/")[3]
+                                  : "")}
+                              /
+                              {selectedTeam.githubRepo &&
+                              selectedTeam.githubRepo.startsWith("http")
+                                ? selectedTeam.githubRepo.split("/").pop()
+                                : selectedTeam.githubRepo ||
+                                  selectedTeam.teamCode}
                               <ExternalLink className="w-3 h-3" />
                             </a>
                           </div>
@@ -515,10 +463,17 @@ const JudgePanel = () => {
                               size="sm"
                               onClick={() => {
                                 const repoUrl = `https://github.com/${
-                                  process.env.VITE_GITHUB_OWNER
+                                  import.meta.env.VITE_GITHUB_OWNER ||
+                                  (selectedTeam.githubRepo &&
+                                  selectedTeam.githubRepo.startsWith("http")
+                                    ? selectedTeam.githubRepo.split("/")[3]
+                                    : "")
                                 }/${
-                                  selectedTeam.githubRepo?.split("/").pop() ||
-                                  selectedTeam.teamCode
+                                  selectedTeam.githubRepo &&
+                                  selectedTeam.githubRepo.startsWith("http")
+                                    ? selectedTeam.githubRepo.split("/").pop()
+                                    : selectedTeam.githubRepo ||
+                                      selectedTeam.teamCode
                                 }`;
                                 window.open(repoUrl, "_blank");
                               }}
@@ -531,10 +486,17 @@ const JudgePanel = () => {
                               size="sm"
                               onClick={() => {
                                 const repoUrl = `https://${
-                                  process.env.VITE_GITHUB_OWNER
+                                  import.meta.env.VITE_GITHUB_OWNER ||
+                                  (selectedTeam.githubRepo &&
+                                  selectedTeam.githubRepo.startsWith("http")
+                                    ? selectedTeam.githubRepo.split("/")[3]
+                                    : "")
                                 }.github.io/${
-                                  selectedTeam.githubRepo?.split("/").pop() ||
-                                  selectedTeam.teamCode
+                                  selectedTeam.githubRepo &&
+                                  selectedTeam.githubRepo.startsWith("http")
+                                    ? selectedTeam.githubRepo.split("/").pop()
+                                    : selectedTeam.githubRepo ||
+                                      selectedTeam.teamCode
                                 }`;
                                 window.open(repoUrl, "_blank");
                               }}
@@ -551,7 +513,7 @@ const JudgePanel = () => {
                             <CardContent className="p-4 text-center">
                               <GitCommit className="w-6 h-6 mx-auto mb-2 text-primary" />
                               <div className="text-2xl font-bold">
-                                {loadingRepoData ? "..." : commits.length}
+                                {data.loading ? "..." : data.commits.length}
                               </div>
                               <div className="text-sm text-muted-foreground">
                                 Recent Commits
@@ -562,9 +524,9 @@ const JudgePanel = () => {
                             <CardContent className="p-4 text-center">
                               <GitBranch className="w-6 h-6 mx-auto mb-2 text-accent" />
                               <div className="text-2xl font-bold">
-                                {loadingRepoData
+                                {data.loading
                                   ? "..."
-                                  : repoStats?.branches || 0}
+                                  : data.repoStats?.branches || 0}
                               </div>
                               <div className="text-sm text-muted-foreground">
                                 Branches
@@ -575,9 +537,9 @@ const JudgePanel = () => {
                             <CardContent className="p-4 text-center">
                               <User className="w-6 h-6 mx-auto mb-2 text-secondary" />
                               <div className="text-2xl font-bold">
-                                {loadingRepoData
+                                {data.loading
                                   ? "..."
-                                  : repoStats?.contributors || 0}
+                                  : data.repoStats?.contributors || 0}
                               </div>
                               <div className="text-sm text-muted-foreground">
                                 Contributors
@@ -588,11 +550,11 @@ const JudgePanel = () => {
                             <CardContent className="p-4 text-center">
                               <Clock className="w-6 h-6 mx-auto mb-2 text-green-500" />
                               <div className="text-sm font-bold text-primary">
-                                {loadingRepoData
+                                {data.loading
                                   ? "..."
-                                  : repoStats?.lastActivity
+                                  : data.repoStats?.lastActivity
                                   ? new Date(
-                                      repoStats.lastActivity
+                                      data.repoStats.lastActivity
                                     ).toLocaleDateString()
                                   : "N/A"}
                               </div>
@@ -614,14 +576,14 @@ const JudgePanel = () => {
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        {loadingRepoData ? (
+                        {data.loading ? (
                           <div className="text-center py-8">
                             <RefreshCw className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
                             <p className="text-muted-foreground">
                               Loading commits...
                             </p>
                           </div>
-                        ) : commits.length === 0 ? (
+                        ) : data.commits.length === 0 ? (
                           <div className="text-center py-8">
                             <GitCommit className="w-8 h-8 mx-auto mb-4 text-muted-foreground" />
                             <p className="text-muted-foreground">
@@ -630,7 +592,7 @@ const JudgePanel = () => {
                           </div>
                         ) : (
                           <div className="space-y-4">
-                            {commits.slice(0, 5).map((commit) => (
+                            {data.commits.slice(0, 5).map((commit) => (
                               <div
                                 key={commit.sha}
                                 className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg"
@@ -669,11 +631,19 @@ const JudgePanel = () => {
                                   size="sm"
                                   onClick={() => {
                                     const commitUrl = `https://github.com/${
-                                      process.env.VITE_GITHUB_OWNER
+                                      import.meta.env.VITE_GITHUB_OWNER ||
+                                      (selectedTeam.githubRepo &&
+                                      selectedTeam.githubRepo.startsWith("http")
+                                        ? selectedTeam.githubRepo.split("/")[3]
+                                        : "")
                                     }/${
-                                      selectedTeam.githubRepo
-                                        ?.split("/")
-                                        .pop() || selectedTeam.teamCode
+                                      selectedTeam.githubRepo &&
+                                      selectedTeam.githubRepo.startsWith("http")
+                                        ? selectedTeam.githubRepo
+                                            .split("/")
+                                            .pop()
+                                        : selectedTeam.githubRepo ||
+                                          selectedTeam.teamCode
                                     }/commit/${commit.sha}`;
                                     window.open(commitUrl, "_blank");
                                   }}
