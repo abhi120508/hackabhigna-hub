@@ -30,11 +30,9 @@ const sendMail = async (mailOptions) => {
     }
 
     // Set default FROM email if not provided
-    const fromEmail = mailOptions.from || process.env.FROM_EMAIL;
+    const fromEmail = mailOptions.from || "noreply@hackabhigna.in";
     if (!fromEmail) {
-      throw new Error(
-        "FROM email is not set. Set mailOptions.from or FROM_EMAIL env variable"
-      );
+      throw new Error("FROM email is not set. Set mailOptions.from");
     }
 
     console.log("📧 Sending email via SendGrid API...");
