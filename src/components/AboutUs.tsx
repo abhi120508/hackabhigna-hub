@@ -1,12 +1,8 @@
-// components/AboutUs.tsx
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Target, Award, Lightbulb, Zap } from "lucide-react";
-
+import { Users, Target, Award, Lightbulb, Zap, User } from "lucide-react";
 import "./aboutus.css";
 import "./global.css";
-// ✅ Import hologram card styles
 
 export function AboutUs() {
   const values = [
@@ -37,83 +33,101 @@ export function AboutUs() {
       name: "Ravi Kumar",
       role: "Assistant Professor",
       description: "123456789",
+      image: "/images/faculty/ravi-kumar.jpg",
     },
     {
-      name: "RAGHURAMEGOWDA",
+      name: "RAGHURAME GOWDA",
       role: "Assistant Professor",
       description: "123456789",
+      image: "/images/faculty/raghurame-gowda.jpg",
     },
-        {
-      name: "ANSER PASHA ",
+    {
+      name: "ANSER PASHA",
       role: "Assistant Professor",
       description: "123456789",
+      image: "/images/faculty/anser-pasha.jpg",
     },
-        {
+    {
       name: "HARISH S",
       role: "Assistant Professor",
       description: "123456789",
-    }
+      image: "/images/faculty/harish-s.jpg",
+    },
   ];
-/*need to fill the detailed inf0 will do kt after sometime */
+
   const studentCoordinators = [
     {
       name: "ABHISHEK D S",
       role: "Student Coordinator",
       description: "Passionate about student development",
+      image: "/images/students/abhishek.jpg",
     },
     {
       name: "AKSHATA CHITME",
-      role: "Operations Manager",
+      role: "Student Coordinator",
       description: "Ensuring smooth event execution",
+      image: "/images/students/akshata.jpg",
     },
     {
       name: "DISHA GOWDA",
       role: "Student Coordinator",
       description: "Passionate about student development",
+      image: "/images/students/disha.jpg",
     },
     {
       name: "JEVWL PINTO",
-      role: "Operations Manager",
+      role: "Student Coordinator",
       description: "Ensuring smooth event execution",
+      image: "/images/students/jevwl.jpg",
     },
-        {
+    {
       name: "MOHAMMED ZAID ALI",
       role: "Student Coordinator",
       description: "Passionate about student development",
+      image: "/images/students/zaid.jpg",
     },
     {
       name: "SHREYANKA A Y",
       role: "Student Coordinator",
       description: "Ensuring smooth event execution",
+      image: "/images/students/shreyanka.jpg",
     },
-        {
+    {
       name: "SRIRAG D R",
       role: "Student Coordinator",
       description: "Passionate about student development",
+      image: "/images/students/srirag.jpg",
     },
-
   ];
-
 
   return (
     <div
       className="w-full bg-gradient-to-br from-background to-muted/20 py-20 scroll-mt-102 mb-10"
-      style={{ marginTop: "220px" }}
+      style={{ marginTop: "200px" }}
     >
       <div className="max-w-6xl mx-auto">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <Badge className="mb-4 orbitron-neon text-lg text-white md:text-3xl lg:text-2xl">
+          {/* CHANGE 1: Reduced badge font size */}
+          <Badge 
+            className="mb-4 orbitron-neon text-white" 
+            style={{ fontSize: '1rem' }}
+          >
             About HackAbhigna
           </Badge>
+          {/* CHANGE 2: Reduced main title font size */}
           <h1
-            className="text-4xl md:text-6xl font-bold mb-6 orbitron-neon"
+            className="text-3xl md:text-4xl font-bold mb-6 orbitron-neon"
             style={{ color: "rgb(201, 114, 219)" }}
           >
             <span>Empowering</span>
             <span> Innovation</span>
           </h1>
-          <p className="text-xl text-white text-muted-foreground max-w-3xl mx-auto orbitron-neon">
+          {/* CHANGE 3: Reduced paragraph font size and improved alignment */}
+          <p 
+            className="text-white text-muted-foreground max-w-3xl mx-auto orbitron-neon text-center"
+            style={{ fontSize: '1rem', lineHeight: '1.6' }}
+          >
             HackAbhigna is more than a hackathon – it's a movement that brings
             together brilliant minds to solve real-world problems through
             technology and creativity.
@@ -125,12 +139,20 @@ export function AboutUs() {
           <Card className="card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 orbitron-neon">
-                <Target className="w-6 h-6 text-primary" />
-                Our Mission
+                <Target 
+                  className="w-5 h-5" 
+                  style={{ color: 'rgb(201, 114, 219)' }}
+                />
+                {/* CHANGE 4: Reduced Mission title font size */}
+                <span style={{ fontSize: '1.125rem' }}>Our Mission</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground orbitron-neon text-white text-base md:text-lg lg:text-xl">
+              {/* CHANGE 5: Reduced mission description font size */}
+              <p 
+                className="text-white orbitron-neon text-left"
+                style={{ fontSize: '0.875rem', lineHeight: '1.5' }}
+              >
                 To create a platform where students, developers, and innovators
                 can collaborate, learn, and build solutions that make a positive
                 impact on society. We believe in the power of technology to
@@ -142,12 +164,20 @@ export function AboutUs() {
           <Card className="card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 orbitron-neon">
-                <Zap className="w-6 h-6 text-primary" />
-                Our Vision
+                <Zap 
+                  className="w-5 h-5" 
+                  style={{ color: 'rgb(201, 114, 219)' }}
+                />
+                {/* CHANGE 6: Reduced Vision title font size */}
+                <span style={{ fontSize: '1.125rem' }}>Our Vision</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground orbitron-neon text-base md:text-lg lg:text-xl text-white">
+              {/* CHANGE 7: Reduced vision description font size */}
+              <p 
+                className="text-white orbitron-neon text-left"
+                style={{ fontSize: '0.875rem', lineHeight: '1.5' }}
+              >
                 To be the leading platform for technological innovation in
                 India, fostering a culture of creativity, collaboration, and
                 continuous learning. We envision a world where technology serves
@@ -159,18 +189,35 @@ export function AboutUs() {
 
         {/* Values */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold text-center mb-8 orbitron-neon">
+          {/* CHANGE 8: Reduced Values section title font size + CHANGE 24: Added purple color */}
+          <h2 
+            className="font-bold text-center mb-8 orbitron-neon"
+            style={{ fontSize: '2rem', color: 'rgb(201, 114, 219)' }}
+          >
             Our Values
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((value, index) => {
+            {values.map((value, idx) => {
               const Icon = value.icon;
               return (
-                <Card key={index} className="card text-center orbitron-neon">
+                <Card key={idx} className="card text-center orbitron-neon">
                   <CardContent className="pt-6 relative z-10">
-                    <Icon className="w-12 h-12 text-primary mx-auto mb-4" />
-                    <h3 className="font-semibold mb-2">{value.title}</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <Icon 
+                      className="w-10 h-10 mx-auto mb-4" 
+                      style={{ color: 'rgb(201, 114, 219)' }}
+                    />
+                    {/* CHANGE 9: Reduced value title font size */}
+                    <h3 
+                      className="font-semibold mb-2"
+                      style={{ fontSize: '1rem' }}
+                    >
+                      {value.title}
+                    </h3>
+                    {/* CHANGE 10: Reduced value description font size */}
+                    <p 
+                      className="text-muted-foreground"
+                      style={{ fontSize: '0.75rem', lineHeight: '1.4' }}
+                    >
                       {value.description}
                     </p>
                   </CardContent>
@@ -180,46 +227,106 @@ export function AboutUs() {
           </div>
         </div>
 
-        {/* Team Section with AI-themed Hologram Cards */}
-        <div className="mb-40 team-container">
-          <h2 className="text-3xl font-bold text-center mb-8 orbitron-neon">
-            Meet Our Team
-          </h2>
-          {/* Faculty Coordinators */}
-          <h3 className="text-2xl font-semibold mb-6 orbitron-neon text-center text-cyan-300">
+        {/* Faculty Coordinators */}
+        <div className="mb-16">
+          {/* CHANGE 11: Reduced Faculty Coordinators title font size + CHANGE 25: Added purple color */}
+          <h2 
+            className="font-bold text-center mb-8 orbitron-neon"
+            style={{ fontSize: '2rem', color: 'rgb(201, 114, 219)' }}
+          >
             Faculty Coordinators
-          </h3>
-          <div className="team-grid mb-16">
-            {facultyCoordinators.map((member, index) => (
-              <div key={index} className="holo-card">
-                <div className="holo-img-placeholder">
-                  <Users className="team-icon" size={48} />
-                </div>
-                <div className="overlay">
-                  <div className="name">{member.name}</div>
-                  <div className="contact">{member.role}</div>
-                  <p className="description">{member.description}</p>
-                </div>
-              </div>
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {facultyCoordinators.map((member, idx) => (
+              <Card
+                key={idx}
+                className="card text-center orbitron-neon"
+                style={{ minHeight: '250px' }}
+              >
+                <CardContent className="pt-6 relative z-10 flex flex-col items-center">
+                  {/* CHANGE 12: Replaced image with User icon as fallback */}
+                  <div className="w-20 h-20 bg-gray-600 rounded-full flex items-center justify-center mb-3 border-2 hover:scale-105 transition-transform"
+                       style={{ borderColor: 'rgb(201, 114, 219)' }}>
+                    <User 
+                      className="w-10 h-10" 
+                      style={{ color: 'rgb(201, 114, 219)' }}
+                    />
+                  </div>
+                  {/* CHANGE 13: Reduced faculty name font size */}
+                  <h3 
+                    className="font-semibold mb-1 text-center"
+                    style={{ fontSize: '0.875rem' }}
+                  >
+                    {member.name}
+                  </h3>
+                  {/* CHANGE 14: Reduced faculty role font size */}
+                  <p 
+                    className="mb-1 text-center"
+                    style={{ fontSize: '0.75rem', color: 'rgb(201, 114, 219)' }}
+                  >
+                    {member.role}
+                  </p>
+                  {/* CHANGE 15: Reduced faculty description font size */}
+                  <p 
+                    className="text-muted-foreground text-center"
+                    style={{ fontSize: '0.625rem' }}
+                  >
+                    {member.description}
+                  </p>
+                </CardContent>
+              </Card>
             ))}
           </div>
+        </div>
 
-          {/* Student Coordinators */}
-          <h3 className="text-2xl font-semibold mb-6 orbitron-neon text-center text-purple-300">
+        {/* Student Coordinators */}
+        <div className="mb-16">
+          {/* CHANGE 16: Reduced Student Coordinators title font size + CHANGE 26: Added purple color */}
+          <h2 
+            className="font-bold text-center mb-8 orbitron-neon"
+            style={{ fontSize: '2rem', color: 'rgb(201, 114, 219)' }}
+          >
             Student Coordinators
-          </h3>
-          <div className="team-grid">
-            {studentCoordinators.map((member, index) => (
-              <div key={index} className="holo-card">
-                <div className="holo-img-placeholder">
-                  <Users className="team-icon" size={48} />
-                </div>
-                <div className="overlay">
-                  <div className="name">{member.name}</div>
-                  <div className="contact">{member.role}</div>
-                  <p className="description">{member.description}</p>
-                </div>
-              </div>
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {studentCoordinators.map((member, idx) => (
+              <Card
+                key={idx}
+                className="card text-center orbitron-neon"
+                style={{ minHeight: '250px' }}
+              >
+                <CardContent className="pt-6 relative z-10 flex flex-col items-center">
+                  {/* CHANGE 17: Replaced image with User icon as fallback */}
+                  <div className="w-20 h-20 bg-gray-600 rounded-full flex items-center justify-center mb-3 border-2 hover:scale-105 transition-transform"
+                       style={{ borderColor: 'rgb(201, 114, 219)' }}>
+                    <User 
+                      className="w-10 h-10" 
+                      style={{ color: 'rgb(201, 114, 219)' }}
+                    />
+                  </div>
+                  {/* CHANGE 18: Reduced student name font size */}
+                  <h3 
+                    className="font-semibold mb-1 text-center"
+                    style={{ fontSize: '0.875rem' }}
+                  >
+                    {member.name}
+                  </h3>
+                  {/* CHANGE 19: Reduced student role font size */}
+                  <p 
+                    className="mb-1 text-center"
+                    style={{ fontSize: '0.75rem', color: 'rgb(201, 114, 219)' }}
+                  >
+                    {member.role}
+                  </p>
+                  {/* CHANGE 20: Reduced student description font size */}
+                  <p 
+                    className="text-muted-foreground text-center"
+                    style={{ fontSize: '0.625rem' }}
+                  >
+                    {member.description}
+                  </p>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
@@ -227,33 +334,71 @@ export function AboutUs() {
         {/* Stats */}
         <Card className="my-24 card">
           <CardHeader>
-            <CardTitle className="text-center orbitron-neon">
+            {/* CHANGE 21: Reduced stats title font size */}
+            <CardTitle 
+              className="text-center orbitron-neon"
+              style={{ fontSize: '1.5rem' }}
+            >
               Our Impact
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center orbitron-neon">
               <div>
-                <div className="text-3xl font-bold text-primary mb-2">500+</div>
-                <div className="text-sm text-muted-foreground">
+                {/* CHANGE 22: Reduced stats numbers font size */}
+                <div 
+                  className="font-bold mb-2"
+                  style={{ fontSize: '2rem', color: 'rgb(201, 114, 219)' }}
+                >
+                  400+
+                </div>
+                {/* CHANGE 23: Reduced stats labels font size */}
+                <div 
+                  className="text-muted-foreground"
+                  style={{ fontSize: '0.75rem' }}
+                >
                   Participants
                 </div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-accent mb-2">50+</div>
-                <div className="text-sm text-muted-foreground">Projects</div>
+                <div 
+                  className="font-bold mb-2"
+                  style={{ fontSize: '2rem', color: 'rgb(201, 114, 219)' }}
+                >
+                  100+
+                </div>
+                <div 
+                  className="text-muted-foreground"
+                  style={{ fontSize: '0.75rem' }}
+                >
+                  Projects
+                </div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-secondary mb-2">
+                <div 
+                  className="font-bold mb-2"
+                  style={{ fontSize: '2rem', color: 'rgb(201, 114, 219)' }}
+                >
                   20+
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  Universities
+                <div 
+                  className="text-muted-foreground"
+                  style={{ fontSize: '0.75rem' }}
+                >
+                  Colleges
                 </div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-primary mb-2">₹10L+</div>
-                <div className="text-sm text-muted-foreground">
+                <div 
+                  className="font-bold mb-2"
+                  style={{ fontSize: '2rem', color: 'rgb(201, 114, 219)' }}
+                >
+                  ₹1L+
+                </div>
+                <div 
+                  className="text-muted-foreground"
+                  style={{ fontSize: '0.75rem' }}
+                >
                   Impact Created
                 </div>
               </div>

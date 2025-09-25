@@ -58,12 +58,14 @@
 
 @media (min-width: 640px) {
   .domains-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 .centered-card {
   grid-column: span 2;
+  width: 60%;
+  margin: 0 auto;
 }
 
 /* ===============================
@@ -72,7 +74,7 @@
 .cards {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
   border-radius: 1rem;
   transition: all 0.3s ease;
   cursor: pointer;

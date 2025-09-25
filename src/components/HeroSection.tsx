@@ -65,24 +65,37 @@ export function HeroSection() {
           }`}
         >
           <div 
-            className="flex items-center justify-center gap-2 font-subtitle text-white text-2xl md:text-3xl" 
+            className="flex items-center justify-center gap-2 font-subtitle text-white text-sm md:text-base" 
             style={{ fontFamily: "'Orbitron', sans-serif" }}
           >
-            <Calendar className="w-5 h-5" /> Oct 16–17
+            <Calendar 
+              className="w-8 h-8 md:w-10 md:h-10" 
+              style={{ color: 'rgb(201, 114, 219)' }}
+            /> 
+            Oct 30–31
           </div>
           <div 
-            className="flex items-center justify-center gap-2 font-subtitle text-white text-2xl md:text-3xl" 
+            className="flex items-center justify-center gap-2 font-subtitle text-white text-sm md:text-base" 
             style={{ fontFamily: "'Orbitron', sans-serif" }}
           >
-            <MapPin className="w-5 h-5" /> AIT Campus
+            <MapPin 
+              className="w-8 h-8 md:w-10 md:h-10" 
+              style={{ color: 'rgb(201, 114, 219)' }}
+            /> 
+            AIT Campus
           </div>
           <div 
-            className="flex items-center justify-center gap-2 font-subtitle text-white text-2xl md:text-3xl" 
+            className="flex items-center justify-center gap-2 font-subtitle text-white text-sm md:text-base" 
             style={{ fontFamily: "'Orbitron', sans-serif" }}
           >
-            <Trophy className="w-5 h-5" /> ₹1,00,000 Prize
+            <Trophy 
+              className="w-8 h-8 md:w-10 md:h-10" 
+              style={{ color: 'rgb(201, 114, 219)' }}
+            /> 
+            ₹1,00,000 Prize
           </div>
         </div>
+
 
         {/* Register Button */}
         <div
@@ -90,8 +103,9 @@ export function HeroSection() {
             show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
-          <Button variant="hero" size="lg" className="px-8 py-6 font-body">
-            <Users className="w-5 h-5 mr-2" /> Register Now
+          <Button className="custom-white-button px-8 py-6 font-body">
+            <Users className="w-5 h-5 mr-2" /> 
+            Register Now
           </Button>
         </div>
       </div>

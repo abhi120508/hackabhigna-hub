@@ -225,14 +225,15 @@ body {
   .innovate-conquer { font-size: 0.9em; }
   .hero-section { padding: 0.5rem 0.25rem; }
 }
+
 .register-btn {
-  font-size: 1.5rem; /* Larger text */
+  font-size: 1.5rem;
   font-weight: 700;
   text-transform: uppercase;
   padding: 1rem 2rem;
-  background-color: #000; /* Initial black */
-  color: #ffffff; /* White text */
-  border: 2px solid transparent;
+  background-color:rgb(201, 114, 219);;
+  color: rgb(255, 255, 255); /* updated text color */
+  border: 2px solid rgb(201, 114, 219); /* optional border to match */
   position: relative;
   overflow: hidden;
   transition: all 0.4s ease-in-out;
@@ -242,11 +243,12 @@ body {
 }
 
 .register-btn:hover {
-  color: #ffffff;
-  background: transparent;
-  border-color: transparent;
+  background-color: transparent; /* transparent on hover */
+  color: rgb(201, 114, 219);     /* retain text color on hover */
+  border-color: rgb(201, 114, 219); /* optional: border persists */
 }
 
+/* Optional animation layer */
 .register-btn::before {
   content: "";
   position: absolute;
@@ -256,13 +258,13 @@ body {
   height: 100%;
   background: linear-gradient(
     90deg,
-    rgba(0, 123, 255, 1),
-    rgba(0, 123, 255, 0.2),
+    rgba(201, 114, 219, 0.5),
+    rgba(201, 114, 219, 0.2),
     transparent
   );
   z-index: 0;
   transition: all 0.6s ease-in-out;
-  animation: blue-glow-slide 3s linear infinite;
+  animation: pink-glow-slide 3s linear infinite;
   opacity: 1;
 }
 
@@ -275,6 +277,7 @@ body {
   position: relative;
   z-index: 2;
 }
+
 
 @keyframes blue-glow-slide {
   0% {

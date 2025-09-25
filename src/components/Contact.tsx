@@ -40,7 +40,7 @@ export function Contact() {
     {
       icon: Mail,
       title: "Email",
-      details: "hackabhigna@ait.edu.in",
+      details: "hackabhigna@gmail.com",
       description: "Send us an email anytime",
     },
     {
@@ -52,7 +52,7 @@ export function Contact() {
     {
       icon: MapPin,
       title: "Address",
-      details: "AIT Campus, Bangalore",
+      details: "Adichunchanagiri Institute Of Technology , Chikkamagaluru",
       description: "Visit our campus",
     },
     {
@@ -96,7 +96,7 @@ export function Contact() {
           <Badge className="mb-4 text-white text-2xl font-bold bg-transparent border-none">
             Get In Touch
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6" style={{ color: ' rgb(201, 114, 219)'}}>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6" style={{ color: 'rgb(201, 114, 219)'}}>
             Contact Us
           </h1>
 
@@ -111,7 +111,10 @@ export function Contact() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="w-6 h-6" />
+                <MessageSquare 
+                  className="w-6 h-6" 
+                  style={{ color: 'rgb(201, 114, 219)' }}
+                />
                 Send us a Message
               </CardTitle>
             </CardHeader>
@@ -165,7 +168,14 @@ export function Contact() {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full gap-2">
+                <Button 
+                  type="submit" 
+                  className="w-full gap-2"
+                  style={{ 
+                    backgroundColor: 'rgb(201, 114, 219)',
+                    borderColor: 'rgb(201, 114, 219)'
+                  }}
+                >
                   <Send className="w-4 h-4" />
                   Send Message
                 </Button>
@@ -181,12 +191,21 @@ export function Contact() {
                 <Card key={index}>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <Icon className="w-6 h-6 text-primary" />
+                      <div 
+                        className="w-12 h-12 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: 'rgba(201, 114, 219, 0.1)' }}
+                      >
+                        <Icon 
+                          className="w-6 h-6" 
+                          style={{ color: 'rgb(201, 114, 219)' }}
+                        />
                       </div>
                       <div>
                         <h3 className="font-semibold mb-1">{info.title}</h3>
-                        <p className="text-primary font-medium mb-1">
+                        <p 
+                          className="font-medium mb-1"
+                          style={{ color: 'rgb(201, 114, 219)' }}
+                        >
                           {info.details}
                         </p>
                         <p className="text-sm text-muted-foreground">
@@ -205,7 +224,10 @@ export function Contact() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <HelpCircle className="w-6 h-6" />
+              <HelpCircle 
+                className="w-6 h-6" 
+                style={{ color: 'rgb(201, 114, 219)' }}
+              />
               Frequently Asked Questions
             </CardTitle>
           </CardHeader>
@@ -213,7 +235,12 @@ export function Contact() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {faqs.map((faq, index) => (
                 <div key={index} className="space-y-2">
-                  <h3 className="font-semibold text-primary">{faq.question}</h3>
+                  <h3 
+                    className="font-semibold"
+                    style={{ color: 'rgb(201, 114, 219)' }}
+                  >
+                    {faq.question}
+                  </h3>
                   <p className="text-sm text-muted-foreground">{faq.answer}</p>
                 </div>
               ))}
