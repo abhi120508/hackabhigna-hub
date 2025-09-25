@@ -340,7 +340,7 @@ app.patch("/registrations/:id/status", async (req, res) => {
 
       // Prepare email options with inline QR code attachment
       const mailOptions = {
-        from: `"HackAbhigna" <${process.env.SMTP_USER}>`,
+        from: `"HackAbhigna" <noreply@hackabhigna.in>`,
         to: team.participants[team.leaderIndex]?.email,
         subject: "HackAbhigna Registration Approved",
         text: `Dear ${team.participants[team.leaderIndex]?.name},
@@ -385,7 +385,7 @@ HackAbhigna Team`,
     } else if (status === "rejected") {
       // Prepare rejection email options
       const mailOptions = {
-        from: `"HackAbhigna" <${process.env.SMTP_USER}>`,
+        from: `"HackAbhigna" <noreply@hackabhigna.in>`,
         to: team.participants[team.leaderIndex]?.email,
         subject: "HackAbhigna Registration Update",
         text: `Dear ${team.participants[team.leaderIndex]?.name},
@@ -562,7 +562,7 @@ app.post("/give-access", async (req, res) => {
     );
 
     const mailOptions = {
-      from: `"HackAbhigna" <${process.env.SMTP_USER}>`,
+      from: `"HackAbhigna" <noreply@hackabhigna.in>`,
       to: teamLeaderEmail,
       subject: "GitHub Repository Access Granted",
       text: `Dear ${teamLeaderName},
