@@ -733,11 +733,10 @@ const AdminPanel = () => {
                                 <div className="text-muted-foreground ml-2">
                                   <Mail className="w-3 h-3 inline mr-1" />
                                   {participant.email}
-                                  {participant.college && (
-                                    <div className="text-xs">
-                                      College: {participant.college}
-                                    </div>
-                                  )}
+                                  <div className="text-xs">
+                                    College:{" "}
+                                    {participant.college || "Not provided"}
+                                  </div>
                                   {participant.mobile && (
                                     <div>
                                       <Phone className="w-3 h-3 inline mr-1" />

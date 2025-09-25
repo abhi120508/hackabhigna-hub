@@ -365,14 +365,19 @@ export function RegistrationForm() {
                       placeholder={`Member ${index + 1} Email`}
                       className="bg-input/50 flex-1"
                     />
-                    <Input
-                      value={participant.college}
-                      onChange={(e) =>
-                        updateParticipant(index, "college", e.target.value)
-                      }
-                      placeholder={`Member ${index + 1} College`}
-                      className="bg-input/50 flex-1"
-                    />
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium">
+                        College Name
+                      </Label>
+                      <Input
+                        value={participant.college}
+                        onChange={(e) =>
+                          updateParticipant(index, "college", e.target.value)
+                        }
+                        placeholder={`Enter college name`}
+                        className="bg-input/50"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
