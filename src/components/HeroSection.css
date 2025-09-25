@@ -10,13 +10,12 @@
   --font-subtitle: 'Rajdhani', sans-serif;
   --font-body: 'Roboto', sans-serif;
   --font-ui-label: 'Montserrat', sans-serif;
-
   --background-color: transparent;
   --text-color: #ffffff;
   --accent-color: #00FFFF;
   --accent-color-secondary: #B300FF;
   --accent-color-1: red;
-  --accent-color-2: cyan;
+  --accent-color-2: rgb(2, 21, 21);
   --accent-color-3: magenta;
 
   --button-bg: #007BFF;
@@ -37,7 +36,7 @@ body {
 .hero-section {
   position: relative;
   padding-top: 5rem; /* space for fixed navbar */
-  padding-bottom: 2rem;
+  padding-bottom: 1rem;
   text-align: center;
   margin-top: 0;
 }
@@ -159,7 +158,37 @@ body {
 /* Retro Subtitle */
 .hack-subtitle {
   font-family: var(--font-title);
-  font-size: 2.5em; /* increased font size */
+  font-size: 1.5em; /* increased font size */
+  text-align: center;
+  color: #74e1ed; /* lighter pink for subtitle */
+  text-shadow:
+    0 0 4px #aee1bf,
+    0 0 8px #5be59b,
+    -1px 0 var(--accent-color-2),
+    1px 0 var(--accent-color-1);
+  margin-top: 1.5rem;
+  animation: slowDeblur 3s ease-out forwards, flickerAnim 1.5s infinite;
+}
+
+/* Separate class for REGISTRATION OPEN */
+.registration-open {
+  font-family: var(--font-title);
+  font-size: 1.2em; /* reduced font size */
+  text-align: center;
+  color: #74e1ed; /* lighter pink for subtitle */
+  text-shadow:
+    0 0 4px #aee1bf,
+    0 0 8px #5be59b,
+    -1px 0 var(--accent-color-2),
+    1px 0 var(--accent-color-1);
+  margin-top: 1.5rem;
+  animation: slowDeblur 3s ease-out forwards, flickerAnim 1.5s infinite;
+}
+
+/* Separate class for INNOVATE CODE AND CONQUER */
+.innovate-conquer {
+  font-family: var(--font-title);
+  font-size: 1.5em; /* original font size */
   text-align: center;
   color: #74e1ed; /* lighter pink for subtitle */
   text-shadow:
@@ -173,10 +202,28 @@ body {
 
 
 /* Responsive Scaling */
+@media screen and (max-width: 1024px) {
+  .hack-text { font-size: 4em; }
+  .hack-subtitle { font-size: 1.2em; }
+  .registration-open { font-size: 1em; }
+  .innovate-conquer { font-size: 1.2em; }
+  .hero-section { padding: 1.5rem 1rem; }
+}
+
 @media screen and (max-width: 768px) {
-  .hack-text { font-size: 3.5em; }
-  .hack-subtitle { font-size: 1.5em; }
-  h3 { font-size: 1.5em; }
+  .hack-text { font-size: 2.5em; }
+  .hack-subtitle { font-size: 1em; }
+  .registration-open { font-size: 0.9em; }
+  .innovate-conquer { font-size: 1em; }
+  .hero-section { padding: 1rem 0.5rem; }
+}
+
+@media screen and (max-width: 480px) {
+  .hack-text { font-size: 2em; }
+  .hack-subtitle { font-size: 0.9em; }
+  .registration-open { font-size: 0.8em; }
+  .innovate-conquer { font-size: 0.9em; }
+  .hero-section { padding: 0.5rem 0.25rem; }
 }
 .register-btn {
   font-size: 1.5rem; /* Larger text */

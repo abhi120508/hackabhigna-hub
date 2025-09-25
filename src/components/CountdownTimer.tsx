@@ -42,10 +42,10 @@ export function CountdownTimer() {
   }, []);
 
   const boxStyle =
-    "text-center bg-black/40 backdrop-blur-sm rounded-lg p-4 border border-opacity-50";
+    "text-center bg-black/40 backdrop-blur-sm rounded-lg p-4 border border-opacity-50 w-20 h-20 flex flex-col justify-center";
 
   const neonText = (color: string) =>
-    `text-3xl md:text-4xl font-bold text-[${color}] drop-shadow-[0_0_6px_${color}] drop-shadow-[0_0_12px_${color}]`;
+    `text-xl md:text-2xl font-bold text-[${color}] drop-shadow-[0_0_6px_${color}] drop-shadow-[0_0_12px_${color}]`;
 
   const labelStyle = "text-xs md:text-sm text-white/70";
 

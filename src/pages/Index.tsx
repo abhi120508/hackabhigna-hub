@@ -11,7 +11,7 @@ const Index = () => {
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = 0.25; // 👈 Play at half speed
+      videoRef.current.playbackRate = 0.15; // 👈 Play at half speed
     }
   }, []);
 
@@ -33,22 +33,22 @@ const Index = () => {
 
       <div className="w-full relative z-10">
         {/* Hero */}
-        <section className="h-screen bg-transparent">
+        <section className="bg-transparent">
           <HeroSection />
         </section>
 
         {/* Domains */}
-        <section className="h-screen bg-transparent">
+        <section className="bg-transparent">
           <DomainsSection />
         </section>
 
         {/* Registration */}
-        <section id="registration" className="h-screen scroll-mt-20 bg-transparent">
+        <section id="registration" className="scroll-mt-20 bg-transparent">
           <RegistrationForm />
         </section>
 
         {/* Brochure */}
-        <section id="brochure" className="h-screen scroll-mt-20 bg-transparent">
+        <section id="brochure" className="scroll-mt-20 bg-transparent">
           <Brochure />
         </section>
 

@@ -83,7 +83,7 @@ export function Navigation() {
                 <Link
                   key={item.name}
                   to={item.path}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-md text-lg md:text-xl font-medium transition-colors ${
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md text-base md:text-lg font-medium transition-colors ${
                     isActive
                       ? "text-primary bg-primary/10"
                       : "text-gray-200 hover:text-[#ff00ff] hover:bg-muted"
@@ -98,7 +98,7 @@ export function Navigation() {
                 <button
                   key={item.name}
                   onClick={() => handleScroll(item.path)}
-                  className="flex items-center space-x-2 px-4 py-2 rounded-md text-lg md:text-xl font-medium transition-colors text-gray-200 hover:text-[#ff00ff] hover:bg-muted"
+                  className="flex items-center space-x-2 px-4 py-2 rounded-md text-base md:text-lg font-medium transition-colors text-gray-200 hover:text-[#ff00ff] hover:bg-muted"
                 >
                   <Icon className="w-5 h-5 md:w-6 md:h-6" />
                   <span>{item.name}</span>
@@ -136,7 +136,7 @@ export function Navigation() {
                         key={item.name}
                         to={item.path}
                         onClick={() => setIsOpen(false)}
-                        className={`flex items-center space-x-3 px-4 py-3 rounded-md text-lg md:text-xl font-medium transition-colors ${
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-md text-base md:text-lg font-medium transition-colors ${
                           isActive
                             ? "text-primary bg-primary/10"
                             : "text-gray-200 hover:text-[#ff00ff] hover:bg-muted"
@@ -151,7 +151,7 @@ export function Navigation() {
                       <button
                         key={item.name}
                         onClick={() => handleScroll(item.path)}
-                        className="flex items-center space-x-3 px-4 py-3 rounded-md text-lg md:text-xl font-medium transition-colors text-gray-200 hover:text-[#ff00ff] hover:bg-muted"
+                        className="flex items-center space-x-3 px-4 py-3 rounded-md text-base md:text-lg font-medium transition-colors text-gray-200 hover:text-[#ff00ff] hover:bg-muted"
                       >
                         <Icon className="w-5 h-5 md:w-6 md:h-6" />
                         <span>{item.name}</span>

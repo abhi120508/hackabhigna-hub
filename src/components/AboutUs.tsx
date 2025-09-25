@@ -1,8 +1,12 @@
+// components/AboutUs.tsx
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, Target, Award, Lightbulb, Zap } from "lucide-react";
+
 import "./aboutus.css";
 import "./global.css";
+// ✅ Import hologram card styles
 
 export function AboutUs() {
   const values = [
@@ -28,39 +32,84 @@ export function AboutUs() {
     },
   ];
 
-  const team = [
+  const facultyCoordinators = [
     {
-      name: "Dr. Sarah Johnson",
-      role: "Event Director",
-      description: "Leading innovation in technology education",
+      name: "Ravi Kumar",
+      role: "Assistant Professor",
+      description: "123456789",
     },
     {
-      name: "Prof. Michael Chen",
-      role: "Technical Lead",
-      description: "Expert in AI and machine learning",
+      name: "RAGHURAMEGOWDA",
+      role: "Assistant Professor",
+      description: "123456789",
     },
+        {
+      name: "ANSER PASHA ",
+      role: "Assistant Professor",
+      description: "123456789",
+    },
+        {
+      name: "HARISH S",
+      role: "Assistant Professor",
+      description: "123456789",
+    }
+  ];
+
+  const studentCoordinators = [
     {
-      name: "Emma Rodriguez",
+      name: "ABHISHEK D S",
       role: "Student Coordinator",
       description: "Passionate about student development",
     },
     {
-      name: "Alex Kumar",
+      name: "AKSHATA CHITME",
       role: "Operations Manager",
       description: "Ensuring smooth event execution",
     },
+    {
+      name: "DISHA GOWDA",
+      role: "Student Coordinator",
+      description: "Passionate about student development",
+    },
+    {
+      name: "JEVWL PINTO",
+      role: "Operations Manager",
+      description: "Ensuring smooth event execution",
+    },
+        {
+      name: "MOHAMMED ZAID ALI",
+      role: "Student Coordinator",
+      description: "Passionate about student development",
+    },
+    {
+      name: "SHREYANKA A Y",
+      role: "Student Coordinator",
+      description: "Ensuring smooth event execution",
+    },
+        {
+      name: "SRIRAG D R",
+      role: "Student Coordinator",
+      description: "Passionate about student development",
+    },
+
   ];
 
+
   return (
-    <div className="w-full bg-gradient-to-br from-background to-muted/20 py-20 scroll-mt-102 mb-10" style={{ marginTop: "220px" }}
+    <div
+      className="w-full bg-gradient-to-br from-background to-muted/20 py-20 scroll-mt-102 mb-10"
+      style={{ marginTop: "220px" }}
     >
       <div className="max-w-6xl mx-auto">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <Badge  className="mb-4 orbitron-neon text-lg text-white md:text-3xl lg:text-2xl">
+          <Badge className="mb-4 orbitron-neon text-lg text-white md:text-3xl lg:text-2xl">
             About HackAbhigna
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 orbitron-neon" style={{ color: ' rgb(201, 114, 219)'}}>
+          <h1
+            className="text-4xl md:text-6xl font-bold mb-6 orbitron-neon"
+            style={{ color: "rgb(201, 114, 219)" }}
+          >
             <span>Empowering</span>
             <span> Innovation</span>
           </h1>
@@ -92,7 +141,7 @@ export function AboutUs() {
 
           <Card className="card">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 orbitron-neon  ">
+              <CardTitle className="flex items-center gap-2 orbitron-neon">
                 <Zap className="w-6 h-6 text-primary" />
                 Our Vision
               </CardTitle>
@@ -131,25 +180,46 @@ export function AboutUs() {
           </div>
         </div>
 
-        {/* Team */}
-        <div className="mb-40">
+        {/* Team Section with AI-themed Hologram Cards */}
+        <div className="mb-40 team-container">
           <h2 className="text-3xl font-bold text-center mb-8 orbitron-neon">
             Meet Our Team
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {team.map((member, index) => (
-              <Card key={index} className="card text-center orbitron-neon">
-                <CardContent className="pt-6 relative z-10">
-                  <div className="w-20 h-20 bg-transparent rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <Users className="team-icon" />
-                  </div>
-                  <h3 className="font-semibold mb-1">{member.name}</h3>
-                  <p className="text-sm text-primary mb-2">{member.role}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {member.description}
-                  </p>
-                </CardContent>
-              </Card>
+          {/* Faculty Coordinators */}
+          <h3 className="text-2xl font-semibold mb-6 orbitron-neon text-center text-cyan-300">
+            Faculty Coordinators
+          </h3>
+          <div className="team-grid mb-16">
+            {facultyCoordinators.map((member, index) => (
+              <div key={index} className="holo-card">
+                <div className="holo-img-placeholder">
+                  <Users className="team-icon" size={48} />
+                </div>
+                <div className="overlay">
+                  <div className="name">{member.name}</div>
+                  <div className="contact">{member.role}</div>
+                  <p className="description">{member.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Student Coordinators */}
+          <h3 className="text-2xl font-semibold mb-6 orbitron-neon text-center text-purple-300">
+            Student Coordinators
+          </h3>
+          <div className="team-grid">
+            {studentCoordinators.map((member, index) => (
+              <div key={index} className="holo-card">
+                <div className="holo-img-placeholder">
+                  <Users className="team-icon" size={48} />
+                </div>
+                <div className="overlay">
+                  <div className="name">{member.name}</div>
+                  <div className="contact">{member.role}</div>
+                  <p className="description">{member.description}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -174,7 +244,9 @@ export function AboutUs() {
                 <div className="text-sm text-muted-foreground">Projects</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-secondary mb-2">20+</div>
+                <div className="text-3xl font-bold text-secondary mb-2">
+                  20+
+                </div>
                 <div className="text-sm text-muted-foreground">
                   Universities
                 </div>

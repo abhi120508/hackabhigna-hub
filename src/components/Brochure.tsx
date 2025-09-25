@@ -122,40 +122,8 @@ export function Brochure() {
           </CardContent>
         </Card>
 
-        {/* Competition Domains Card */}
-        <Card className="mt-10">
-          <CardHeader>
-            <CardTitle>Competition Domains</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold mb-2">Web Development</h3>
-                <p className="text-sm text-muted-foreground">
-                  Build innovative web applications and platforms
-                </p>
-              </div>
-              <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold mb-2">Mobile Development</h3>
-                <p className="text-sm text-muted-foreground">
-                  Create cutting-edge mobile applications
-                </p>
-              </div>
-              <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold mb-2">Artificial Intelligence</h3>
-                <p className="text-sm text-muted-foreground">
-                  Develop AI-powered solutions and models
-                </p>
-              </div>
-              <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold mb-2">Wildcard</h3>
-                <p className="text-sm text-muted-foreground">
-                  Open innovation - anything goes!
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+
+        
       </div>
     </section>
   );

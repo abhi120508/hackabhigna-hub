@@ -14,14 +14,6 @@ const domains = [
     color: "text-primary",
   },
   {
-    icon: Smartphone,
-    title: "GenAI/AgenticAI in FinTech",
-    description:
-      "Create innovative mobile applications for iOS and Android platforms.",
-    technologies: ["React Native", "Flutter", "Swift", "Kotlin"],
-    color: "text-accent",
-  },
-  {
     icon: Brain,
     title: "GenAI/AgenticAI in Education",
     description:
@@ -41,7 +33,7 @@ const domains = [
 
 export function DomainsSection() {
   return (
-    <section className="w-full bg-gradient-to-br from-background to-muted/20 py-20 scroll-mt-32 mb-40">
+    <section className="w-full bg-gradient-to-br from-background to-muted/20 py-10 scroll-mt-32 mb-20">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="dom_text">Competition Domains</h2>
@@ -55,7 +47,7 @@ export function DomainsSection() {
           {domains.map((domain, index) => {
             const Icon = domain.icon;
             return (
-              <Card key={index} className="cards">
+              <Card key={index} className={`cards ${index === 2 ? 'centered-card' : ''}`}>
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className={`domain-icon ${domain.color}`}>
@@ -66,13 +58,6 @@ export function DomainsSection() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="domain-description">{domain.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {domain.technologies.map((tech, techIndex) => (
-                      <Badge key={techIndex} className="domain-badge">
-                        {tech}
-                      </Badge>
-                    ))}
-                  </div>
                 </CardContent>
               </Card>
             );

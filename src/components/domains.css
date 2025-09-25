@@ -53,12 +53,17 @@
   grid-template-columns: 1fr;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .domains-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
+}
+
+.centered-card {
+  grid-column: span 2;
 }
 
 /* ===============================

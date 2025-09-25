@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Trophy, Users } from "lucide-react";
 import { CountdownTimer } from "@/components/CountdownTimer";
-import "./HeroSection.css"; // Updated styles
+import "./HeroSection.css";
 import "./global.css";
 
 export function HeroSection() {
@@ -15,19 +15,15 @@ export function HeroSection() {
 
   return (
     <section className="hero-section">
- 
-
       {/* Content */}
       <div className="relative z-10 text-center max-w-4xl mx-auto px-4 space-y-4">
         <p
-          className={`hack-subtitle transition-all duration-700 transform ${
+          className={`registration-open transition-all duration-700 transform ${
             show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
           REGISTRATION OPEN
         </p>
-
-
 
         {/* Title */}
         <h1
@@ -40,7 +36,7 @@ export function HeroSection() {
 
         {/* Subtitle */}
         <p
-          className={`hack-subtitle transition-all duration-700 transform ${
+          className={`innovate-conquer transition-all duration-700 transform ${
             show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
@@ -48,18 +44,19 @@ export function HeroSection() {
         </p>
 
         {/* Countdown */}
-{/* Countdown */}
         <div
           className={`mb-8 transition-all duration-700 transform ${
             show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
-          <h3 className="text-2xl md:text-4xl font-subtitle text-white mb-2">
+          <h3 
+            className="text-2xl md:text-4xl font-subtitle text-white mb-2" 
+            style={{ fontFamily: "'Orbitron', sans-serif" }}
+          >
             Event Starts In:
           </h3>
           <CountdownTimer />
         </div>
-
 
         {/* Event Details */}
         <div
@@ -67,14 +64,23 @@ export function HeroSection() {
             show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
-          <div className="flex items-center justify-center gap-2 font-subtitle text-white text-2xl md:text-3xl">
-            <Calendar className="w-6 h-6" /> Oct 16–17
+          <div 
+            className="flex items-center justify-center gap-2 font-subtitle text-white text-2xl md:text-3xl" 
+            style={{ fontFamily: "'Orbitron', sans-serif" }}
+          >
+            <Calendar className="w-5 h-5" /> Oct 16–17
           </div>
-          <div className="flex items-center justify-center gap-2 font-subtitle text-white text-2xl md:text-3xl">
-            <MapPin className="w-6 h-6" /> AIT Campus
+          <div 
+            className="flex items-center justify-center gap-2 font-subtitle text-white text-2xl md:text-3xl" 
+            style={{ fontFamily: "'Orbitron', sans-serif" }}
+          >
+            <MapPin className="w-5 h-5" /> AIT Campus
           </div>
-          <div className="flex items-center justify-center gap-2 font-subtitle text-white text-2xl md:text-3xl">
-            <Trophy className="w-6 h-6" /> ₹1,00,000 Prize
+          <div 
+            className="flex items-center justify-center gap-2 font-subtitle text-white text-2xl md:text-3xl" 
+            style={{ fontFamily: "'Orbitron', sans-serif" }}
+          >
+            <Trophy className="w-5 h-5" /> ₹1,00,000 Prize
           </div>
         </div>
 

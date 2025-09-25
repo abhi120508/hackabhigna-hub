@@ -68,4 +68,159 @@
   width: 2.5rem;  /* 40px */
   height: 2.5rem; /* 40px */
   color: #ffffff; /* white color */
+}@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
+.team-container {
+  font-family: 'Orbitron', sans-serif;
+  padding: 20px 0;
+  color: #ff00ff; /* neon pink */
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 30px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Neon Rotating Border Card on .holo-card */
+.holo-card {
+  position: relative;
+  border-radius: 20px;
+  background-color: #07182e; /* dark blue background */
+  overflow: hidden;
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  color: #ff00ff; /* neon pink text */
+  height: 360px; /* keep your original height */
+}
+
+.holo-card:hover {
+  transform: scale(1.05);
+}
+
+/* Rotating two-color animated border */
+.holo-card::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 24px;
+  padding: 4px;
+  background: conic-gradient(
+    #ff30ff 0% 20%,   /* Neon pink */
+    #9b00ff 20% 40%,  /* Purple */
+    transparent 40% 100%
+  );
+  animation: rotateBorder 3s linear infinite;
+  z-index: 1;
+}
+
+/* Inner card background to cover inside of border */
+.holo-card::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 20px;
+  background: #07182e;
+  z-index: 2;
+}
+
+/* Keep content above border and overlay */
+.holo-card * {
+  position: relative;
+  z-index: 3;
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 0, 255, 0.12); /* pink background */
+  backdrop-filter: blur(6px);
+  transition: 0.5s;
+  padding: 20px;
+  color: #ff00ff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 4;
+}
+
+.holo-card:hover .overlay {
+  left: 0;
+}
+
+.holo-img-placeholder {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 12px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-radius: 50%;
+}
+
+.team-icon {
+  color: #ff00ff;
+}
+
+.name {
+  font-size: 1.3rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  position: relative;
+  margin-bottom: 12px;
+  animation: glitch 1s infinite;
+}
+
+.contact {
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fca8f8;
+}
+
+.description {
+  font-size: 0.85rem;
+  color: #ffaaff;
+}
+
+@keyframes rotateBorder {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow: 2px 0 red, -2px 0 blue;
+  }
+  20% {
+    text-shadow: -2px 0 #ff00ff, 2px 0 #00ffff;
+  }
+  40% {
+    text-shadow: 2px 2px #ff00ff, -2px -2px #f0f;
+  }
+  60% {
+    text-shadow: 0 0 3px #ff00ff, 0 0 6px #ff00ff;
+  }
+  80% {
+    text-shadow: 0 0 2px #ff00ff;
+  }
+  100% {
+    text-shadow: 2px 0 red, -2px 0 blue;
+  }
 }

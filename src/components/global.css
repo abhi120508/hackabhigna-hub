@@ -127,7 +127,17 @@ body {
 /* =====================
    Responsive Scaling
    ===================== */
+@media screen and (max-width: 1024px) {
+  html { font-size: 15px; }
+  .hero-section { padding: 1.5rem 1rem; }
+}
+
 @media screen and (max-width: 768px) {
   html { font-size: 14px; }
-  .hero-section { padding: 1rem; }
+  .hero-section { padding: 1rem 0.5rem; }
+}
+
+@media screen and (max-width: 480px) {
+  html { font-size: 13px; }
+  .hero-section { padding: 0.5rem 0.25rem; }
 }
