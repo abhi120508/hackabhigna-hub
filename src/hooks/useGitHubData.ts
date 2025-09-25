@@ -22,7 +22,13 @@ export function useGitHubData({ owner, token }: UseGitHubDataParams) {
   });
 
   const fetchRepoCommits = useCallback(
-    async ({ owner: repoOwner, repoName }: { owner: string; repoName: string }) => {
+    async ({
+      owner: repoOwner,
+      repoName,
+    }: {
+      owner: string;
+      repoName: string;
+    }) => {
       if (!repoName || !repoOwner) return;
       setData((prev) => ({ ...prev, loading: true, error: null }));
       try {
@@ -57,7 +63,13 @@ export function useGitHubData({ owner, token }: UseGitHubDataParams) {
   );
 
   const fetchRepoStats = useCallback(
-    async ({ owner: repoOwner, repoName }: { owner: string; repoName: string }) => {
+    async ({
+      owner: repoOwner,
+      repoName,
+    }: {
+      owner: string;
+      repoName: string;
+    }) => {
       if (!repoName || !repoOwner) return;
       setData((prev) => ({ ...prev, loading: true, error: null }));
       try {
@@ -128,5 +140,4 @@ export function useGitHubData({ owner, token }: UseGitHubDataParams) {
     fetchRepoCommits,
     fetchRepoStats,
   };
-}
 }
