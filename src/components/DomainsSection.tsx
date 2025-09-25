@@ -7,32 +7,42 @@ const domains = [
     icon: Globe,
     title: "GenAI/AgenticAI in Agriculture",
     description:
-      "Choose your battleground and showcase your skills in these exciting domains",
-    technologies: ["React", "Node.js", "TypeScript", "Next.js"],
+      "Leverage AI to revolutionize farming practices, crop monitoring, and sustainable agriculture solutions.",
+    technologies: ["Python", "TensorFlow", "Computer Vision", "IoT"],
     color: "text-primary",
-  },
-  {
-    icon: Smartphone,
-    title: "GenAI/AgenticAI in FinTech",
-    description:
-      "Create innovative mobile applications for iOS and Android platforms.",
-    technologies: ["React Native", "Flutter", "Swift", "Kotlin"],
-    color: "text-accent",
   },
   {
     icon: Brain,
     title: "GenAI/AgenticAI in Education",
     description:
-      "Develop intelligent systems using machine learning and AI technologies.",
+      "Develop intelligent systems using machine learning and AI technologies to transform learning experiences.",
     technologies: ["Python", "TensorFlow", "PyTorch", "OpenAI"],
     color: "text-secondary",
   },
   {
     icon: Lightbulb,
-    title: "Wildcard (Open Innovation)",
+    title: "Wildcard - Environment",
     description:
-      "Think outside the box! Create something unique that doesn't fit traditional categories.",
-    technologies: ["IoT", "Blockchain", "AR/VR", "Quantum"],
+      "Innovate in environmental sustainability with AI-driven solutions for climate change, conservation, and green tech.",
+    technologies: [
+      "Machine Learning",
+      "Data Analytics",
+      "IoT Sensors",
+      "Predictive Modeling",
+    ],
+    color: "text-accent",
+  },
+  {
+    icon: Smartphone,
+    title: "Wildcard - Food Production",
+    description:
+      "Create AI-powered innovations for food security, supply chain optimization, and advanced agricultural production.",
+    technologies: [
+      "AI Optimization",
+      "Blockchain",
+      "Robotics",
+      "Supply Chain AI",
+    ],
     color: "text-primary",
   },
 ];

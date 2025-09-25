@@ -7,6 +7,7 @@ export interface TeamRegistration {
   participants: Array<{
     name: string;
     email: string;
+    college: string;
     mobile?: string;
   }>;
   leaderIndex: number;
@@ -61,8 +62,18 @@ export class MockDatabase {
       teamCode: "WETE001",
       teamName: "TechInnovators",
       participants: [
-        { name: "John Doe", email: "john@example.com", mobile: "9876543210" },
-        { name: "Jane Smith", email: "jane@example.com", mobile: "9876543211" },
+        {
+          name: "John Doe",
+          email: "john@example.com",
+          college: "MIT",
+          mobile: "9876543210",
+        },
+        {
+          name: "Jane Smith",
+          email: "jane@example.com",
+          college: "Stanford",
+          mobile: "9876543211",
+        },
       ],
       leaderIndex: 0,
       domain: "web",
@@ -84,12 +95,19 @@ export class MockDatabase {
         {
           name: "Alice Johnson",
           email: "alice@example.com",
+          college: "Harvard",
           mobile: "9876543212",
         },
-        { name: "Bob Wilson", email: "bob@example.com", mobile: "9876543213" },
+        {
+          name: "Bob Wilson",
+          email: "bob@example.com",
+          college: "Yale",
+          mobile: "9876543213",
+        },
         {
           name: "Charlie Brown",
           email: "charlie@example.com",
+          college: "Princeton",
           mobile: "9876543214",
         },
       ],
@@ -107,8 +125,18 @@ export class MockDatabase {
       teamCode: "MOAP003",
       teamName: "AppBuilders",
       participants: [
-        { name: "David Lee", email: "david@example.com", mobile: "9876543215" },
-        { name: "Emma Davis", email: "emma@example.com", mobile: "9876543216" },
+        {
+          name: "David Lee",
+          email: "david@example.com",
+          college: "Caltech",
+          mobile: "9876543215",
+        },
+        {
+          name: "Emma Davis",
+          email: "emma@example.com",
+          college: "Berkeley",
+          mobile: "9876543216",
+        },
       ],
       leaderIndex: 0,
       domain: "mobile",

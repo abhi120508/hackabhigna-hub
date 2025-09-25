@@ -28,6 +28,7 @@ import axios, { AxiosError } from "axios";
 interface Participant {
   name: string;
   email: string;
+  college: string;
   mobile?: string;
 }
 
@@ -42,19 +43,25 @@ const domains = [
     value: "GenAI/AgenticAI in Agriculture",
     label: "GenAI/AgenticAI in Agriculture",
   },
-  { value: "GenAI/AgenticAI in FinTech", label: "GenAI/AgenticAI in FinTech" },
   {
     value: "GenAI/AgenticAI in Education",
     label: "GenAI/AgenticAI in Education",
   },
-  { value: "Wildcard", label: "Wildcard" },
+  {
+    value: "Wildcard - Environment",
+    label: "Wildcard - Environment",
+  },
+  {
+    value: "Wildcard - Food Production",
+    label: "Wildcard - Food Production",
+  },
 ];
 
 export function RegistrationForm() {
   const [teamName, setTeamName] = useState("");
   const [participants, setParticipants] = useState<Participant[]>([
-    { name: "", email: "", mobile: "" },
-    { name: "", email: "", mobile: "" },
+    { name: "", email: "", college: "", mobile: "" },
+    { name: "", email: "", college: "", mobile: "" },
   ]);
   const [leaderIndex, setLeaderIndex] = useState(0);
   const [selectedDomain, setSelectedDomain] = useState("");
@@ -115,7 +122,10 @@ export function RegistrationForm() {
 
   const addParticipant = () => {
     if (participants.length < 4) {
-      setParticipants([...participants, { name: "", email: "", mobile: "" }]);
+      setParticipants([
+        ...participants,
+        { name: "", email: "", college: "", mobile: "" },
+      ]);
     }
   };
 
@@ -164,6 +174,8 @@ export function RegistrationForm() {
       if (!participant.name.trim()) return "All participant names are required";
       if (!participant.email.trim())
         return "All participant emails are required";
+      if (!participant.college.trim())
+        return "All participant colleges are required";
 
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(participant.email))
@@ -250,8 +262,8 @@ export function RegistrationForm() {
       // Reset form
       setTeamName("");
       setParticipants([
-        { name: "", email: "", mobile: "" },
-        { name: "", email: "", mobile: "" },
+        { name: "", email: "", college: "", mobile: "" },
+        { name: "", email: "", college: "", mobile: "" },
       ]);
       setLeaderIndex(0);
       setSelectedDomain("");
@@ -351,6 +363,14 @@ export function RegistrationForm() {
                         updateParticipant(index, "email", e.target.value)
                       }
                       placeholder={`Member ${index + 1} Email`}
+                      className="bg-input/50 flex-1"
+                    />
+                    <Input
+                      value={participant.college}
+                      onChange={(e) =>
+                        updateParticipant(index, "college", e.target.value)
+                      }
+                      placeholder={`Member ${index + 1} College`}
                       className="bg-input/50 flex-1"
                     />
                   </div>

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   QrCode,
   Scan,
@@ -20,20 +20,18 @@ import { TeamRegistration } from "@/lib/mockBackend";
 import { parseQRCode } from "@/lib/qrUtils";
 import jsQR from "jsqr";
 
-const domains = [
-  {
-    id: "GenAI/AgenticAI in Agriculture",
-    label: "GenAI/AgenticAI in Agriculture",
-  },
-  { id: "GenAI/AgenticAI in FinTech", label: "GenAI/AgenticAI in FinTech" },
-  { id: "GenAI/AgenticAI in Education", label: "GenAI/AgenticAI in Education" },
-  { id: "Wildcard", label: "Wildcard" },
-];
+interface DomainSetting {
+  domain: string;
+  maxSlots: number;
+  paused: boolean;
+  slotsLeft: number;
+}
 
 const QRPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
-  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
+  const [selectedDomain, setSelectedDomain] = useState<string>("");
+  const [domainSettings, setDomainSettings] = useState<DomainSetting[]>([]);
   const [scannedData, setScannedData] = useState<TeamRegistration | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
@@ -41,6 +39,27 @@ const QRPanel = () => {
 
   // Backend API URL
   const API_URL = "https://hackabhigna-hub.onrender.com";
+
+  // Fetch domain settings on component mount
+  useEffect(() => {
+    const fetchDomainSettings = async () => {
+      try {
+        const response = await fetch(`${API_URL}/domain-settings`);
+        if (!response.ok) throw new Error("Failed to fetch domain settings");
+        const data = await response.json();
+        setDomainSettings(data);
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error loading domains",
+          description:
+            "Could not fetch domain settings. Please refresh the page.",
+        });
+      }
+    };
+
+    fetchDomainSettings();
+  }, [toast]);
 
   // Refs for camera scanning
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -52,27 +71,23 @@ const QRPanel = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "volunteer123" && selectedDomains.length > 0) {
+    if (password === "volunteer123" && selectedDomain) {
       setIsAuthenticated(true);
       toast({
         title: "Access Granted",
-        description: `Volunteer access granted for ${selectedDomains.length} domain(s)`,
+        description: `Volunteer access granted for domain: ${selectedDomain}`,
       });
     } else {
       toast({
         variant: "destructive",
         title: "Access Denied",
-        description: "Invalid password or no domains selected",
+        description: "Invalid password or no domain selected",
       });
     }
   };
 
-  const handleDomainChange = (domainId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedDomains((prev) => [...prev, domainId]);
-    } else {
-      setSelectedDomains((prev) => prev.filter((id) => id !== domainId));
-    }
+  const handleDomainSelection = (value: string) => {
+    setSelectedDomain(value);
   };
 
   const stopScan = () => {
@@ -275,37 +290,52 @@ const QRPanel = () => {
               Volunteer Access
             </CardTitle>
             <p className="text-muted-foreground">
-              Select domains and enter volunteer password
+              Select domain and enter volunteer password
             </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">
-              <div>
+              <div className="space-y-2">
                 <Label className="text-base font-medium">
-                  Select Domains to Manage
+                  Select Domain to Manage
                 </Label>
-                <div className="mt-3 space-y-3">
-                  {domains.map((domain) => (
-                    <div
-                      key={domain.id}
-                      className="flex items-center space-x-3"
-                    >
-                      <Checkbox
-                        id={domain.id}
-                        checked={selectedDomains.includes(domain.id)}
-                        onCheckedChange={(checked) =>
-                          handleDomainChange(domain.id, checked as boolean)
-                        }
-                      />
-                      <Label
-                        htmlFor={domain.id}
-                        className="text-sm font-normal cursor-pointer"
+                <RadioGroup
+                  value={selectedDomain}
+                  onValueChange={handleDomainSelection}
+                  className="flex flex-col space-y-2"
+                >
+                  {domainSettings
+                    .filter((d) => !d.paused)
+                    .map((domain) => (
+                      <div
+                        key={domain.domain}
+                        className="flex items-center space-x-3 p-2 border rounded-md"
                       >
-                        {domain.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
+                        <RadioGroupItem
+                          value={domain.domain}
+                          id={domain.domain}
+                        />
+                        <Label
+                          htmlFor={domain.domain}
+                          className="text-sm font-normal cursor-pointer flex-1"
+                        >
+                          {domain.domain} ({domain.slotsLeft}/{domain.maxSlots}{" "}
+                          slots left)
+                        </Label>
+                      </div>
+                    ))}
+                </RadioGroup>
+                {domainSettings.filter((d) => d.paused).length > 0 && (
+                  <div className="mt-4 p-3 bg-muted rounded-md">
+                    <p className="text-xs text-muted-foreground">
+                      Paused domains:{" "}
+                      {domainSettings
+                        .filter((d) => d.paused)
+                        .map((d) => d.domain)
+                        .join(", ")}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -320,7 +350,12 @@ const QRPanel = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full" variant="hero">
+              <Button
+                type="submit"
+                className="w-full"
+                variant="hero"
+                disabled={!selectedDomain}
+              >
                 Access QR Scanner
               </Button>
             </form>
@@ -339,14 +374,9 @@ const QRPanel = () => {
             Scan team QR codes to activate repositories on hackathon day
           </p>
           <div className="mt-2 flex flex-wrap justify-center gap-2">
-            {selectedDomains.map((domainId) => {
-              const domain = domains.find((d) => d.id === domainId);
-              return (
-                <Badge key={domainId} variant="outline">
-                  {domain?.label}
-                </Badge>
-              );
-            })}
+            {selectedDomain && (
+              <Badge variant="outline">Managing: {selectedDomain}</Badge>
+            )}
           </div>
         </div>
 

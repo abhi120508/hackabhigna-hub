@@ -15,6 +15,11 @@ import {
   Download,
   Phone,
   Github,
+  Edit,
+  Plus,
+  Trash2,
+  Save,
+  X,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 // import { MockDatabase, MockAPI, TeamRegistration } from "@/lib/mockBackend";
@@ -60,6 +65,10 @@ const AdminPanel = () => {
     pausedLeaderboard: false,
   });
   const [allDomainsPaused, setAllDomainsPaused] = useState(false);
+  const [editingDomain, setEditingDomain] = useState<string | null>(null);
+  const [newDomainName, setNewDomainName] = useState("");
+  const [newMaxSlots, setNewMaxSlots] = useState(0);
+  const [showAddDomain, setShowAddDomain] = useState(false);
   const { toast } = useToast();
 
   const API_URL = "https://hackabhigna-hub.onrender.com"; // Your backend URL
@@ -321,6 +330,7 @@ const AdminPanel = () => {
           "Team Code",
           "Member Names",
           "Member Emails",
+          "College Name",
           "GitHub URL",
           "Leader Mobile",
           "Alternate Mobile",
@@ -336,6 +346,7 @@ const AdminPanel = () => {
               index === 0 ? team.teamCode : "",
               memberName,
               member.email,
+              member.college,
               index === 0 ? team.gitRepo || "" : "",
               index === 0 ? team.leaderMobile || "" : "",
               index === 0 ? team.alternateMobile || "" : "",
@@ -390,6 +401,131 @@ const AdminPanel = () => {
     checkAllDomainsPaused();
   }, [checkAllDomainsPaused]);
 
+  const handleEditDomain = (domain: string) => {
+    const setting = domainSettings.find((s) => s.domain === domain);
+    if (setting) {
+      setEditingDomain(domain);
+      setNewDomainName(setting.domain);
+      setNewMaxSlots(setting.maxSlots);
+    }
+  };
+
+  const handleSaveDomain = async () => {
+    if (!editingDomain) return;
+
+    try {
+      const response = await fetch(
+        `${API_URL}/domain-settings/${encodeURIComponent(editingDomain)}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            domain: newDomainName,
+            maxSlots: newMaxSlots,
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to update domain");
+
+      toast({
+        title: "Domain updated",
+        description: `${editingDomain} has been updated successfully`,
+      });
+
+      setEditingDomain(null);
+      setNewDomainName("");
+      setNewMaxSlots(0);
+      loadDomainSettings();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Update Error",
+        description: (error as Error).message,
+      });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingDomain(null);
+    setNewDomainName("");
+    setNewMaxSlots(0);
+  };
+
+  const handleAddDomain = async () => {
+    if (!newDomainName.trim() || newMaxSlots <= 0) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Input",
+        description: "Please provide a valid domain name and slots",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/domain-settings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          domain: newDomainName,
+          maxSlots: newMaxSlots,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to add domain");
+
+      toast({
+        title: "Domain added",
+        description: `${newDomainName} has been added successfully`,
+      });
+
+      setShowAddDomain(false);
+      setNewDomainName("");
+      setNewMaxSlots(0);
+      loadDomainSettings();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Add Error",
+        description: (error as Error).message,
+      });
+    }
+  };
+
+  const handleDeleteDomain = async (domain: string) => {
+    if (
+      !confirm(
+        `Are you sure you want to delete the domain "${domain}"? This action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API_URL}/domain-settings/${encodeURIComponent(domain)}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to delete domain");
+
+      toast({
+        title: "Domain deleted",
+        description: `${domain} has been deleted successfully`,
+      });
+
+      loadDomainSettings();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Delete Error",
+        description: (error as Error).message,
+      });
+    }
+  };
+
   const domains = [
     { value: "all", label: "All Domains" },
     {
@@ -397,14 +533,17 @@ const AdminPanel = () => {
       label: "GenAI/AgenticAI in Agriculture",
     },
     {
-      value: "GenAI/AgenticAI in FinTech",
-      label: "GenAI/AgenticAI in FinTech",
-    },
-    {
       value: "GenAI/AgenticAI in Education",
       label: "GenAI/AgenticAI in Education",
     },
-    { value: "Wildcard", label: "Wildcard" },
+    {
+      value: "Wildcard - Environment",
+      label: "Wildcard - Environment",
+    },
+    {
+      value: "Wildcard - Food Production",
+      label: "Wildcard - Food Production",
+    },
   ];
 
   const filteredRegistrations =
@@ -594,6 +733,11 @@ const AdminPanel = () => {
                                 <div className="text-muted-foreground ml-2">
                                   <Mail className="w-3 h-3 inline mr-1" />
                                   {participant.email}
+                                  {participant.college && (
+                                    <div className="text-xs">
+                                      College: {participant.college}
+                                    </div>
+                                  )}
                                   {participant.mobile && (
                                     <div>
                                       <Phone className="w-3 h-3 inline mr-1" />
@@ -854,7 +998,17 @@ const AdminPanel = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="bg-card/50 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle>Domain Settings</CardTitle>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Domain Settings</span>
+                    <Button
+                      onClick={() => setShowAddDomain(true)}
+                      size="sm"
+                      variant="outline"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Add Domain
+                    </Button>
+                  </CardTitle>
                   <p className="text-sm text-muted-foreground">
                     Control registration availability per domain
                   </p>
@@ -865,75 +1019,153 @@ const AdminPanel = () => {
                       No domain settings available.
                     </p>
                   ) : (
-                    domainSettings.slice(0, 4).map((setting: DomainSetting) => {
-                      // Map backend domain keys to frontend domain values for label and toggle
-                      const domainKeyMap: { [key: string]: string } = {
-                        "GenAI/AgenticAI in Agriculture":
-                          "GenAI/AgenticAI in Agriculture",
-                        "GenAI/AgenticAI in FinTech":
-                          "GenAI/AgenticAI in FinTech",
-                        "GenAI/AgenticAI in Education":
-                          "GenAI/AgenticAI in Education",
-                        Wildcard: "Wildcard",
-                      };
-                      const mappedDomainValue =
-                        domainKeyMap[setting.domain] || setting.domain;
-                      const domainLabel =
-                        domains.find((d) => d.value === mappedDomainValue)
-                          ?.label || setting.domain;
-                      return (
-                        <div
-                          key={setting.domain}
-                          className="flex items-center justify-between"
-                        >
-                          <div>
-                            <Label className="text-sm font-medium">
-                              {domainLabel}
-                            </Label>
-                            <p className="text-xs text-muted-foreground">
-                              Slots Remaining:{" "}
-                              {
-                                // Map slotsLeft from backend domain keys to frontend domain keys
-                                (() => {
-                                  const slotsMap: { [key: string]: number } =
-                                    {};
-                                  domainSettings.forEach((ds) => {
-                                    const domainKeyMap: {
-                                      [key: string]: string;
-                                    } = {
-                                      "GenAI/AgenticAI in Agriculture":
-                                        "GenAI/AgenticAI in Agriculture",
-                                      "GenAI/AgenticAI in FinTech":
-                                        "GenAI/AgenticAI in FinTech",
-                                      "GenAI/AgenticAI in Education":
-                                        "GenAI/AgenticAI in Education",
-                                      Wildcard: "Wildcard",
-                                    };
-                                    const mappedKey =
-                                      domainKeyMap[ds.domain] || ds.domain;
-                                    slotsMap[mappedKey] = ds.slotsLeft;
-                                  });
-                                  return (
-                                    slotsMap[mappedDomainValue] ??
-                                    setting.slotsLeft
-                                  );
-                                })()
-                              }
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Registrations are{" "}
-                              {setting.paused ? "Paused" : "Enabled"}
-                            </p>
+                    domainSettings.map((setting: DomainSetting) => (
+                      <div
+                        key={setting.domain}
+                        className="border rounded-lg p-4 space-y-3"
+                      >
+                        {editingDomain === setting.domain ? (
+                          <div className="space-y-3">
+                            <div>
+                              <Label className="text-sm font-medium">
+                                Domain Name
+                              </Label>
+                              <Input
+                                value={newDomainName}
+                                onChange={(e) =>
+                                  setNewDomainName(e.target.value)
+                                }
+                                placeholder="Enter domain name"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium">
+                                Max Slots
+                              </Label>
+                              <Input
+                                type="number"
+                                value={newMaxSlots}
+                                onChange={(e) =>
+                                  setNewMaxSlots(parseInt(e.target.value) || 0)
+                                }
+                                placeholder="Enter max slots"
+                                min="1"
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                onClick={handleSaveDomain}
+                                size="sm"
+                                variant="default"
+                              >
+                                <Save className="w-4 h-4 mr-1" />
+                                Save
+                              </Button>
+                              <Button
+                                onClick={handleCancelEdit}
+                                size="sm"
+                                variant="outline"
+                              >
+                                <X className="w-4 h-4 mr-1" />
+                                Cancel
+                              </Button>
+                            </div>
                           </div>
-                          <Switch
-                            checked={!setting.paused}
-                            onCheckedChange={(checked) =>
-                              handleDomainToggle(setting.domain, !checked)
-                            }
-                          />
-                        </div>
-                      );
-                    })
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <Label className="text-sm font-medium">
+                                {setting.domain}
+                              </Label>
+                              <p className="text-xs text-muted-foreground">
+                                Max Slots: {setting.maxSlots} | Slots Left:{" "}
+                                {setting.slotsLeft}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Registrations are{" "}
+                                {setting.paused ? "Paused" : "Enabled"}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                onClick={() => handleEditDomain(setting.domain)}
+                                size="sm"
+                                variant="outline"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                onClick={() =>
+                                  handleDeleteDomain(setting.domain)
+                                }
+                                size="sm"
+                                variant="outline"
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                              <Switch
+                                checked={!setting.paused}
+                                onCheckedChange={(checked) =>
+                                  handleDomainToggle(setting.domain, !checked)
+                                }
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+
+                  {/* Add Domain Dialog */}
+                  {showAddDomain && (
+                    <div className="border rounded-lg p-4 space-y-3 bg-accent/5">
+                      <h4 className="font-medium">Add New Domain</h4>
+                      <div>
+                        <Label className="text-sm font-medium">
+                          Domain Name
+                        </Label>
+                        <Input
+                          value={newDomainName}
+                          onChange={(e) => setNewDomainName(e.target.value)}
+                          placeholder="Enter domain name"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium">Max Slots</Label>
+                        <Input
+                          type="number"
+                          value={newMaxSlots}
+                          onChange={(e) =>
+                            setNewMaxSlots(parseInt(e.target.value) || 0)
+                          }
+                          placeholder="Enter max slots"
+                          min="1"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={handleAddDomain}
+                          size="sm"
+                          variant="default"
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Add Domain
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setShowAddDomain(false);
+                            setNewDomainName("");
+                            setNewMaxSlots(0);
+                          }}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <X className="w-4 h-4 mr-1" />
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
                   )}
                 </CardContent>
               </Card>
