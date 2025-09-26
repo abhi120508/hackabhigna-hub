@@ -33,7 +33,7 @@ const domains = [
 
 export function DomainsSection() {
   return (
-    <section className="w-full bg-gradient-to-br from-background to-muted/20 py-10 scroll-mt-32 mb-15 border-border/50 mt-10"> 
+    <section className="w-full bg-gradient-to-br from-background to-muted/20 py-10 scroll-mt-32 mb-15 border-border/50 mt-20"> 
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           {/* CHANGE 1: Reduced header font size from 2.5rem to 2rem via inline style */}

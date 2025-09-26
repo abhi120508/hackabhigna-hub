@@ -46,7 +46,7 @@ export function Contact() {
     {
       icon: Phone,
       title: "Phone",
-      details: "+91 98765 43210",
+      details: "+91 8296590632",
       description: "Mon-Fri from 8am to 5pm",
     },
     {
