@@ -75,7 +75,7 @@ export function AboutUs() {
       image: "/images/students/disha.jpg",
     },
     {
-      name: "JUVEIL PINTO",
+      name: "JEWEL PINTO",
       role: "Student Coordinator",
 
       image: "/images/students/jevwl.jpg",
@@ -139,10 +139,7 @@ export function AboutUs() {
           <Card className="card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 orbitron-neon">
-                <Target
-                  className="w-5 h-5"
-                  style={{ color: "#60a5fa" }}
-                />
+                <Target className="w-5 h-5" style={{ color: "#60a5fa" }} />
                 {/* CHANGE 4: Reduced Mission title font size */}
                 <span style={{ fontSize: "1.125rem" }}>Our Mission</span>
               </CardTitle>
@@ -164,10 +161,7 @@ export function AboutUs() {
           <Card className="card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 orbitron-neon">
-                <Zap
-                  className="w-5 h-5"
-                  style={{ color: "#60a5fa" }}
-                />
+                <Zap className="w-5 h-5" style={{ color: "#60a5fa" }} />
                 {/* CHANGE 6: Reduced Vision title font size */}
                 <span style={{ fontSize: "1.125rem" }}>Our Vision</span>
               </CardTitle>
@@ -265,7 +259,7 @@ export function AboutUs() {
                   {/* CHANGE 14: Reduced faculty role font size */}
                   <p
                     className="mb-1 text-center"
-                  style={{ fontSize: "0.75rem", color: "#60a5fa" }}
+                    style={{ fontSize: "0.75rem", color: "#60a5fa" }}
                   >
                     {member.role}
                   </p>
@@ -304,10 +298,7 @@ export function AboutUs() {
                     className="w-20 h-20 bg-gray-600 rounded-full flex items-center justify-center mb-3 border-2 hover:scale-105 transition-transform"
                     style={{ borderColor: "#60a5fa" }}
                   >
-                    <User
-                      className="w-10 h-10"
-                      style={{ color: "#60a5fa" }}
-                    />
+                    <User className="w-10 h-10" style={{ color: "#60a5fa" }} />
                   </div>
                   {/* CHANGE 18: Reduced student name font size */}
                   <h3
@@ -319,7 +310,7 @@ export function AboutUs() {
                   {/* CHANGE 19: Reduced student role font size */}
                   <p
                     className="mb-1 text-center"
-                  style={{ fontSize: "0.75rem", color: "#60a5fa" }}
+                    style={{ fontSize: "0.75rem", color: "#60a5fa" }}
                   >
                     {member.role}
                   </p>
