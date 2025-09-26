@@ -27,7 +27,7 @@ const Index = () => {
           playsInline
           className="w-full h-full object-cover brightness-30"
           style={{ filter: "grayscale(10%) contrast(1.1) brightness(0.5)" }}
-          src="robo.mp4"
+          src="/robo.mp4"
         />
         <div className="absolute inset-0 bg-black/70" />
       </div>
