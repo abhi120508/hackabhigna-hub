@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import { useState, useEffect, useCallback } from "react";
-=======
-import { useState, useEffect } from "react";
->>>>>>> friend-updates
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-<<<<<<< HEAD
 import {
   User,
   Trophy,
@@ -27,11 +22,6 @@ import { useToast } from "@/hooks/use-toast";
 import { TeamRegistration } from "@/lib/mockBackend"; // Using the shared interface
 import { useGitHubData } from "@/hooks/useGitHubData";
 import type { GitHubData } from "@/lib/types/github";
-=======
-import { User, Trophy, GitCommit, Users, Activity } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { TeamRegistration } from "@/lib/mockBackend"; // Using the shared interface
->>>>>>> friend-updates
 
 interface LeaderboardItem {
   teamName: string;
@@ -50,16 +40,12 @@ const ParticipantPanel = () => {
     pausedLeaderboard: false,
   });
   const { toast } = useToast();
-<<<<<<< HEAD
   const API_URL = "https://hackabhigna-hub.onrender.com";
 
   const { data, fetchRepoCommits, fetchRepoStats } = useGitHubData({
     owner: import.meta.env.VITE_GITHUB_OWNER || "",
     token: import.meta.env.VITE_GITHUB_TOKEN || "",
   });
-=======
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
->>>>>>> friend-updates
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -95,7 +81,6 @@ const ParticipantPanel = () => {
     }
   }, [isAuthenticated, API_URL, teamData]);
 
-<<<<<<< HEAD
   useEffect(() => {
     if (teamData && teamData.githubRepo) {
       const repoName =
@@ -111,8 +96,6 @@ const ParticipantPanel = () => {
     }
   }, [teamData, fetchRepoCommits, fetchRepoStats]);
 
-=======
->>>>>>> friend-updates
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !uniqueId) {
@@ -291,18 +274,6 @@ const ParticipantPanel = () => {
           </TabsContent>
 
           <TabsContent value="activity">
-<<<<<<< HEAD
-            <div className="space-y-6">
-              {/* Team Members */}
-              <Card className="bg-card/50 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    Team Members
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-=======
             <Card className="bg-card/50 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -313,7 +284,6 @@ const ParticipantPanel = () => {
               <CardContent className="space-y-6">
                 <div>
                   <h4 className="font-semibold mb-2">Team Members</h4>
->>>>>>> friend-updates
                   <div className="flex flex-wrap gap-2">
                     {allMembers.map((participant, index) => (
                       <Badge
@@ -330,51 +300,39 @@ const ParticipantPanel = () => {
                       </Badge>
                     ))}
                   </div>
-<<<<<<< HEAD
-                </CardContent>
-              </Card>
+                </div>
 
-              {/* Repository Activity */}
-              <Card className="bg-card/50 backdrop-blur-sm">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Github className="w-5 h-5" />
-                      Repository Activity
-                    </CardTitle>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          window.open(teamData.githubRepo, "_blank")
-                        }
-                      >
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        View Repo
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          const repoName =
-                            teamData.githubRepo.split("/").pop() ||
-                            teamData.teamCode;
-                          window.open(
-                            `https://${
-                              import.meta.env.VITE_GITHUB_OWNER
-                            }.github.io/${repoName}`,
-                            "_blank"
-                          );
-                        }}
-                      >
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                        Run Project
-                      </Button>
-                    </div>
+                {/* Repository Activity */}
+                <div>
+                  <h4 className="font-semibold mb-2">Repository Activity</h4>
+                  <div className="flex gap-2 mb-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(teamData.githubRepo, "_blank")}
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      View Repo
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const repoName =
+                          teamData.githubRepo.split("/").pop() ||
+                          teamData.teamCode;
+                        window.open(
+                          `https://${
+                            import.meta.env.VITE_GITHUB_OWNER
+                          }.github.io/${repoName}`,
+                          "_blank"
+                        );
+                      }}
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Run Project
+                    </Button>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
                   {data.loading ? (
                     <div className="text-center py-8">
                       <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
@@ -496,26 +454,9 @@ const ParticipantPanel = () => {
                       </div>
                     </>
                   )}
-                </CardContent>
-              </Card>
-            </div>
-=======
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-2">Repository</h4>
-                  <a
-                    href={teamData.githubRepo}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    {teamData.githubRepo}
-                  </a>
                 </div>
               </CardContent>
             </Card>
->>>>>>> friend-updates
           </TabsContent>
 
           <TabsContent value="leaderboard">

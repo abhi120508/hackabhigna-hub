@@ -23,32 +23,34 @@ const App = () => (
       <Toaster />
       <Sonner />
       <HashRouter>
-        {/* Background Video */}
-        <div className="fixed inset-0 -z-10">
+        {/* Background Video - Responsive for mobile */}
+        <div className="fixed inset-0 -z-10 overflow-hidden">
           <video
             autoPlay
             muted
             loop
             playsInline
-            className="w-full h-full object-cover brightness-50"
+            className="w-full h-full object-cover brightness-50 md:object-fill"
             src="/robo.mp4"
           />
           <div className="absolute inset-0 bg-black/60" />
         </div>
         <Navigation />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/brochure" element={<Brochure />} />
-          <Route path="/about-us" element={<AboutUs />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/qr-panel" element={<QRPanel />} />
-          <Route path="/judge" element={<JudgePanel />} />
-          <Route path="/participant" element={<ParticipantPanel />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <main className="pt-14 md:pt-16 min-h-screen w-full">
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/brochure" element={<Brochure />} />
+            <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/qr-panel" element={<QRPanel />} />
+            <Route path="/judge" element={<JudgePanel />} />
+            <Route path="/participant" element={<ParticipantPanel />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
       </HashRouter>
     </TooltipProvider>
   </QueryClientProvider>

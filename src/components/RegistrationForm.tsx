@@ -87,7 +87,7 @@ export function RegistrationForm() {
         );
         const slotsMap: { [key: string]: number } = {};
         const pausedMap: { [key: string]: boolean } = {};
-        response.data.forEach((domainSetting: any) => {
+        response.data.forEach((domainSetting: DomainSetting) => {
           // Defensive check for slotsLeft property existence and type
           const slotsLeft =
             typeof domainSetting.slotsLeft === "number"
@@ -107,11 +107,15 @@ export function RegistrationForm() {
         });
         setDomainSlotsLeft(slotsMap);
         setDomainPaused(pausedMap);
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch domain slots left";
         toast({
           variant: "destructive",
           title: "Error fetching domain slots",
-          description: error.message || "Failed to fetch domain slots left",
+          description: errorMessage,
         });
       }
     };
@@ -286,7 +290,7 @@ export function RegistrationForm() {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto bg-card/50 backdrop-blur-sm border-border/50">
+    <Card className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 bg-card/50 backdrop-blur-sm border-border/50">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl text-gradient">
           Register Your Team
@@ -319,66 +323,67 @@ export function RegistrationForm() {
               Team Members (2-4 people) - Select a Leader
             </Label>
             {participants.map((participant, index) => (
-              <div key={index} className="space-y-2">
-                <div className="relative">
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-2 relative">
-                      <div className="relative flex-1">
-                        <Input
-                          value={participant.name}
-                          onChange={(e) =>
-                            updateParticipant(index, "name", e.target.value)
-                          }
-                          placeholder={`Member ${index + 1} Name`}
-                          className="bg-input/50 pr-32"
-                        />
-                        <Button
-                          type="button"
-                          variant={
-                            leaderIndex === index ? "default" : "outline"
-                          }
-                          size="sm"
-                          onClick={() => setLeaderIndex(index)}
-                          className="absolute right-1 top-1/2 -translate-y-1/2 px-2 py-1 h-7 text-xs"
-                        >
-                          {leaderIndex === index ? "Leader" : "Set Leader"}
-                        </Button>
-                      </div>
-                      {participants.length > 2 && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => removeParticipant(index)}
-                          className="px-3"
-                        >
-                          <MinusCircle className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
+              <div key={index} className="space-y-4">
+                {participants.length > 2 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeParticipant(index)}
+                    className="w-fit ml-auto"
+                  >
+                    <MinusCircle className="w-4 h-4 mr-1" />
+                    Remove Member
+                  </Button>
+                )}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">
+                    Member {index + 1} Name
+                  </Label>
+                  <div className="relative flex items-center gap-2">
                     <Input
-                      type="email"
-                      value={participant.email}
+                      value={participant.name}
                       onChange={(e) =>
-                        updateParticipant(index, "email", e.target.value)
+                        updateParticipant(index, "name", e.target.value)
                       }
-                      placeholder={`Member ${index + 1} Email`}
-                      className="bg-input/50 flex-1"
+                      placeholder={`Enter name`}
+                      className="bg-input/50 flex-1 pr-20 md:pr-32"
                     />
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium">
-                        College Name
-                      </Label>
-                      <Input
-                        value={participant.college}
-                        onChange={(e) =>
-                          updateParticipant(index, "college", e.target.value)
-                        }
-                        placeholder={`Enter college name`}
-                        className="bg-input/50"
-                      />
-                    </div>
+                    <Button
+                      type="button"
+                      variant={leaderIndex === index ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setLeaderIndex(index)}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 px-2 md:px-3 py-1 h-8 md:h-9 text-xs whitespace-nowrap"
+                    >
+                      {leaderIndex === index ? "Leader" : "Set Leader"}
+                    </Button>
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">
+                    Member {index + 1} Email
+                  </Label>
+                  <Input
+                    type="email"
+                    value={participant.email}
+                    onChange={(e) =>
+                      updateParticipant(index, "email", e.target.value)
+                    }
+                    placeholder="Enter email"
+                    className="bg-input/50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">College Name</Label>
+                  <Input
+                    value={participant.college}
+                    onChange={(e) =>
+                      updateParticipant(index, "college", e.target.value)
+                    }
+                    placeholder="Enter college name"
+                    className="bg-input/50"
+                  />
                 </div>
               </div>
             ))}

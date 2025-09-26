@@ -16,7 +16,7 @@ export function CountdownTimer() {
   });
 
   useEffect(() => {
-    const targetDate = new Date("2025-10-16T10:00:00").getTime();
+    const targetDate = new Date("2025-10-30T10:00:00").getTime();
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -41,33 +41,6 @@ export function CountdownTimer() {
     return () => clearInterval(timer);
   }, []);
 
-<<<<<<< HEAD
-  return (
-    <div className="flex justify-center items-center gap-4 md:gap-8 mb-8">
-      <div className="text-center bg-card/30 backdrop-blur-sm rounded-lg p-3 md:p-4 border border-border/20">
-        <div className="text-2xl md:text-3xl font-bold text-primary">
-          {timeLeft.days.toString().padStart(2, "0")}
-        </div>
-        <div className="text-xs md:text-sm text-muted-foreground">Days</div>
-      </div>
-      <div className="text-center bg-card/30 backdrop-blur-sm rounded-lg p-3 md:p-4 border border-border/20">
-        <div className="text-2xl md:text-3xl font-bold text-accent">
-          {timeLeft.hours.toString().padStart(2, "0")}
-        </div>
-        <div className="text-xs md:text-sm text-muted-foreground">Hours</div>
-      </div>
-      <div className="text-center bg-card/30 backdrop-blur-sm rounded-lg p-3 md:p-4 border border-border/20">
-        <div className="text-2xl md:text-3xl font-bold text-secondary">
-          {timeLeft.minutes.toString().padStart(2, "0")}
-        </div>
-        <div className="text-xs md:text-sm text-muted-foreground">Minutes</div>
-      </div>
-      <div className="text-center bg-card/30 backdrop-blur-sm rounded-lg p-3 md:p-4 border border-border/20">
-        <div className="text-2xl md:text-3xl font-bold text-primary">
-          {timeLeft.seconds.toString().padStart(2, "0")}
-        </div>
-        <div className="text-xs md:text-sm text-muted-foreground">Seconds</div>
-=======
   const boxStyle =
     "text-center bg-black/40 backdrop-blur-sm rounded-lg p-4 border border-opacity-50 w-20 h-20 flex flex-col justify-center";
 
@@ -108,7 +81,6 @@ export function CountdownTimer() {
           {timeLeft.seconds.toString().padStart(2, "0")}
         </div>
         <div className={labelStyle}>Seconds</div>
->>>>>>> friend-updates
       </div>
     </div>
   );

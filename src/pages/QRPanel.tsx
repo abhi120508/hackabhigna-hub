@@ -4,11 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-<<<<<<< HEAD
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-=======
 import { Checkbox } from "@/components/ui/checkbox";
->>>>>>> friend-updates
 import {
   QrCode,
   Scan,
@@ -24,42 +20,25 @@ import { TeamRegistration } from "@/lib/mockBackend";
 import { parseQRCode } from "@/lib/qrUtils";
 import jsQR from "jsqr";
 
-<<<<<<< HEAD
 interface DomainSetting {
   domain: string;
   maxSlots: number;
   paused: boolean;
   slotsLeft: number;
 }
-=======
-const domains = [
-  {
-    id: "GenAI/AgenticAI in Agriculture",
-    label: "GenAI/AgenticAI in Agriculture",
-  },
-  { id: "GenAI/AgenticAI in FinTech", label: "GenAI/AgenticAI in FinTech" },
-  { id: "GenAI/AgenticAI in Education", label: "GenAI/AgenticAI in Education" },
-  { id: "Wildcard", label: "Wildcard" },
-];
->>>>>>> friend-updates
 
 const QRPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
-<<<<<<< HEAD
-  const [selectedDomain, setSelectedDomain] = useState<string>("");
-  const [domainSettings, setDomainSettings] = useState<DomainSetting[]>([]);
-=======
   const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
->>>>>>> friend-updates
+  const [domainSettings, setDomainSettings] = useState<DomainSetting[]>([]);
   const [scannedData, setScannedData] = useState<TeamRegistration | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
   const { toast } = useToast();
 
   // Backend API URL
-<<<<<<< HEAD
-  const API_URL = "https://hackabhigna-hub.onrender.com";
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   // Fetch domain settings on component mount
   useEffect(() => {
@@ -81,9 +60,6 @@ const QRPanel = () => {
 
     fetchDomainSettings();
   }, [toast]);
-=======
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
->>>>>>> friend-updates
 
   // Refs for camera scanning
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -95,44 +71,27 @@ const QRPanel = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-<<<<<<< HEAD
-    if (password === "volunteer123" && selectedDomain) {
-      setIsAuthenticated(true);
-      toast({
-        title: "Access Granted",
-        description: `Volunteer access granted for domain: ${selectedDomain}`,
-=======
     if (password === "volunteer123" && selectedDomains.length > 0) {
       setIsAuthenticated(true);
       toast({
         title: "Access Granted",
         description: `Volunteer access granted for ${selectedDomains.length} domain(s)`,
->>>>>>> friend-updates
       });
     } else {
       toast({
         variant: "destructive",
         title: "Access Denied",
-<<<<<<< HEAD
-        description: "Invalid password or no domain selected",
-=======
         description: "Invalid password or no domains selected",
->>>>>>> friend-updates
       });
     }
   };
 
-<<<<<<< HEAD
-  const handleDomainSelection = (value: string) => {
-    setSelectedDomain(value);
-=======
   const handleDomainChange = (domainId: string, checked: boolean) => {
     if (checked) {
       setSelectedDomains((prev) => [...prev, domainId]);
     } else {
       setSelectedDomains((prev) => prev.filter((id) => id !== domainId));
     }
->>>>>>> friend-updates
   };
 
   const stopScan = () => {
@@ -335,46 +294,43 @@ const QRPanel = () => {
               Volunteer Access
             </CardTitle>
             <p className="text-muted-foreground">
-<<<<<<< HEAD
-              Select domain and enter volunteer password
-=======
               Select domains and enter volunteer password
->>>>>>> friend-updates
             </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">
-<<<<<<< HEAD
               <div className="space-y-2">
                 <Label className="text-base font-medium">
-                  Select Domain to Manage
+                  Select Domains to Manage
                 </Label>
-                <RadioGroup
-                  value={selectedDomain}
-                  onValueChange={handleDomainSelection}
-                  className="flex flex-col space-y-2"
-                >
+                <div className="mt-3 space-y-3">
                   {domainSettings
                     .filter((d) => !d.paused)
                     .map((domain) => (
                       <div
                         key={domain.domain}
-                        className="flex items-center space-x-3 p-2 border rounded-md"
+                        className="flex items-center space-x-3"
                       >
-                        <RadioGroupItem
-                          value={domain.domain}
+                        <Checkbox
                           id={domain.domain}
+                          checked={selectedDomains.includes(domain.domain)}
+                          onCheckedChange={(checked) =>
+                            handleDomainChange(
+                              domain.domain,
+                              checked as boolean
+                            )
+                          }
                         />
                         <Label
                           htmlFor={domain.domain}
-                          className="text-sm font-normal cursor-pointer flex-1"
+                          className="text-sm font-normal cursor-pointer"
                         >
                           {domain.domain} ({domain.slotsLeft}/{domain.maxSlots}{" "}
                           slots left)
                         </Label>
                       </div>
                     ))}
-                </RadioGroup>
+                </div>
                 {domainSettings.filter((d) => d.paused).length > 0 && (
                   <div className="mt-4 p-3 bg-muted rounded-md">
                     <p className="text-xs text-muted-foreground">
@@ -386,34 +342,6 @@ const QRPanel = () => {
                     </p>
                   </div>
                 )}
-=======
-              <div>
-                <Label className="text-base font-medium">
-                  Select Domains to Manage
-                </Label>
-                <div className="mt-3 space-y-3">
-                  {domains.map((domain) => (
-                    <div
-                      key={domain.id}
-                      className="flex items-center space-x-3"
-                    >
-                      <Checkbox
-                        id={domain.id}
-                        checked={selectedDomains.includes(domain.id)}
-                        onCheckedChange={(checked) =>
-                          handleDomainChange(domain.id, checked as boolean)
-                        }
-                      />
-                      <Label
-                        htmlFor={domain.id}
-                        className="text-sm font-normal cursor-pointer"
-                      >
-                        {domain.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
->>>>>>> friend-updates
               </div>
 
               <div>
@@ -428,16 +356,12 @@ const QRPanel = () => {
                 />
               </div>
 
-<<<<<<< HEAD
               <Button
                 type="submit"
                 className="w-full"
                 variant="hero"
-                disabled={!selectedDomain}
+                disabled={selectedDomains.length === 0}
               >
-=======
-              <Button type="submit" className="w-full" variant="hero">
->>>>>>> friend-updates
                 Access QR Scanner
               </Button>
             </form>
@@ -456,20 +380,14 @@ const QRPanel = () => {
             Scan team QR codes to activate repositories on hackathon day
           </p>
           <div className="mt-2 flex flex-wrap justify-center gap-2">
-<<<<<<< HEAD
-            {selectedDomain && (
-              <Badge variant="outline">Managing: {selectedDomain}</Badge>
-            )}
-=======
             {selectedDomains.map((domainId) => {
-              const domain = domains.find((d) => d.id === domainId);
+              const domain = domainSettings.find((d) => d.domain === domainId);
               return (
                 <Badge key={domainId} variant="outline">
-                  {domain?.label}
+                  {domain?.domain}
                 </Badge>
               );
             })}
->>>>>>> friend-updates
           </div>
         </div>
 
