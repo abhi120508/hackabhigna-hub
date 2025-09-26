@@ -35,10 +35,13 @@ body {
 
 .hero-section {
   position: relative;
-  padding-top: 5rem; /* space for fixed navbar */
+  padding-top: 1rem; /* REDUCED from 5rem - this was causing the large gap */
   padding-bottom: 1rem;
   text-align: center;
-  margin-top: 0;
+  margin-top: 4rem; /* Space for fixed navbar - reduced from excessive spacing */
+  min-height: calc(100vh - 4rem); /* Ensure proper height */
+  display: flex;
+  align-items: center; /* Center content vertically */
 }
 
 /* Overlay (optional) */
@@ -114,9 +117,10 @@ body {
 /* Retro Glitch Title with Neon Pink Outline */
 .hack-text {
   font-family: "Press Start 2P", cursive;
-  font-size: 6em;
+  font-size: clamp(2.5em, 8vw, 6em); /* Responsive font size */
   text-align: center;
-  letter-spacing: 4px;
+  letter-spacing: clamp(2px, 0.5vw, 4px); /* Responsive letter spacing */
+  margin: clamp(1rem, 2vw, 2rem) 0; /* Responsive margin */
 
   color: #ffffff; /* solid white text */
   text-shadow: 0 0 8px #ffffff, /* white glow */ 0 0 16px #ff00ff,
@@ -143,126 +147,73 @@ body {
 }
 
 .registration-badge {
-  font-size: 2.5rem; /* increase as needed */
+  font-size: clamp(1.5rem, 4vw, 2.5rem); /* Responsive font size */
   font-weight: 700;
   letter-spacing: 1px;
-  color: #74e1ed; /* neon white/pink */
-  background: none; /* remove box */
+  color: #74e1ed;
+  background: none;
   padding: 0;
   border: none;
   display: inline-block;
+  margin-bottom: clamp(0.5rem, 2vw, 1rem); /* Responsive margin */
 }
 
 .badge {
   font-family: var(--font-title);
-  font-size: 2.5em; /* increased font size */
+  font-size: clamp(1.5em, 4vw, 2.5em); /* Responsive font size */
   text-align: center;
-  color: #74e1ed; /* lighter pink for subtitle */
+  color: #74e1ed;
   text-shadow: 0 0 4px #aee1bf, 0 0 8px #5be59b, -1px 0 var(--accent-color-2),
     1px 0 var(--accent-color-1);
-  margin-top: 1.5rem;
+  margin-top: clamp(0.5rem, 2vw, 1.5rem); /* Responsive margin */
   animation: slowDeblur 3s ease-out forwards, flickerAnim 1.5s infinite;
 }
 
 /* Retro Subtitle */
 .hack-subtitle {
   font-family: var(--font-title);
-  font-size: 1.5em; /* increased font size */
+  font-size: clamp(1em, 3vw, 1.5em); /* Responsive font size */
   text-align: center;
-  color: #74e1ed; /* lighter pink for subtitle */
+  color: #74e1ed;
   text-shadow: 0 0 4px #aee1bf, 0 0 8px #5be59b, -1px 0 var(--accent-color-2),
     1px 0 var(--accent-color-1);
-  margin-top: 1.5rem;
+  margin-top: clamp(0.5rem, 2vw, 1.5rem); /* Responsive margin */
   animation: slowDeblur 3s ease-out forwards, flickerAnim 1.5s infinite;
 }
 
 /* Separate class for REGISTRATION OPEN */
 .registration-open {
   font-family: var(--font-title);
-  font-size: 1.2em; /* reduced font size */
+  font-size: clamp(0.9em, 2.5vw, 1.2em); /* Responsive font size */
   text-align: center;
-  color: #74e1ed; /* lighter pink for subtitle */
+  color: #74e1ed;
   text-shadow: 0 0 4px #aee1bf, 0 0 8px #5be59b, -1px 0 var(--accent-color-2),
     1px 0 var(--accent-color-1);
-  margin-top: 1.5rem;
+  margin-top: 0; /* Remove top margin to reduce spacing */
+  margin-bottom: clamp(0.5rem, 2vw, 1rem); /* Responsive bottom margin */
   animation: slowDeblur 3s ease-out forwards, flickerAnim 1.5s infinite;
 }
 
 /* Separate class for INNOVATE CODE AND CONQUER */
 .innovate-conquer {
   font-family: var(--font-title);
-  font-size: 1.5em; /* original font size */
+  font-size: clamp(1em, 3vw, 1.5em); /* Responsive font size */
   text-align: center;
-  color: #74e1ed; /* lighter pink for subtitle */
+  color: #74e1ed;
   text-shadow: 0 0 4px #aee1bf, 0 0 8px #5be59b, -1px 0 var(--accent-color-2),
     1px 0 var(--accent-color-1);
-  margin-top: 1.5rem;
+  margin-top: clamp(0.5rem, 2vw, 1.5rem); /* Responsive margin */
   animation: slowDeblur 3s ease-out forwards, flickerAnim 1.5s infinite;
 }
 
-/* Responsive Scaling */
-@media screen and (max-width: 1024px) {
-  .hack-text {
-    font-size: 4em;
-  }
-  .hack-subtitle {
-    font-size: 1.2em;
-  }
-  .registration-open {
-    font-size: 1em;
-  }
-  .innovate-conquer {
-    font-size: 1.2em;
-  }
-  .hero-section {
-    padding: 1.5rem 1rem;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .hack-text {
-    font-size: 2.5em;
-  }
-  .hack-subtitle {
-    font-size: 1em;
-  }
-  .registration-open {
-    font-size: 0.9em;
-  }
-  .innovate-conquer {
-    font-size: 1em;
-  }
-  .hero-section {
-    padding: 1rem 0.5rem;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .hack-text {
-    font-size: 2em;
-  }
-  .hack-subtitle {
-    font-size: 0.9em;
-  }
-  .registration-open {
-    font-size: 0.8em;
-  }
-  .innovate-conquer {
-    font-size: 0.9em;
-  }
-  .hero-section {
-    padding: 0.5rem 0.25rem;
-  }
-}
-
 .register-btn {
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 3vw, 1.5rem); /* Responsive font size */
   font-weight: 700;
   text-transform: uppercase;
-  padding: 1rem 2rem;
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 4vw, 2rem); /* Responsive padding */
   background-color: rgb(201, 114, 219);
-  color: rgb(255, 255, 255); /* updated text color */
-  border: 2px solid rgb(201, 114, 219); /* optional border to match */
+  color: rgb(255, 255, 255);
+  border: 2px solid rgb(201, 114, 219);
   position: relative;
   overflow: hidden;
   transition: all 0.4s ease-in-out;
@@ -272,9 +223,9 @@ body {
 }
 
 .register-btn:hover {
-  background-color: transparent; /* transparent on hover */
-  color: rgb(201, 114, 219); /* retain text color on hover */
-  border-color: rgb(201, 114, 219); /* optional: border persists */
+  background-color: transparent;
+  color: rgb(201, 114, 219);
+  border-color: rgb(201, 114, 219);
 }
 
 /* Optional animation layer */
@@ -316,5 +267,42 @@ body {
   }
   100% {
     background-position: 0% 50%;
+  }
+}
+
+/* Mobile Responsive Adjustments */
+@media screen and (max-width: 1024px) {
+  .hero-section {
+    padding-top: 0.5rem;
+    margin-top: 3.5rem;
+    min-height: calc(100vh - 3.5rem);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .hero-section {
+    padding-top: 0.5rem;
+    margin-top: 3rem;
+    min-height: calc(100vh - 3rem);
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .hack-text {
+    letter-spacing: 2px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .hero-section {
+    padding-top: 0.25rem;
+    margin-top: 2.5rem;
+    min-height: calc(100vh - 2.5rem);
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+
+  .hack-text {
+    letter-spacing: 1px;
   }
 }
