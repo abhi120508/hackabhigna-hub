@@ -3,23 +3,23 @@
    ==================================================== */
 
 /* Import Retro and Futuristic Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@700&family=Audiowide&family=Rajdhani:wght@400;600&family=Roboto:wght@400;500&family=Montserrat:wght@600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@700&family=Audiowide&family=Rajdhani:wght@400;600&family=Roboto:wght@400;500&family=Montserrat:wght@600&display=swap");
 
 :root {
-  --font-title: 'Orbitron', 'Audiowide', sans-serif;
-  --font-subtitle: 'Rajdhani', sans-serif;
-  --font-body: 'Roboto', sans-serif;
-  --font-ui-label: 'Montserrat', sans-serif;
+  --font-title: "Orbitron", "Audiowide", sans-serif;
+  --font-subtitle: "Rajdhani", sans-serif;
+  --font-body: "Roboto", sans-serif;
+  --font-ui-label: "Montserrat", sans-serif;
   --background-color: transparent;
   --text-color: #ffffff;
-  --accent-color: #00FFFF;
-  --accent-color-secondary: #B300FF;
+  --accent-color: #00ffff;
+  --accent-color-secondary: #b300ff;
   --accent-color-1: red;
   --accent-color-2: rgb(2, 21, 21);
   --accent-color-3: magenta;
 
-  --button-bg: #007BFF;
-  --button-hover-bg: #8000FF;
+  --button-bg: #007bff;
+  --button-hover-bg: #8000ff;
   --button-text: #ffffff;
 }
 
@@ -60,99 +60,108 @@ body {
 
 /* Retro Flicker for Glitchy Pixel Text */
 @keyframes flickerRetro {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
-    text-shadow:
-      -2px -1px 0 rgba(253, 95, 234, 0.5),
-      1px 1px 0 rgba(185, 249, 159, 0.7),
-      -2px 2px 0 rgba(168, 81, 149, 0.7);
+    text-shadow: -2px -1px 0 rgba(253, 95, 234, 0.5),
+      1px 1px 0 rgba(185, 249, 159, 0.7), -2px 2px 0 rgba(168, 81, 149, 0.7);
   }
   50% {
     opacity: 0.85;
-    text-shadow:
-      -2px -1px 0 rgba(253, 95, 234, 0.5),
-      2px 2px 0 rgba(113, 246, 113, 0.552),
-      0px 3px 0 rgba(123, 181, 235, 0.5);
+    text-shadow: -2px -1px 0 rgba(253, 95, 234, 0.5),
+      2px 2px 0 rgba(113, 246, 113, 0.552), 0px 3px 0 rgba(123, 181, 235, 0.5);
   }
 }
 
 /* Modern Flicker Animation */
 @keyframes flickerAnim {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
     opacity: 1;
-    text-shadow:
-      0 0 6px var(--accent-color),
+    text-shadow: 0 0 6px var(--accent-color),
       0 0 12px var(--accent-color-secondary);
   }
-  20%, 24%, 55% {
+  20%,
+  24%,
+  55% {
     opacity: 0.7;
-    text-shadow:
-      0 0 10px var(--accent-color),
+    text-shadow: 0 0 10px var(--accent-color),
       0 0 18px var(--accent-color-secondary);
   }
 }
 
 /* Utility Font Classes */
-.font-title { font-family: var(--font-title); }
-.font-subtitle { font-family: var(--font-subtitle); }
-.font-body { font-family: var(--font-body); }
-.font-ui-label { font-family: var(--font-ui-label); font-weight: 800; }
+.font-title {
+  font-family: var(--font-title);
+}
+.font-subtitle {
+  font-family: var(--font-subtitle);
+}
+.font-body {
+  font-family: var(--font-body);
+}
+.font-ui-label {
+  font-family: var(--font-ui-label);
+  font-weight: 800;
+}
 
 /* Retro Glitch Title with Neon Pink Outline */
 .hack-text {
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   font-size: 6em;
   text-align: center;
   letter-spacing: 4px;
 
   color: #ffffff; /* solid white text */
-  text-shadow:
-    0 0 8px #ffffff,   /* white glow */
-    0 0 16px #ff00ff,  /* pink neon glow */
-    0 0 24px #00ffff;  /* cyan neon glow */
+  text-shadow: 0 0 8px #ffffff, /* white glow */ 0 0 16px #ff00ff,
+    /* pink neon glow */ 0 0 24px #00ffff; /* cyan neon glow */
 
   filter: blur(0.5px);
 
   /* Animations */
   animation: slowDeblur 3s ease-out forwards,
-             flickerRetro 1.5s infinite alternate;
+    flickerRetro 1.5s infinite alternate;
 }
-
-
 
 /* Animate the gradient across text */
 @keyframes shimmer {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .registration-badge {
   font-size: 2.5rem; /* increase as needed */
   font-weight: 700;
   letter-spacing: 1px;
-  color:#74e1ed; /* neon white/pink */
+  color: #74e1ed; /* neon white/pink */
   background: none; /* remove box */
   padding: 0;
   border: none;
   display: inline-block;
 }
 
-
-.badge{
-
+.badge {
   font-family: var(--font-title);
   font-size: 2.5em; /* increased font size */
   text-align: center;
   color: #74e1ed; /* lighter pink for subtitle */
-  text-shadow:
-    0 0 4px #aee1bf,
-    0 0 8px #5be59b,
-    -1px 0 var(--accent-color-2),
+  text-shadow: 0 0 4px #aee1bf, 0 0 8px #5be59b, -1px 0 var(--accent-color-2),
     1px 0 var(--accent-color-1);
   margin-top: 1.5rem;
   animation: slowDeblur 3s ease-out forwards, flickerAnim 1.5s infinite;
-
 }
 
 /* Retro Subtitle */
@@ -161,10 +170,7 @@ body {
   font-size: 1.5em; /* increased font size */
   text-align: center;
   color: #74e1ed; /* lighter pink for subtitle */
-  text-shadow:
-    0 0 4px #aee1bf,
-    0 0 8px #5be59b,
-    -1px 0 var(--accent-color-2),
+  text-shadow: 0 0 4px #aee1bf, 0 0 8px #5be59b, -1px 0 var(--accent-color-2),
     1px 0 var(--accent-color-1);
   margin-top: 1.5rem;
   animation: slowDeblur 3s ease-out forwards, flickerAnim 1.5s infinite;
@@ -176,10 +182,7 @@ body {
   font-size: 1.2em; /* reduced font size */
   text-align: center;
   color: #74e1ed; /* lighter pink for subtitle */
-  text-shadow:
-    0 0 4px #aee1bf,
-    0 0 8px #5be59b,
-    -1px 0 var(--accent-color-2),
+  text-shadow: 0 0 4px #aee1bf, 0 0 8px #5be59b, -1px 0 var(--accent-color-2),
     1px 0 var(--accent-color-1);
   margin-top: 1.5rem;
   animation: slowDeblur 3s ease-out forwards, flickerAnim 1.5s infinite;
@@ -191,39 +194,65 @@ body {
   font-size: 1.5em; /* original font size */
   text-align: center;
   color: #74e1ed; /* lighter pink for subtitle */
-  text-shadow:
-    0 0 4px #aee1bf,
-    0 0 8px #5be59b,
-    -1px 0 var(--accent-color-2),
+  text-shadow: 0 0 4px #aee1bf, 0 0 8px #5be59b, -1px 0 var(--accent-color-2),
     1px 0 var(--accent-color-1);
   margin-top: 1.5rem;
   animation: slowDeblur 3s ease-out forwards, flickerAnim 1.5s infinite;
 }
 
-
 /* Responsive Scaling */
 @media screen and (max-width: 1024px) {
-  .hack-text { font-size: 4em; }
-  .hack-subtitle { font-size: 1.2em; }
-  .registration-open { font-size: 1em; }
-  .innovate-conquer { font-size: 1.2em; }
-  .hero-section { padding: 1.5rem 1rem; }
+  .hack-text {
+    font-size: 4em;
+  }
+  .hack-subtitle {
+    font-size: 1.2em;
+  }
+  .registration-open {
+    font-size: 1em;
+  }
+  .innovate-conquer {
+    font-size: 1.2em;
+  }
+  .hero-section {
+    padding: 1.5rem 1rem;
+  }
 }
 
 @media screen and (max-width: 768px) {
-  .hack-text { font-size: 2.5em; }
-  .hack-subtitle { font-size: 1em; }
-  .registration-open { font-size: 0.9em; }
-  .innovate-conquer { font-size: 1em; }
-  .hero-section { padding: 1rem 0.5rem; }
+  .hack-text {
+    font-size: 2.5em;
+  }
+  .hack-subtitle {
+    font-size: 1em;
+  }
+  .registration-open {
+    font-size: 0.9em;
+  }
+  .innovate-conquer {
+    font-size: 1em;
+  }
+  .hero-section {
+    padding: 1rem 0.5rem;
+  }
 }
 
 @media screen and (max-width: 480px) {
-  .hack-text { font-size: 2em; }
-  .hack-subtitle { font-size: 0.9em; }
-  .registration-open { font-size: 0.8em; }
-  .innovate-conquer { font-size: 0.9em; }
-  .hero-section { padding: 0.5rem 0.25rem; }
+  .hack-text {
+    font-size: 2em;
+  }
+  .hack-subtitle {
+    font-size: 0.9em;
+  }
+  .registration-open {
+    font-size: 0.8em;
+  }
+  .innovate-conquer {
+    font-size: 0.9em;
+  }
+  .hero-section {
+    padding: 0.5rem 0.25rem;
+  }
 }
 
 .register-btn {
@@ -231,20 +260,20 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   padding: 1rem 2rem;
-  background-color:rgb(201, 114, 219);;
+  background-color: rgb(201, 114, 219);
   color: rgb(255, 255, 255); /* updated text color */
   border: 2px solid rgb(201, 114, 219); /* optional border to match */
   position: relative;
   overflow: hidden;
   transition: all 0.4s ease-in-out;
   z-index: 1;
-  font-family: 'Orbitron', sans-serif;
+  font-family: "Orbitron", sans-serif;
   letter-spacing: 2px;
 }
 
 .register-btn:hover {
   background-color: transparent; /* transparent on hover */
-  color: rgb(201, 114, 219);     /* retain text color on hover */
+  color: rgb(201, 114, 219); /* retain text color on hover */
   border-color: rgb(201, 114, 219); /* optional: border persists */
 }
 
@@ -277,7 +306,6 @@ body {
   position: relative;
   z-index: 2;
 }
-
 
 @keyframes blue-glow-slide {
   0% {

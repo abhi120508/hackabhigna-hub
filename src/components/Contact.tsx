@@ -46,7 +46,7 @@ export function Contact() {
     {
       icon: Phone,
       title: "Phone",
-      details: "+91 98765 43210",
+      details: "+91 8296590632",
       description: "Mon-Fri from 8am to 5pm",
     },
     {
@@ -102,6 +102,7 @@ export function Contact() {
           >
             Contact Us
           </h1>
+
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Have questions about HackAbhigna? We're here to help! Reach out to
             us through any of the channels below.

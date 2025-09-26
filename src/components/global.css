@@ -1,7 +1,7 @@
 /* ===============================
    Import Orbitron Font
 ================================ */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap");
 
 /* ===============================
    Global Variables
@@ -19,12 +19,17 @@
 /* ===============================
    Body / Wrapper Styles
 ================================ */
-body, .min-h-screen {
+body,
+.min-h-screen {
   min-height: 100vh;
-  background: linear-gradient(to bottom right, var(--background-color), rgba(128, 128, 128, 0.2));
+  background: linear-gradient(
+    to bottom right,
+    var(--background-color),
+    rgba(128, 128, 128, 0.2)
+  );
   padding: 5rem 1rem 5rem 1rem;
   color: var(--text-color);
-  font-family: 'Orbitron', sans-serif;
+  font-family: "Orbitron", sans-serif;
   margin-top: 5rem;
 }
 
@@ -61,7 +66,7 @@ body, .min-h-screen {
 ================================ */
 h1 {
   font-weight: 900;
-  font-family: 'Orbitron', sans-serif;
+  font-family: "Orbitron", sans-serif;
   line-height: 1.1;
 }
 
@@ -127,7 +132,7 @@ h1 {
 
 .card-title {
   font-weight: 700;
-  font-family: 'Orbitron', sans-serif;
+  font-family: "Orbitron", sans-serif;
   font-size: 1.5rem;
   display: flex;
   align-items: center;
@@ -213,7 +218,7 @@ h1 {
    Base Button Styles (Neutral)
 ================================ */
 button {
-  font-family: 'Orbitron', sans-serif;
+  font-family: "Orbitron", sans-serif;
   font-size: 1rem;
   padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
@@ -234,7 +239,7 @@ button {
   background-color: transparent;
   color: rgb(201, 114, 219);
   border: 2px solid rgb(201, 114, 219);
-  font-family: 'Orbitron', sans-serif;
+  font-family: "Orbitron", sans-serif;
   font-weight: 700;
   transition: all 0.3s ease;
 }

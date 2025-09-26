@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap");
 
 .orbitron-neon {
-  font-family: 'Orbitron', sans-serif;
+  font-family: "Orbitron", sans-serif;
   text-align: center;
   color: var(--text-color, #fff);
   --background-color: transparent;
@@ -15,7 +15,8 @@
 }
 
 /* Remove any text gradients */
-.text-gradient, .text-accent-gradient {
+.text-gradient,
+.text-accent-gradient {
   background: none !important;
   -webkit-background-clip: unset !important;
   -webkit-text-fill-color: unset !important;

@@ -30,28 +30,28 @@ export function AboutUs() {
 
   const facultyCoordinators = [
     {
-      name: "Ravi Kumar",
-      role: "Assistant Professor",
-      description: "123456789",
-      image: "/images/faculty/ravi-kumar.jpg",
-    },
-    {
-      name: "RAGHURAME GOWDA",
-      role: "Assistant Professor",
-      description: "123456789",
-      image: "/images/faculty/raghurame-gowda.jpg",
-    },
-    {
       name: "ANSER PASHA",
       role: "Assistant Professor",
-      description: "123456789",
+      description: "9880744210",
       image: "/images/faculty/anser-pasha.jpg",
     },
     {
       name: "HARISH S",
       role: "Assistant Professor",
-      description: "123456789",
+      description: "9964027241",
       image: "/images/faculty/harish-s.jpg",
+    },
+    {
+      name: "RAGHURAME GOWDA",
+      role: "Assistant Professor",
+      description: "9844926668",
+      image: "/images/faculty/raghurame-gowda.jpg",
+    },
+    {
+      name: "RAVI KUMAR",
+      role: "Assistant Professor",
+      description: "9741970005",
+      image: "/images/faculty/ravi-kumar.jpg",
     },
   ];
 
@@ -59,43 +59,43 @@ export function AboutUs() {
     {
       name: "ABHISHEK D S",
       role: "Student Coordinator",
-      description: "Passionate about student development",
+
       image: "/images/students/abhishek.jpg",
     },
     {
       name: "AKSHATA CHITME",
       role: "Student Coordinator",
-      description: "Ensuring smooth event execution",
+
       image: "/images/students/akshata.jpg",
     },
     {
       name: "DISHA GOWDA",
       role: "Student Coordinator",
-      description: "Passionate about student development",
+
       image: "/images/students/disha.jpg",
     },
     {
-      name: "JEVWL PINTO",
+      name: "JUVEIL PINTO",
       role: "Student Coordinator",
-      description: "Ensuring smooth event execution",
+
       image: "/images/students/jevwl.jpg",
     },
     {
       name: "MOHAMMED ZAID ALI",
       role: "Student Coordinator",
-      description: "Passionate about student development",
+
       image: "/images/students/zaid.jpg",
     },
     {
       name: "SHREYANKA A Y",
       role: "Student Coordinator",
-      description: "Ensuring smooth event execution",
+
       image: "/images/students/shreyanka.jpg",
     },
     {
       name: "SRIRAG D R",
       role: "Student Coordinator",
-      description: "Passionate about student development",
+
       image: "/images/students/srirag.jpg",
     },
   ];

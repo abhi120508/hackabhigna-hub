@@ -7,6 +7,14 @@ export interface QRCodeData {
   githubRepo: string;
 }
 
+export interface QREmailData {
+  teamName: string;
+  uniqueId: string;
+  domain: string;
+  githubRepo: string;
+  qrCode: string;
+}
+
 // Mock QR code scanning result
 export function parseQRCode(qrData: string): { uniqueId: string } | null {
   try {
@@ -37,19 +45,24 @@ export function generateQRCodeImage(data: string): string {
 
 // Mock QR scanner
 export class MockQRScanner {
-  static async startScan(): Promise<{ success: boolean; data?: string; error?: string }> {
+  static async startScan(): Promise<{
+    success: boolean;
+    data?: string;
+    error?: string;
+  }> {
     // Simulate scanning delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     // Mock scan results - randomly return one of the registered team IDs
     const mockQRCodes = [
-      'https://hackabhigna.com/qr/WETE001',
-      'https://hackabhigna.com/qr/MOAP003',
-      'AICO002', // Direct unique ID format
+      "https://hackabhigna.com/qr/WETE001",
+      "https://hackabhigna.com/qr/MOAP003",
+      "AICO002", // Direct unique ID format
     ];
-    
-    const randomCode = mockQRCodes[Math.floor(Math.random() * mockQRCodes.length)];
-    
+
+    const randomCode =
+      mockQRCodes[Math.floor(Math.random() * mockQRCodes.length)];
+
     return {
       success: true,
       data: randomCode,
@@ -57,12 +70,12 @@ export class MockQRScanner {
   }
 
   static stopScan(): void {
-    console.log('QR Scanner stopped');
+    console.log("QR Scanner stopped");
   }
 }
 
 // Mock email template for QR code
-export function generateQREmailTemplate(teamData: any): string {
+export function generateQREmailTemplate(teamData: QREmailData): string {
   return `
     <html>
       <body>
@@ -73,7 +86,9 @@ export function generateQREmailTemplate(teamData: any): string {
         <ul>
           <li><strong>Team ID:</strong> ${teamData.uniqueId}</li>
           <li><strong>Domain:</strong> ${teamData.domain}</li>
-          <li><strong>GitHub Repository:</strong> <a href="${teamData.githubRepo}">${teamData.githubRepo}</a></li>
+          <li><strong>GitHub Repository:</strong> <a href="${
+            teamData.githubRepo
+          }">${teamData.githubRepo}</a></li>
         </ul>
         
         <h3>Your QR Code:</h3>
@@ -84,7 +99,9 @@ export function generateQREmailTemplate(teamData: any): string {
         
         <h3>Next Steps:</h3>
         <ol>
-          <li>Your dedicated GitHub repository has been created: <a href="${teamData.githubRepo}">${teamData.githubRepo}</a></li>
+          <li>Your dedicated GitHub repository has been created: <a href="${
+            teamData.githubRepo
+          }">${teamData.githubRepo}</a></li>
           <li>Use the QR code above for event check-in</li>
           <li>Bring this email or save the QR code to your device</li>
         </ol>
