@@ -11,7 +11,10 @@ import {
   Clock,
   Send,
   MessageSquare,
+<<<<<<< HEAD
   Users,
+=======
+>>>>>>> friend-updates
   HelpCircle,
 } from "lucide-react";
 import { useState } from "react";
@@ -33,7 +36,10 @@ export function Contact() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+<<<<<<< HEAD
     // Handle form submission
+=======
+>>>>>>> friend-updates
     alert("Thank you for your message! We'll get back to you soon.");
     setFormData({ name: "", email: "", subject: "", message: "" });
   };
@@ -42,7 +48,11 @@ export function Contact() {
     {
       icon: Mail,
       title: "Email",
+<<<<<<< HEAD
       details: "hackabhigna@ait.edu.in",
+=======
+      details: "hackabhigna@gmail.com",
+>>>>>>> friend-updates
       description: "Send us an email anytime",
     },
     {
@@ -54,7 +64,11 @@ export function Contact() {
     {
       icon: MapPin,
       title: "Address",
+<<<<<<< HEAD
       details: "AIT Campus, Bangalore",
+=======
+      details: "Adichunchanagiri Institute Of Technology , Chikkamagaluru",
+>>>>>>> friend-updates
       description: "Visit our campus",
     },
     {
@@ -88,6 +102,7 @@ export function Contact() {
   ];
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 py-20 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
@@ -99,6 +114,22 @@ export function Contact() {
             <span className="text-gradient">Contact</span>
             <span className="text-accent-gradient"> Us</span>
           </h1>
+=======
+    <div
+      id="contact"
+      className="w-full bg-gradient-to-br from-background to-muted/20 py-20 scroll-mt-32 mb-0"
+    >
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <Badge className="mb-4 text-white text-2xl font-bold bg-transparent border-none">
+            Get In Touch
+          </Badge>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6" style={{ color: 'rgb(201, 114, 219)'}}>
+            Contact Us
+          </h1>
+
+>>>>>>> friend-updates
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Have questions about HackAbhigna? We're here to help! Reach out to
             us through any of the channels below.
@@ -110,7 +141,14 @@ export function Contact() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
+<<<<<<< HEAD
                 <MessageSquare className="w-6 h-6" />
+=======
+                <MessageSquare 
+                  className="w-6 h-6" 
+                  style={{ color: 'rgb(201, 114, 219)' }}
+                />
+>>>>>>> friend-updates
                 Send us a Message
               </CardTitle>
             </CardHeader>
@@ -164,7 +202,18 @@ export function Contact() {
                     required
                   />
                 </div>
+<<<<<<< HEAD
                 <Button type="submit" className="w-full gap-2">
+=======
+                <Button 
+                  type="submit" 
+                  className="w-full gap-2"
+                  style={{ 
+                    backgroundColor: 'rgb(201, 114, 219)',
+                    borderColor: 'rgb(201, 114, 219)'
+                  }}
+                >
+>>>>>>> friend-updates
                   <Send className="w-4 h-4" />
                   Send Message
                 </Button>
@@ -180,12 +229,30 @@ export function Contact() {
                 <Card key={index}>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-4">
+<<<<<<< HEAD
                       <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                         <Icon className="w-6 h-6 text-primary" />
                       </div>
                       <div>
                         <h3 className="font-semibold mb-1">{info.title}</h3>
                         <p className="text-primary font-medium mb-1">
+=======
+                      <div 
+                        className="w-12 h-12 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: 'rgba(201, 114, 219, 0.1)' }}
+                      >
+                        <Icon 
+                          className="w-6 h-6" 
+                          style={{ color: 'rgb(201, 114, 219)' }}
+                        />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold mb-1">{info.title}</h3>
+                        <p 
+                          className="font-medium mb-1"
+                          style={{ color: 'rgb(201, 114, 219)' }}
+                        >
+>>>>>>> friend-updates
                           {info.details}
                         </p>
                         <p className="text-sm text-muted-foreground">
@@ -204,7 +271,14 @@ export function Contact() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
+<<<<<<< HEAD
               <HelpCircle className="w-6 h-6" />
+=======
+              <HelpCircle 
+                className="w-6 h-6" 
+                style={{ color: 'rgb(201, 114, 219)' }}
+              />
+>>>>>>> friend-updates
               Frequently Asked Questions
             </CardTitle>
           </CardHeader>
@@ -212,7 +286,16 @@ export function Contact() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {faqs.map((faq, index) => (
                 <div key={index} className="space-y-2">
+<<<<<<< HEAD
                   <h3 className="font-semibold text-primary">{faq.question}</h3>
+=======
+                  <h3 
+                    className="font-semibold"
+                    style={{ color: 'rgb(201, 114, 219)' }}
+                  >
+                    {faq.question}
+                  </h3>
+>>>>>>> friend-updates
                   <p className="text-sm text-muted-foreground">{faq.answer}</p>
                 </div>
               ))}
@@ -222,4 +305,8 @@ export function Contact() {
       </div>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> friend-updates

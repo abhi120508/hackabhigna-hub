@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { useState, useEffect, useCallback } from "react";
+=======
+import { useState, useEffect } from "react";
+>>>>>>> friend-updates
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+<<<<<<< HEAD
 import {
   User,
   Trophy,
@@ -22,6 +27,11 @@ import { useToast } from "@/hooks/use-toast";
 import { TeamRegistration } from "@/lib/mockBackend"; // Using the shared interface
 import { useGitHubData } from "@/hooks/useGitHubData";
 import type { GitHubData } from "@/lib/types/github";
+=======
+import { User, Trophy, GitCommit, Users, Activity } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { TeamRegistration } from "@/lib/mockBackend"; // Using the shared interface
+>>>>>>> friend-updates
 
 interface LeaderboardItem {
   teamName: string;
@@ -40,12 +50,16 @@ const ParticipantPanel = () => {
     pausedLeaderboard: false,
   });
   const { toast } = useToast();
+<<<<<<< HEAD
   const API_URL = "https://hackabhigna-hub.onrender.com";
 
   const { data, fetchRepoCommits, fetchRepoStats } = useGitHubData({
     owner: import.meta.env.VITE_GITHUB_OWNER || "",
     token: import.meta.env.VITE_GITHUB_TOKEN || "",
   });
+=======
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+>>>>>>> friend-updates
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -81,6 +95,7 @@ const ParticipantPanel = () => {
     }
   }, [isAuthenticated, API_URL, teamData]);
 
+<<<<<<< HEAD
   useEffect(() => {
     if (teamData && teamData.githubRepo) {
       const repoName =
@@ -96,6 +111,8 @@ const ParticipantPanel = () => {
     }
   }, [teamData, fetchRepoCommits, fetchRepoStats]);
 
+=======
+>>>>>>> friend-updates
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !uniqueId) {
@@ -274,6 +291,7 @@ const ParticipantPanel = () => {
           </TabsContent>
 
           <TabsContent value="activity">
+<<<<<<< HEAD
             <div className="space-y-6">
               {/* Team Members */}
               <Card className="bg-card/50 backdrop-blur-sm">
@@ -284,6 +302,18 @@ const ParticipantPanel = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
+=======
+            <Card className="bg-card/50 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="w-5 h-5" />
+                  Your Team's Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <h4 className="font-semibold mb-2">Team Members</h4>
+>>>>>>> friend-updates
                   <div className="flex flex-wrap gap-2">
                     {allMembers.map((participant, index) => (
                       <Badge
@@ -300,6 +330,7 @@ const ParticipantPanel = () => {
                       </Badge>
                     ))}
                   </div>
+<<<<<<< HEAD
                 </CardContent>
               </Card>
 
@@ -468,6 +499,23 @@ const ParticipantPanel = () => {
                 </CardContent>
               </Card>
             </div>
+=======
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">Repository</h4>
+                  <a
+                    href={teamData.githubRepo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    {teamData.githubRepo}
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+>>>>>>> friend-updates
           </TabsContent>
 
           <TabsContent value="leaderboard">

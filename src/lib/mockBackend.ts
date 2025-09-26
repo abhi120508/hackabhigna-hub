@@ -7,7 +7,10 @@ export interface TeamRegistration {
   participants: Array<{
     name: string;
     email: string;
+<<<<<<< HEAD
     college: string;
+=======
+>>>>>>> friend-updates
     mobile?: string;
   }>;
   leaderIndex: number;
@@ -62,6 +65,7 @@ export class MockDatabase {
       teamCode: "WETE001",
       teamName: "TechInnovators",
       participants: [
+<<<<<<< HEAD
         {
           name: "John Doe",
           email: "john@example.com",
@@ -74,6 +78,10 @@ export class MockDatabase {
           college: "Stanford",
           mobile: "9876543211",
         },
+=======
+        { name: "John Doe", email: "john@example.com", mobile: "9876543210" },
+        { name: "Jane Smith", email: "jane@example.com", mobile: "9876543211" },
+>>>>>>> friend-updates
       ],
       leaderIndex: 0,
       domain: "web",
@@ -95,6 +103,7 @@ export class MockDatabase {
         {
           name: "Alice Johnson",
           email: "alice@example.com",
+<<<<<<< HEAD
           college: "Harvard",
           mobile: "9876543212",
         },
@@ -108,6 +117,14 @@ export class MockDatabase {
           name: "Charlie Brown",
           email: "charlie@example.com",
           college: "Princeton",
+=======
+          mobile: "9876543212",
+        },
+        { name: "Bob Wilson", email: "bob@example.com", mobile: "9876543213" },
+        {
+          name: "Charlie Brown",
+          email: "charlie@example.com",
+>>>>>>> friend-updates
           mobile: "9876543214",
         },
       ],
@@ -125,6 +142,7 @@ export class MockDatabase {
       teamCode: "MOAP003",
       teamName: "AppBuilders",
       participants: [
+<<<<<<< HEAD
         {
           name: "David Lee",
           email: "david@example.com",
@@ -137,6 +155,10 @@ export class MockDatabase {
           college: "Berkeley",
           mobile: "9876543216",
         },
+=======
+        { name: "David Lee", email: "david@example.com", mobile: "9876543215" },
+        { name: "Emma Davis", email: "emma@example.com", mobile: "9876543216" },
+>>>>>>> friend-updates
       ],
       leaderIndex: 0,
       domain: "mobile",
