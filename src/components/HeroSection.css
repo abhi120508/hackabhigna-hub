@@ -12,11 +12,11 @@
   --font-ui-label: "Montserrat", sans-serif;
   --background-color: transparent;
   --text-color: #ffffff;
-  --accent-color: #00ffff;
-  --accent-color-secondary: #b300ff;
+  --accent-color: #60a5fa; /* blue-400 */
+  --accent-color-secondary: #1e40af; /* blue-900 */
   --accent-color-1: red;
   --accent-color-2: rgb(2, 21, 21);
-  --accent-color-3: magenta;
+  --accent-color-3: #1d4ed8; /* blue-700 */
 
   --button-bg: #007bff;
   --button-hover-bg: #8000ff;
@@ -35,11 +35,11 @@ body {
 
 .hero-section {
   position: relative;
-  padding-top: 1rem; /* REDUCED from 5rem - this was causing the large gap */
-  padding-bottom: 1rem;
+  padding-top: 0rem;
+  padding-bottom: 0.5rem;
   text-align: center;
-  margin-top: 4rem; /* Space for fixed navbar - reduced from excessive spacing */
-  min-height: calc(100vh - 4rem); /* Ensure proper height */
+  margin-top: 0.5rem; /* tighter spacing below navbar */
+  min-height: calc(100vh - 0.5rem); /* Ensure proper height */
   display: flex;
   align-items: center; /* Center content vertically */
 }
@@ -120,11 +120,11 @@ body {
   font-size: clamp(2.5em, 8vw, 6em); /* Responsive font size */
   text-align: center;
   letter-spacing: clamp(2px, 0.5vw, 4px); /* Responsive letter spacing */
-  margin: clamp(1rem, 2vw, 2rem) 0; /* Responsive margin */
+  margin: clamp(0.5rem, 1.5vw, 1rem) 0; /* tighter vertical margin */
 
   color: #ffffff; /* solid white text */
-  text-shadow: 0 0 8px #ffffff, /* white glow */ 0 0 16px #ff00ff,
-    /* pink neon glow */ 0 0 24px #00ffff; /* cyan neon glow */
+  text-shadow: 0 0 8px #ffffff, /* white glow */ 0 0 16px #60a5fa,
+    /* blue glow */ 0 0 24px #3b82f6; /* blue glow */
 
   filter: blur(0.5px);
 
@@ -190,7 +190,7 @@ body {
   text-shadow: 0 0 4px #aee1bf, 0 0 8px #5be59b, -1px 0 var(--accent-color-2),
     1px 0 var(--accent-color-1);
   margin-top: 0; /* Remove top margin to reduce spacing */
-  margin-bottom: clamp(0.5rem, 2vw, 1rem); /* Responsive bottom margin */
+  margin-bottom: clamp(0.25rem, 1vw, 0.5rem); /* tighter bottom margin */
   animation: slowDeblur 3s ease-out forwards, flickerAnim 1.5s infinite;
 }
 
@@ -202,7 +202,7 @@ body {
   color: #74e1ed;
   text-shadow: 0 0 4px #aee1bf, 0 0 8px #5be59b, -1px 0 var(--accent-color-2),
     1px 0 var(--accent-color-1);
-  margin-top: clamp(0.5rem, 2vw, 1.5rem); /* Responsive margin */
+  margin-top: clamp(0.25rem, 1vw, 0.75rem); /* tighter margin */
   animation: slowDeblur 3s ease-out forwards, flickerAnim 1.5s infinite;
 }
 
@@ -211,9 +211,9 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   padding: clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 4vw, 2rem); /* Responsive padding */
-  background-color: rgb(201, 114, 219);
+  background-color: #1d4ed8; /* blue-700 */
   color: rgb(255, 255, 255);
-  border: 2px solid rgb(201, 114, 219);
+  border: 2px solid #1d4ed8;
   position: relative;
   overflow: hidden;
   transition: all 0.4s ease-in-out;
@@ -224,8 +224,8 @@ body {
 
 .register-btn:hover {
   background-color: transparent;
-  color: rgb(201, 114, 219);
-  border-color: rgb(201, 114, 219);
+  color: #60a5fa;
+  border-color: #60a5fa;
 }
 
 /* Optional animation layer */
@@ -238,8 +238,8 @@ body {
   height: 100%;
   background: linear-gradient(
     90deg,
-    rgba(201, 114, 219, 0.5),
-    rgba(201, 114, 219, 0.2),
+    rgba(96, 165, 250, 0.5),
+    rgba(29, 78, 216, 0.25),
     transparent
   );
   z-index: 0;
@@ -273,17 +273,17 @@ body {
 /* Mobile Responsive Adjustments */
 @media screen and (max-width: 1024px) {
   .hero-section {
-    padding-top: 0.5rem;
-    margin-top: 3.5rem;
-    min-height: calc(100vh - 3.5rem);
+    padding-top: 0rem;
+    margin-top: 0.5rem;
+    min-height: calc(100vh - 0.5rem);
   }
 }
 
 @media screen and (max-width: 768px) {
   .hero-section {
-    padding-top: 0.5rem;
-    margin-top: 3rem;
-    min-height: calc(100vh - 3rem);
+    padding-top: 0rem;
+    margin-top: 0.5rem;
+    min-height: calc(100vh - 0.5rem);
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
@@ -295,9 +295,9 @@ body {
 
 @media screen and (max-width: 480px) {
   .hero-section {
-    padding-top: 0.25rem;
-    margin-top: 2.5rem;
-    min-height: calc(100vh - 2.5rem);
+    padding-top: 0rem;
+    margin-top: 0.5rem;
+    min-height: calc(100vh - 0.5rem);
     padding-left: 0.25rem;
     padding-right: 0.25rem;
   }

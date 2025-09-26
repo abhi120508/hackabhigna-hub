@@ -98,7 +98,7 @@ export function Contact() {
           </Badge>
           <h1
             className="text-4xl md:text-6xl font-bold mb-6"
-            style={{ color: "rgb(201, 114, 219)" }}
+            style={{ color: "#60a5fa" }}
           >
             Contact Us
           </h1>
@@ -116,7 +116,7 @@ export function Contact() {
               <CardTitle className="flex items-center gap-2">
                 <MessageSquare
                   className="w-6 h-6"
-                  style={{ color: "rgb(201, 114, 219)" }}
+                  style={{ color: "#60a5fa" }}
                 />
                 Send us a Message
               </CardTitle>
@@ -175,8 +175,8 @@ export function Contact() {
                   type="submit"
                   className="w-full gap-2"
                   style={{
-                    backgroundColor: "rgb(201, 114, 219)",
-                    borderColor: "rgb(201, 114, 219)",
+                    backgroundColor: "#1d4ed8",
+                    borderColor: "#1d4ed8",
                   }}
                 >
                   <Send className="w-4 h-4" />
@@ -196,18 +196,18 @@ export function Contact() {
                     <div className="flex items-start gap-4">
                       <div
                         className="w-12 h-12 rounded-lg flex items-center justify-center"
-                        style={{ backgroundColor: "rgba(201, 114, 219, 0.1)" }}
+                        style={{ backgroundColor: "rgba(96, 165, 250, 0.1)" }}
                       >
                         <Icon
                           className="w-6 h-6"
-                          style={{ color: "rgb(201, 114, 219)" }}
+                          style={{ color: "#60a5fa" }}
                         />
                       </div>
                       <div>
                         <h3 className="font-semibold mb-1">{info.title}</h3>
                         <p
                           className="font-medium mb-1"
-                          style={{ color: "rgb(201, 114, 219)" }}
+                          style={{ color: "#60a5fa" }}
                         >
                           {info.details}
                         </p>
@@ -229,7 +229,7 @@ export function Contact() {
             <CardTitle className="flex items-center gap-2">
               <HelpCircle
                 className="w-6 h-6"
-                style={{ color: "rgb(201, 114, 219)" }}
+                style={{ color: "#60a5fa" }}
               />
               Frequently Asked Questions
             </CardTitle>
@@ -240,7 +240,7 @@ export function Contact() {
                 <div key={index} className="space-y-2">
                   <h3
                     className="font-semibold"
-                    style={{ color: "rgb(201, 114, 219)" }}
+                    style={{ color: "#60a5fa" }}
                   >
                     {faq.question}
                   </h3>

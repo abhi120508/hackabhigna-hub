@@ -21,18 +21,17 @@ export function Brochure() {
 
   return (
     <section
-      className="w-full bg-gradient-to-br from-background to-muted/20 py-20 scroll-mt-102 mb-10"
-      style={{ marginTop: "180px" }}
+      className="w-full bg-gradient-to-br from-background to-muted/20 py-16 md:py-20 mb-10"
     >
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <h1 className="text-3xl md:text-5xl font-bold mb-4">
             <span
               className="text-white font-bold"
               style={{
                 fontFamily: "Orbitron, sans-serif",
-                color: "rgb(201, 114, 219)",
+                color: "#60a5fa",
               }}
             >
               HackAbhigna&nbsp;2025

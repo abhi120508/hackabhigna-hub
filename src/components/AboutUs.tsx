@@ -102,8 +102,8 @@ export function AboutUs() {
 
   return (
     <div
-      className="w-full bg-gradient-to-br from-background to-muted/20 py-20 scroll-mt-102 mb-10"
-      style={{ marginTop: "200px" }}
+      id="about-us"
+      className="w-full bg-gradient-to-br from-background to-muted/20 py-16 md:py-20 mb-10"
     >
       <div className="max-w-6xl mx-auto">
         {/* Hero Section */}
@@ -118,7 +118,7 @@ export function AboutUs() {
           {/* CHANGE 2: Reduced main title font size */}
           <h1
             className="text-3xl md:text-4xl font-bold mb-6 orbitron-neon"
-            style={{ color: "rgb(201, 114, 219)" }}
+            style={{ color: "#60a5fa" }}
           >
             <span>Empowering</span>
             <span> Innovation</span>
@@ -141,7 +141,7 @@ export function AboutUs() {
               <CardTitle className="flex items-center gap-2 orbitron-neon">
                 <Target
                   className="w-5 h-5"
-                  style={{ color: "rgb(201, 114, 219)" }}
+                  style={{ color: "#60a5fa" }}
                 />
                 {/* CHANGE 4: Reduced Mission title font size */}
                 <span style={{ fontSize: "1.125rem" }}>Our Mission</span>
@@ -166,7 +166,7 @@ export function AboutUs() {
               <CardTitle className="flex items-center gap-2 orbitron-neon">
                 <Zap
                   className="w-5 h-5"
-                  style={{ color: "rgb(201, 114, 219)" }}
+                  style={{ color: "#60a5fa" }}
                 />
                 {/* CHANGE 6: Reduced Vision title font size */}
                 <span style={{ fontSize: "1.125rem" }}>Our Vision</span>
@@ -192,7 +192,7 @@ export function AboutUs() {
           {/* CHANGE 8: Reduced Values section title font size + CHANGE 24: Added purple color */}
           <h2
             className="font-bold text-center mb-8 orbitron-neon"
-            style={{ fontSize: "2rem", color: "rgb(201, 114, 219)" }}
+            style={{ fontSize: "2rem", color: "#60a5fa" }}
           >
             Our Values
           </h2>
@@ -204,7 +204,7 @@ export function AboutUs() {
                   <CardContent className="pt-6 relative z-10">
                     <Icon
                       className="w-10 h-10 mx-auto mb-4"
-                      style={{ color: "rgb(201, 114, 219)" }}
+                      style={{ color: "#60a5fa" }}
                     />
                     {/* CHANGE 9: Reduced value title font size */}
                     <h3
@@ -232,7 +232,7 @@ export function AboutUs() {
           {/* CHANGE 11: Reduced Faculty Coordinators title font size + CHANGE 25: Added purple color */}
           <h2
             className="font-bold text-center mb-8 orbitron-neon"
-            style={{ fontSize: "2rem", color: "rgb(201, 114, 219)" }}
+            style={{ fontSize: "2rem", color: "#60a5fa" }}
           >
             Faculty Coordinators
           </h2>
@@ -244,16 +244,17 @@ export function AboutUs() {
                 style={{ minHeight: "250px" }}
               >
                 <CardContent className="pt-6 relative z-10 flex flex-col items-center">
-                  {/* CHANGE 12: Replaced image with User icon as fallback */}
-                  <div
-                    className="w-20 h-20 bg-gray-600 rounded-full flex items-center justify-center mb-3 border-2 hover:scale-105 transition-transform"
-                    style={{ borderColor: "rgb(201, 114, 219)" }}
-                  >
-                    <User
-                      className="w-10 h-10"
-                      style={{ color: "rgb(201, 114, 219)" }}
-                    />
-                  </div>
+                  {/* Faculty photo */}
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    className="w-20 h-20 rounded-full object-cover mb-3 border-2 hover:scale-105 transition-transform"
+                    style={{ borderColor: "#60a5fa" }}
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      target.style.display = "none";
+                    }}
+                  />
                   {/* CHANGE 13: Reduced faculty name font size */}
                   <h3
                     className="font-semibold mb-1 text-center"
@@ -264,7 +265,7 @@ export function AboutUs() {
                   {/* CHANGE 14: Reduced faculty role font size */}
                   <p
                     className="mb-1 text-center"
-                    style={{ fontSize: "0.75rem", color: "rgb(201, 114, 219)" }}
+                  style={{ fontSize: "0.75rem", color: "#60a5fa" }}
                   >
                     {member.role}
                   </p>
@@ -286,7 +287,7 @@ export function AboutUs() {
           {/* CHANGE 16: Reduced Student Coordinators title font size + CHANGE 26: Added purple color */}
           <h2
             className="font-bold text-center mb-8 orbitron-neon"
-            style={{ fontSize: "2rem", color: "rgb(201, 114, 219)" }}
+            style={{ fontSize: "2rem", color: "#60a5fa" }}
           >
             Student Coordinators
           </h2>
@@ -301,11 +302,11 @@ export function AboutUs() {
                   {/* CHANGE 17: Replaced image with User icon as fallback */}
                   <div
                     className="w-20 h-20 bg-gray-600 rounded-full flex items-center justify-center mb-3 border-2 hover:scale-105 transition-transform"
-                    style={{ borderColor: "rgb(201, 114, 219)" }}
+                    style={{ borderColor: "#60a5fa" }}
                   >
                     <User
                       className="w-10 h-10"
-                      style={{ color: "rgb(201, 114, 219)" }}
+                      style={{ color: "#60a5fa" }}
                     />
                   </div>
                   {/* CHANGE 18: Reduced student name font size */}
@@ -318,7 +319,7 @@ export function AboutUs() {
                   {/* CHANGE 19: Reduced student role font size */}
                   <p
                     className="mb-1 text-center"
-                    style={{ fontSize: "0.75rem", color: "rgb(201, 114, 219)" }}
+                  style={{ fontSize: "0.75rem", color: "#60a5fa" }}
                   >
                     {member.role}
                   </p>
@@ -352,7 +353,7 @@ export function AboutUs() {
                 {/* CHANGE 22: Reduced stats numbers font size */}
                 <div
                   className="font-bold mb-2"
-                  style={{ fontSize: "2rem", color: "rgb(201, 114, 219)" }}
+                  style={{ fontSize: "2rem", color: "#60a5fa" }}
                 >
                   400+
                 </div>
@@ -367,7 +368,7 @@ export function AboutUs() {
               <div>
                 <div
                   className="font-bold mb-2"
-                  style={{ fontSize: "2rem", color: "rgb(201, 114, 219)" }}
+                  style={{ fontSize: "2rem", color: "#60a5fa" }}
                 >
                   100+
                 </div>
@@ -381,7 +382,7 @@ export function AboutUs() {
               <div>
                 <div
                   className="font-bold mb-2"
-                  style={{ fontSize: "2rem", color: "rgb(201, 114, 219)" }}
+                  style={{ fontSize: "2rem", color: "#60a5fa" }}
                 >
                   20+
                 </div>
@@ -395,7 +396,7 @@ export function AboutUs() {
               <div>
                 <div
                   className="font-bold mb-2"
-                  style={{ fontSize: "2rem", color: "rgb(201, 114, 219)" }}
+                  style={{ fontSize: "2rem", color: "#60a5fa" }}
                 >
                   ₹1L+
                 </div>

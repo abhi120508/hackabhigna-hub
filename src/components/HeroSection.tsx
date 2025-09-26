@@ -6,8 +6,11 @@ import { CountdownTimer } from "@/components/CountdownTimer";
 import "./HeroSection.css";
 import "./global.css";
 
+import { useNavigate } from "react-router-dom";
+
 export function HeroSection() {
   const [show, setShow] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setShow(true);
@@ -24,7 +27,7 @@ export function HeroSection() {
             show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
-          REGISTRATION OPEN
+          Coming soon 
         </p>
         {/* Title */}
         <h1
@@ -70,7 +73,7 @@ export function HeroSection() {
           >
             <Calendar
               className="w-6 h-6 md:w-8 md:h-8" /* Reduced icon sizes */
-              style={{ color: "rgb(201, 114, 219)" }}
+              style={{ color: "#60a5fa" }}
             />
             Oct 30–31
           </div>
@@ -80,7 +83,7 @@ export function HeroSection() {
           >
             <MapPin
               className="w-6 h-6 md:w-8 md:h-8" /* Reduced icon sizes */
-              style={{ color: "rgb(201, 114, 219)" }}
+              style={{ color: "#60a5fa" }}
             />
             AIT Campus
           </div>
@@ -90,7 +93,7 @@ export function HeroSection() {
           >
             <Trophy
               className="w-6 h-6 md:w-8 md:h-8" /* Reduced icon sizes */
-              style={{ color: "rgb(201, 114, 219)" }}
+              style={{ color: "#60a5fa" }}
             />
             ₹1,00,000 Prize
           </div>
@@ -101,7 +104,19 @@ export function HeroSection() {
             show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
-          <Button className="custom-white-button px-6 py-4 font-body">
+          <Button
+            className="register-btn px-6 py-4 font-body"
+            onClick={() => {
+              // If we're on home page, smooth scroll to registration section
+              const el = document.getElementById("registration");
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth" });
+              } else {
+                // Navigate to home and scroll there
+                navigate("/", { state: { scrollTo: "registration" } });
+              }
+            }}
+          >
             {" "}
             {/* Reduced padding */}
             <Users className="w-4 h-4 mr-2" /> {/* Reduced icon size */}

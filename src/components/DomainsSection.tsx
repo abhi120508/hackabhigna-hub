@@ -52,7 +52,7 @@ const domains = [
 export function DomainsSection() {
   return (
     <section className="w-full bg-gradient-to-br from-background to-muted/20 py-10 scroll-mt-32 mb-15 border-border/50 mt-10">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto px-0">
         <div className="text-center mb-16">
           <h2
             className="dom_text text-4xl font-bold mb-4"

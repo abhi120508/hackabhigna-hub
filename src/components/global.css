@@ -9,12 +9,12 @@
 :root {
   --text-color: #fff;
   --muted-foreground: #f0d5d5;
-  --primary-color: #65b8c7;
-  --accent-color: #c56ef4;
-  --secondary-color: #f783ac;
+  --primary-color: #3b82f6; /* blue */
+  --accent-color: #60a5fa; /* light blue */
+  --secondary-color: #1e40af; /* dark blue */
   --gradient-start: #6a11cb;
-  --gradient-end: #2575fc;
-  --purple-primary: rgb(201, 114, 219);
+  --gradient-end: #1e3a8a;
+  --purple-primary: rgb(59, 130, 246);
 
   /* Responsive font sizes */
   --fs-xs: clamp(0.625rem, 2vw, 0.75rem); /* 10px - 12px */
@@ -53,8 +53,7 @@ body,
     var(--background-color),
     rgba(128, 128, 128, 0.2)
   );
-  padding: var(--spacing-3xl) var(--spacing-md) var(--spacing-3xl)
-    var(--spacing-md);
+  padding: 0;
   color: var(--text-color);
   font-family: "Orbitron", sans-serif;
   margin: 0;
@@ -75,14 +74,14 @@ body,
   max-width: 64rem;
   margin-left: auto;
   margin-right: auto;
-  padding: 0 var(--spacing-md);
+  padding: 0;
 }
 
 .max-w-6xl {
   max-width: 72rem;
   margin-left: auto;
   margin-right: auto;
-  padding: 0 var(--spacing-md);
+  padding: 0;
 }
 
 /* ===============================
@@ -426,8 +425,9 @@ body,
 
 .card:hover {
   transform: scale(1.02);
-  border-color: rgba(219, 222, 198, 0.5);
-  background: rgba(255, 192, 203, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.15);
 }
 
 .card-header {
@@ -710,7 +710,7 @@ body,
   .container,
   .max-w-4xl,
   .max-w-6xl {
-    padding: 0 0.5rem;
+    padding: 0;
   }
 
   .card {
@@ -743,7 +743,7 @@ body,
   .container,
   .max-w-4xl,
   .max-w-6xl {
-    padding: 0 1rem;
+    padding: 0;
   }
 }
 
@@ -752,7 +752,7 @@ body,
   .container,
   .max-w-4xl,
   .max-w-6xl {
-    padding: 0 1.5rem;
+    padding: 0;
   }
 }
 

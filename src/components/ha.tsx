@@ -11,7 +11,7 @@ const Index = () => {
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = 0.25; // 👈 Play at half speed
+      videoRef.current.playbackRate = 0.2; // slower playback
     }
   }, []);
 
@@ -26,9 +26,10 @@ const Index = () => {
           loop
           playsInline
           className="w-full h-full object-cover brightness-30"
+          style={{ filter: "grayscale(10%) contrast(1.1) brightness(0.5)" }}
           src="robo.mp4"
         />
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-black/70" />
       </div>
 
       <div className="w-full relative z-10">

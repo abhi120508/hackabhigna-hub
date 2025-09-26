@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-// Import the logo image
-import logo1 from "@/assets/logo1.jpg";
+// Import the logo image (updated)
+import logo1 from "@/assets/WhatsApp Image 2025-09-25 at 15.21.58_58f43034.jpg";
 
 const publicNavItems = [
   { name: "Register", path: "registration", icon: Users },
@@ -65,13 +65,40 @@ export function Navigation() {
     <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
       <div className="flex items-center justify-between h-14 px-3">
         {/* Desktop Logo */}
-        <Link to="/" className="flex items-center ml-6">
+        <button 
+          onClick={() => {
+            if (location.pathname === "/") {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+              navigate("/");
+            }
+          }}
+          className="hidden md:flex items-center ml-6"
+        >
           <img
             src={logo1}
             alt="HackAbhigna Logo"
-            className="w-16 h-16 object-contain"
+            className="h-10 w-auto object-contain"
           />
-        </Link>
+        </button>
+
+        {/* Mobile Logo (left) */}
+        <button 
+          onClick={() => {
+            if (location.pathname === "/") {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+              navigate("/");
+            }
+          }}
+          className="flex md:hidden items-center ml-2"
+        >
+          <img
+            src={logo1}
+            alt="HackAbhigna Logo"
+            className="h-8 w-auto object-contain"
+          />
+        </button>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6 absolute right-3">
@@ -108,17 +135,8 @@ export function Navigation() {
           })}
         </div>
 
-        {/* Mobile Navigation */}
-        <div className="md:hidden flex items-center space-x-3">
-          {/* Mobile Logo */}
-          <Link to="/" className="flex items-center">
-            <img
-              src={logo1}
-              alt="HackAbhigna Logo"
-              className="w-10 h-10 object-contain"
-            />
-          </Link>
-
+        {/* Mobile Navigation (hamburger on right) */}
+        <div className="md:hidden flex items-center space-x-3 ml-auto mr-2">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">

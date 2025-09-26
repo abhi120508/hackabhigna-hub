@@ -3,8 +3,8 @@
 /* Custom brochure button style */
 .custom-brochure-button {
   background-color: transparent;
-  color: rgb(201, 114, 219);
-  border: 2px solid rgb(201, 114, 219);
+  color: rgb(59, 130, 246); /* blue-500 */
+  border: 2px solid rgb(59, 130, 246);
   font-family: "Orbitron", sans-serif;
   font-weight: 700;
   transition: all 0.3s ease;
@@ -18,5 +18,5 @@
 
 /* Custom purple icon style */
 .custom-purple-icon {
-  color: rgb(201, 114, 219);
+  color: rgb(59, 130, 246);
 }
