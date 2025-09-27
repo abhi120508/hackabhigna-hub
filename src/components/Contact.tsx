@@ -13,7 +13,7 @@ import {
   MessageSquare,
   HelpCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function Contact() {
   const [formData, setFormData] = useState({
@@ -22,6 +22,47 @@ export function Contact() {
     subject: "",
     message: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Typing animation component
+  const TypingAnimation = () => {
+    const [displayText, setDisplayText] = useState("");
+    const fullText = "HACKABHIGNA";
+    
+    useEffect(() => {
+      if (!isLoading) {
+        setDisplayText("");
+        return;
+      }
+      
+      let currentIndex = 0;
+      const interval = setInterval(() => {
+        if (currentIndex <= fullText.length) {
+          setDisplayText(fullText.slice(0, currentIndex));
+          currentIndex++;
+        } else {
+          // Reset and start again
+          currentIndex = 0;
+        }
+      }, 150); // Typing speed
+      
+      return () => clearInterval(interval);
+    }, [isLoading]);
+    
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl md:text-8xl font-bold text-blue-400 mb-4 font-mono">
+            {displayText}
+            <span className="animate-pulse">|</span>
+          </div>
+          <div className="text-white text-lg">
+            Sending your message...
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -32,6 +73,7 @@ export function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://hackabhigna-hub.onrender.com'}/contact`, {
@@ -53,6 +95,8 @@ export function Contact() {
     } catch (error) {
       console.error('Error submitting message:', error);
       alert(`Failed to send message. Error: ${error instanceof Error ? error.message : 'Network error'}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -194,13 +238,14 @@ export function Contact() {
                 <Button
                   type="submit"
                   className="w-full gap-2"
+                  disabled={isLoading}
                   style={{
                     backgroundColor: "#1d4ed8",
                     borderColor: "#1d4ed8",
                   }}
                 >
                   <Send className="w-4 h-4" />
-                  Send Message
+                  {isLoading ? "Sending..." : "Send Message"}
                 </Button>
               </form>
             </CardContent>
@@ -282,6 +327,7 @@ export function Contact() {
           </CardContent>
         </Card>
       </div>
+      {isLoading && <TypingAnimation />}
     </div>
   );
 }

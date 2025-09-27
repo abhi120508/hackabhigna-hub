@@ -260,7 +260,7 @@ export function RegistrationForm() {
         }
       );
       toast({
-        title: "Registration Successful!",
+        title: "Registration Submitted",
         description: response.data.message,
       });
       // Reset form

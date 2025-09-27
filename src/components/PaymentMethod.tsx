@@ -8,9 +8,9 @@ import { toast } from "@/hooks/use-toast";
 
 export function PaymentMethod() {
   const accountDetails = {
-    accountNumber: "1234567890123456",
-    ifscCode: "SBIN0001234",
-    accountHolderName: "HACKABHIGNA 2025",
+    accountNumber: "64185686568",
+    ifscCode: "SBIN0016280",
+    accountHolderName: "THE PRINCIPAL A I T CHIKKAMAGALURU",
     registrationFee: "₹1,000"
   };
 

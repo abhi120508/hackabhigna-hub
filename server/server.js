@@ -191,7 +191,8 @@ app.post("/register", upload.single("paymentProof"), async (req, res) => {
 
     await newTeam.save();
     res.status(201).json({
-      message: "Team registered successfully!",
+      message:
+        "Team Leader will receieve an approval mail once the payment proof is verified",
       data: newTeam,
     });
   } catch (err) {
@@ -384,6 +385,7 @@ Congratulations! Your team ${
           team.teamName
         } has been approved for HackAbhigna in the domain ${team.domain}.
 
+
 Please find your QR code attached below:
 
 Best regards,
@@ -395,7 +397,8 @@ HackAbhigna Team`,
         }</strong> has been approved for HackAbhigna in the domain <strong>${
           team.domain
         }</strong>.</p>
-        <p>Please find your QR code attached.</p>
+        <p>Join the Discord server for future updates:https://discord.gg/C6Zr44ZKxt</P>
+        <p>Please find your QR code attached.The QR will be scanned on the hackathon Day to activate you GIT Repository</p>
         <p>Best regards,<br/>HackAbhigna Team</p>
       `,
         attachments: [
@@ -602,7 +605,7 @@ app.post("/give-access", async (req, res) => {
 
 Your GitHub repository has been activated: https://github.com/${process.env.GITHUB_OWNER}/${repoName}
 Please accept the collaboration request
-
+You can now check your Repository activity and feedback from judges at:https://hackabhigna.in/#/participant
 Participant Login Credentials:
 Team Code: ${team.teamCode}
 Team Leader Email: ${teamLeaderEmail}
@@ -1105,7 +1108,7 @@ app.delete("/messages/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const message = await Message.findByIdAndDelete(id);
-    
+
     if (!message) {
       return res.status(404).json({ message: "Message not found." });
     }
