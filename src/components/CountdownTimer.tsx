@@ -16,7 +16,7 @@ export function CountdownTimer() {
   });
 
   useEffect(() => {
-    const targetDate = new Date("2025-10-30T10:00:00").getTime();
+    const targetDate = new Date("2025-10-29T10:00:00").getTime();
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -42,15 +42,15 @@ export function CountdownTimer() {
   }, []);
 
   const boxStyle =
-    "text-center bg-black/40 backdrop-blur-sm rounded-lg p-4 border border-opacity-50 w-20 h-20 flex flex-col justify-center";
+    "text-center bg-black/40 backdrop-blur-sm rounded-lg p-3 border border-opacity-50 w-16 h-16 md:w-20 md:h-20 flex flex-col justify-center items-center";
 
   const neonText = (color: string) =>
-    `text-xl md:text-2xl font-bold text-[${color}] drop-shadow-[0_0_6px_${color}] drop-shadow-[0_0_12px_${color}]`;
+    `text-lg md:text-xl font-bold text-[${color}] drop-shadow-[0_0_6px_${color}] drop-shadow-[0_0_12px_${color}] leading-tight`;
 
-  const labelStyle = "text-xs md:text-sm text-white/70";
+  const labelStyle = "text-xs md:text-sm text-white/70 leading-tight";
 
   return (
-    <div className="flex justify-center items-center gap-4 md:gap-8 mb-8">
+    <div className="flex justify-center items-center gap-2 md:gap-4 mb-8">
       {/* Days */}
       <div className={`${boxStyle} border-[#ff00ff]`}>
         <div className={neonText("#ff00ff")}>

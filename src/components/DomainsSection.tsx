@@ -10,7 +10,6 @@ const domains = [
     title: "GenAI/AgenticAI in Agriculture",
     description:
       "Leverage AI to revolutionize farming practices, crop monitoring, and sustainable agriculture solutions.",
-    technologies: ["Python", "TensorFlow", "Computer Vision", "IoT"],
     color: "text-primary",
   },
   {
@@ -18,7 +17,6 @@ const domains = [
     title: "GenAI/AgenticAI in Education",
     description:
       "Develop intelligent systems using machine learning and AI technologies to transform learning experiences.",
-    technologies: ["Python", "TensorFlow", "PyTorch", "OpenAI"],
     color: "text-secondary",
   },
   {
@@ -26,12 +24,6 @@ const domains = [
     title: "Wildcard - Environment",
     description:
       "Innovate in environmental sustainability with AI-driven solutions for climate change, conservation, and green tech.",
-    technologies: [
-      "Machine Learning",
-      "Data Analytics",
-      "IoT Sensors",
-      "Predictive Modeling",
-    ],
     color: "text-accent",
   },
   {
@@ -39,12 +31,6 @@ const domains = [
     title: "Wildcard - Food Production",
     description:
       "Create AI-powered innovations for food security, supply chain optimization, and advanced agricultural production.",
-    technologies: [
-      "AI Optimization",
-      "Blockchain",
-      "Robotics",
-      "Supply Chain AI",
-    ],
     color: "text-primary",
   },
 ];
@@ -91,17 +77,6 @@ export function DomainsSection() {
                   >
                     {domain.description}
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {domain.technologies.map((tech, techIndex) => (
-                      <Badge
-                        key={techIndex}
-                        variant="secondary"
-                        className="bg-muted/50 text-foreground"
-                      >
-                        {tech}
-                      </Badge>
-                    ))}
-                  </div>
                 </CardContent>
               </Card>
             );

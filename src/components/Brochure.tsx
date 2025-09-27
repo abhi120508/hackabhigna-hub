@@ -61,7 +61,7 @@ export function Brochure() {
                   <div>
                     <h3 className="font-semibold">Date</h3>
                     <p className="text-sm text-muted-foreground">
-                      October 16–17, 2025
+                      October 29–30, 2025
                     </p>
                   </div>
                 </div>

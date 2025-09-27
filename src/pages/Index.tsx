@@ -4,6 +4,7 @@ import { RegistrationForm } from "@/components/RegistrationForm";
 import { Brochure } from "@/components/Brochure";
 import { AboutUs } from "@/components/AboutUs";
 import { Contact } from "@/components/Contact";
+import { PaymentMethod } from "@/components/PaymentMethod";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -35,6 +36,14 @@ const Index = () => {
       {/* Domains */}
       <section className="min-h-screen py-0 bg-transparent scroll-mt-14 md:scroll-mt-16" id="domains">
         <DomainsSection />
+      </section>
+
+      {/* Payment Method */}
+      <section
+        id="payment-method"
+        className="min-h-screen py-20 scroll-mt-14 md:scroll-mt-16 bg-transparent"
+      >
+        <PaymentMethod />
       </section>
 
       {/* Registration */}

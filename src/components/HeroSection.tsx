@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Trophy, Users } from "lucide-react";
+import { Calendar, MapPin, Trophy, Users, CreditCard } from "lucide-react";
 import { CountdownTimer } from "@/components/CountdownTimer";
+import { PaymentMethod } from "@/components/PaymentMethod";
 import "./HeroSection.css";
 import "./global.css";
 
@@ -19,9 +20,9 @@ export function HeroSection() {
   return (
     <section className="hero-section">
       {/* Content */}
-      <div className="relative z-10 text-center max-w-4xl mx-auto px-4 space-y-2">
+      <div className="relative z-10 text-center max-w-4xl mx-auto px-4 space-y-2 w-full">
         {" "}
-        {/* Reduced space-y from 4 to 2 */}
+        {/* Added w-full for better mobile centering */}
         <p
           className={`registration-open transition-all duration-700 transform ${
             show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
@@ -75,18 +76,19 @@ export function HeroSection() {
               className="w-6 h-6 md:w-8 md:h-8" /* Reduced icon sizes */
               style={{ color: "#60a5fa" }}
             />
-            Oct 30–31
+            Oct 29–30
           </div>
-          <div
-            className="flex items-center justify-center gap-2 font-subtitle text-white text-sm md:text-base"
+          <button
+            className="flex items-center justify-center gap-2 font-subtitle text-white text-sm md:text-base hover:text-blue-400 transition-colors duration-300 cursor-pointer whitespace-nowrap"
             style={{ fontFamily: "'Orbitron', sans-serif" }}
+            onClick={() => window.open("https://maps.app.goo.gl/DZxJNrAsFtXdQar7A", "_blank")}
           >
             <MapPin
               className="w-6 h-6 md:w-8 md:h-8" /* Reduced icon sizes */
               style={{ color: "#60a5fa" }}
             />
-            AIT Campus
-          </div>
+            <span>AIT, Chikkamagaluru</span>
+          </button>
           <div
             className="flex items-center justify-center gap-2 font-subtitle text-white text-sm md:text-base"
             style={{ fontFamily: "'Orbitron', sans-serif" }}
@@ -117,10 +119,21 @@ export function HeroSection() {
               }
             }}
           >
-            {" "}
-            {/* Reduced padding */}
-            <Users className="w-4 h-4 mr-2" /> {/* Reduced icon size */}
+            <Users className="w-4 h-4 mr-2" />
             Register Now
+          </Button>
+          <Button
+            className="register-btn px-6 py-4 font-body"
+            onClick={() => {
+              // Scroll to payment method section
+              const el = document.getElementById("payment-method");
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
+          >
+            <CreditCard className="w-4 h-4 mr-2" />
+            View Payment Method
           </Button>
         </div>
       </div>

@@ -20,6 +20,9 @@ import {
   Trash2,
   Save,
   X,
+  MessageSquare,
+  Eye,
+  Reply,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 // import { MockDatabase, MockAPI, TeamRegistration } from "@/lib/mockBackend";
@@ -53,6 +56,16 @@ interface DomainSetting {
   slotsLeft: number;
 }
 
+interface Message {
+  _id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  submittedAt: string;
+  status: "new" | "read" | "replied";
+}
+
 const AdminPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
@@ -69,6 +82,7 @@ const AdminPanel = () => {
   const [newDomainName, setNewDomainName] = useState("");
   const [newMaxSlots, setNewMaxSlots] = useState(0);
   const [showAddDomain, setShowAddDomain] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
   const { toast } = useToast();
 
   const API_URL = "https://hackabhigna-hub.onrender.com"; // Your backend URL
@@ -140,12 +154,28 @@ const AdminPanel = () => {
     }
   }, [toast]);
 
+  const loadMessages = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/messages`);
+      if (!response.ok) throw new Error("Failed to fetch messages");
+      const data = await response.json();
+      setMessages(data);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error loading messages",
+        description: (error as Error).message,
+      });
+    }
+  }, [toast]);
+
   useEffect(() => {
     if (isAuthenticated) {
       loadRegistrations();
       loadStatistics();
       loadDomainSettings();
       loadGlobalSettings();
+      loadMessages();
     }
   }, [
     isAuthenticated,
@@ -153,6 +183,7 @@ const AdminPanel = () => {
     loadStatistics,
     loadDomainSettings,
     loadGlobalSettings,
+    loadMessages,
   ]);
 
   // Reload domain settings after toggle to reflect changes immediately
@@ -526,6 +557,58 @@ const AdminPanel = () => {
     }
   };
 
+  const handleMessageStatusUpdate = async (messageId: string, status: "new" | "read" | "replied") => {
+    try {
+      const response = await fetch(`${API_URL}/messages/${messageId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update message status");
+
+      toast({
+        title: "Message status updated",
+        description: `Message marked as ${status}`,
+      });
+
+      loadMessages();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Update Error",
+        description: (error as Error).message,
+      });
+    }
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!confirm("Are you sure you want to delete this message?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/messages/${messageId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Failed to delete message");
+
+      toast({
+        title: "Message deleted",
+        description: "Message has been deleted successfully",
+      });
+
+      loadMessages();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Delete Error",
+        description: (error as Error).message,
+      });
+    }
+  };
+
   const domains = [
     { value: "all", label: "All Domains" },
     {
@@ -602,6 +685,7 @@ const AdminPanel = () => {
         <Tabs defaultValue="registrations" className="space-y-6">
           <TabsList>
             <TabsTrigger value="registrations">Registrations</TabsTrigger>
+            <TabsTrigger value="messages">Messages</TabsTrigger>
             <TabsTrigger value="certificates">Certificates</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -852,6 +936,106 @@ const AdminPanel = () => {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="messages" className="space-y-6">
+            {/* Messages List */}
+            <div className="grid gap-6">
+              {messages.length === 0 ? (
+                <Card className="bg-card/50 backdrop-blur-sm">
+                  <CardContent className="text-center py-8">
+                    <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No Messages Yet</h3>
+                    <p className="text-muted-foreground">
+                      Contact form messages will appear here when users submit them.
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                messages.map((message) => (
+                  <Card
+                    key={message._id}
+                    className="bg-card/50 backdrop-blur-sm"
+                  >
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <CardTitle className="text-xl">{message.name}</CardTitle>
+                          <Badge
+                            variant={
+                              message.status === "new"
+                                ? "default"
+                                : message.status === "replied"
+                                ? "secondary"
+                                : "outline"
+                            }
+                          >
+                            {message.status}
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {new Date(message.submittedAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <h4 className="font-semibold mb-2 flex items-center gap-2">
+                          <Mail className="w-4 h-4" />
+                          Contact Information
+                        </h4>
+                        <div className="text-sm space-y-1">
+                          <div>
+                            <span className="font-medium">Email:</span>
+                            <span className="ml-2">{message.email}</span>
+                          </div>
+                          <div>
+                            <span className="font-medium">Subject:</span>
+                            <span className="ml-2">{message.subject}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-2">Message</h4>
+                        <div className="bg-muted/20 p-4 rounded-lg">
+                          <p className="text-sm whitespace-pre-wrap">{message.message}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 pt-4 border-t">
+                        {message.status === "new" && (
+                          <Button
+                            onClick={() => handleMessageStatusUpdate(message._id, "read")}
+                            variant="outline"
+                            size="sm"
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            Mark as Read
+                          </Button>
+                        )}
+                        {message.status === "read" && (
+                          <Button
+                            onClick={() => handleMessageStatusUpdate(message._id, "replied")}
+                            variant="default"
+                            size="sm"
+                          >
+                            <Reply className="w-4 h-4 mr-1" />
+                            Mark as Replied
+                          </Button>
+                        )}
+                        <Button
+                          onClick={() => handleDeleteMessage(message._id)}
+                          variant="destructive"
+                          size="sm"
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Delete
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
           </TabsContent>
 

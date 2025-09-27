@@ -30,17 +30,37 @@ export function Contact() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Thank you for your message! We'll get back to you soon.");
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://hackabhigna-hub.onrender.com'}/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert(result.message);
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        alert(`Error: ${result.message}`);
+      }
+    } catch (error) {
+      console.error('Error submitting message:', error);
+      alert(`Failed to send message. Error: ${error instanceof Error ? error.message : 'Network error'}`);
+    }
   };
 
   const contactInfo = [
     {
       icon: Mail,
       title: "Email",
-      details: "hackabhigna@gmail.com",
+      details: "hackabhigna2025@gmail.com",
       description: "Send us an email anytime",
     },
     {
@@ -190,6 +210,8 @@ export function Contact() {
           <div className="space-y-6">
             {contactInfo.map((info, index) => {
               const Icon = info.icon;
+              const isAddress = info.title === "Address";
+              
               return (
                 <Card key={index}>
                   <CardContent className="pt-6">
@@ -211,9 +233,18 @@ export function Contact() {
                         >
                           {info.details}
                         </p>
-                        <p className="text-sm text-muted-foreground">
-                          {info.description}
-                        </p>
+                        {isAddress ? (
+                          <button
+                            className="text-sm text-muted-foreground hover:text-blue-400 transition-colors duration-300 cursor-pointer underline"
+                            onClick={() => window.open("https://maps.app.goo.gl/DZxJNrAsFtXdQar7A", "_blank")}
+                          >
+                            {info.description}
+                          </button>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            {info.description}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </CardContent>

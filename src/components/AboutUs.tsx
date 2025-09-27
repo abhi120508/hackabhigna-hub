@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Target, Award, Lightbulb, Zap, User } from "lucide-react";
+import { Users, Target, Award, Lightbulb, Zap, User, Phone } from "lucide-react";
 import "./aboutus.css";
 import "./global.css";
 
@@ -48,7 +48,7 @@ export function AboutUs() {
       image: "/images/faculty/raghurame-gowda.jpg",
     },
     {
-      name: "RAVI KUMAR",
+      name: "RAVIKUMAR",
       role: "Assistant Professor",
       description: "9741970005",
       image: "/images/faculty/ravi-kumar.jpg",
@@ -59,43 +59,43 @@ export function AboutUs() {
     {
       name: "ABHISHEK D S",
       role: "Student Coordinator",
-
+      phone: "+91 8296590632",
       image: "/images/students/abhishek.jpg",
     },
     {
       name: "AKSHATA CHITME",
       role: "Student Coordinator",
-
+      phone: "+91 97310 88591",
       image: "/images/students/akshata.jpg",
     },
     {
       name: "DISHA GOWDA",
       role: "Student Coordinator",
-
+      phone: "+91 93531 40736",
       image: "/images/students/disha.jpg",
     },
     {
       name: "JEWEL PINTO",
       role: "Student Coordinator",
-
-      image: "/images/students/jevwl.jpg",
+      phone: "+91 80733 22353",
+      image: "/images/students/jewel.jpg",
     },
     {
       name: "MOHAMMED ZAID ALI",
       role: "Student Coordinator",
-
+      phone: "+91 91646 24616",
       image: "/images/students/zaid.jpg",
     },
     {
       name: "SHREYANKA A Y",
       role: "Student Coordinator",
-
+      phone: "+91 6363745305",
       image: "/images/students/shreyanka.jpg",
     },
     {
       name: "SRIRAG D R",
       role: "Student Coordinator",
-
+      phone: "+91 6361 065 881",
       image: "/images/students/srirag.jpg",
     },
   ];
@@ -293,34 +293,56 @@ export function AboutUs() {
                 style={{ minHeight: "250px" }}
               >
                 <CardContent className="pt-6 relative z-10 flex flex-col items-center">
-                  {/* CHANGE 17: Replaced image with User icon as fallback */}
-                  <div
-                    className="w-20 h-20 bg-gray-600 rounded-full flex items-center justify-center mb-3 border-2 hover:scale-105 transition-transform"
+                  {/* Student photo */}
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    className="w-20 h-20 rounded-full object-cover mb-3 border-2 hover:scale-105 transition-transform"
                     style={{ borderColor: "#60a5fa" }}
-                  >
-                    <User className="w-10 h-10" style={{ color: "#60a5fa" }} />
-                  </div>
-                  {/* CHANGE 18: Reduced student name font size */}
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      target.style.display = "none";
+                      // Show fallback icon if image fails to load
+                      const fallbackDiv = document.createElement('div');
+                      fallbackDiv.className = "w-20 h-20 bg-gray-600 rounded-full flex items-center justify-center mb-3 border-2 hover:scale-105 transition-transform";
+                      fallbackDiv.style.borderColor = "#60a5fa";
+                      fallbackDiv.innerHTML = '<svg class="w-10 h-10" style="color: #60a5fa" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>';
+                      target.parentNode?.insertBefore(fallbackDiv, target.nextSibling);
+                    }}
+                  />
+                  {/* Student name */}
                   <h3
                     className="font-semibold mb-1 text-center"
                     style={{ fontSize: "0.875rem" }}
                   >
                     {member.name}
                   </h3>
-                  {/* CHANGE 19: Reduced student role font size */}
+                  {/* Student role */}
                   <p
-                    className="mb-1 text-center"
+                    className="mb-2 text-center"
                     style={{ fontSize: "0.75rem", color: "#60a5fa" }}
                   >
                     {member.role}
                   </p>
-                  {/* CHANGE 20: Reduced student description font size */}
-                  <p
-                    className="text-muted-foreground text-center"
-                    style={{ fontSize: "0.625rem" }}
-                  >
-                    {member.description}
-                  </p>
+                  {/* Contact icons */}
+                  <div className="flex gap-3 justify-center">
+                    <button
+                      onClick={() => window.open(`tel:${member.phone}`, '_self')}
+                      className="w-8 h-8 border-2 border-blue-400 hover:border-blue-500 hover:bg-blue-400/10 rounded-full flex items-center justify-center transition-all duration-200"
+                      title="Call"
+                    >
+                      <Phone className="w-4 h-4 text-blue-400" />
+                    </button>
+                    <button
+                      onClick={() => window.open(`https://wa.me/${member.phone.replace(/[^0-9]/g, '')}`, '_blank')}
+                      className="w-8 h-8 border-2 border-green-500 hover:border-green-600 hover:bg-green-500/10 rounded-full flex items-center justify-center transition-all duration-200"
+                      title="WhatsApp"
+                    >
+                      <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+                      </svg>
+                    </button>
+                  </div>
                 </CardContent>
               </Card>
             ))}

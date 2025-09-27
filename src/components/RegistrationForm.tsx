@@ -453,7 +453,7 @@ export function RegistrationForm() {
                   const paused = domainPaused[domainKey];
                   let label = domain.label;
                   if (paused) {
-                    label = `${domain.label} (Paused)`;
+                    label = `${domain.label} - Paused`;
                   }
                   return (
                     <SelectItem
@@ -464,9 +464,9 @@ export function RegistrationForm() {
                       {domain.label}
                       <div className="text-xs text-muted-foreground ml-2">
                         {paused
-                          ? "(Paused)"
+                          ? "Paused"
                           : slotsLeft !== undefined
-                          ? `(${slotsLeft} slots left)`
+                          ? `${slotsLeft} slots left`
                           : ""}
                       </div>
                     </SelectItem>

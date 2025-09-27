@@ -42,6 +42,8 @@ body {
   min-height: calc(100vh - 0.5rem); /* Ensure proper height */
   display: flex;
   align-items: center; /* Center content vertically */
+  justify-content: center; /* Center content horizontally */
+  width: 100%;
 }
 
 /* Overlay (optional) */
@@ -276,6 +278,10 @@ body {
     padding-top: 0rem;
     margin-top: 0.5rem;
     min-height: calc(100vh - 0.5rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
   }
 }
 
@@ -284,8 +290,12 @@ body {
     padding-top: 0rem;
     margin-top: 0.5rem;
     min-height: calc(100vh - 0.5rem);
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
   }
 
   .hack-text {
@@ -298,8 +308,12 @@ body {
     padding-top: 0rem;
     margin-top: 0.5rem;
     min-height: calc(100vh - 0.5rem);
-    padding-left: 0.25rem;
-    padding-right: 0.25rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
   }
 
   .hack-text {

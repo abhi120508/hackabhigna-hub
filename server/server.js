@@ -89,11 +89,26 @@ const globalSettingsSchema = new mongoose.Schema({
   pausedLeaderboard: { type: Boolean, default: false },
 });
 
+const messageSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  subject: { type: String, required: true },
+  message: { type: String, required: true },
+  submittedAt: { type: Date, default: Date.now },
+  status: {
+    type: String,
+    enum: ["new", "read", "replied"],
+    default: "new",
+  },
+});
+
 const Team = mongoose.model("Team", teamSchema);
 
 const DomainSettings = mongoose.model("DomainSettings", domainSettingsSchema);
 
 const GlobalSettings = mongoose.model("GlobalSettings", globalSettingsSchema);
+
+const Message = mongoose.model("Message", messageSchema);
 
 // Helper to extract domain name from full domain string
 const extractDomainName = (fullDomain) => {
@@ -1023,6 +1038,81 @@ app.post("/download-all-teams-pdf", async (req, res) => {
       message: "Error generating PDF report",
       error: error.message,
     });
+  }
+});
+
+// Submit contact message
+app.post("/contact", async (req, res) => {
+  try {
+    const { name, email, subject, message } = req.body;
+
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    const newMessage = new Message({
+      name,
+      email,
+      subject,
+      message,
+    });
+
+    await newMessage.save();
+    res.status(201).json({
+      message: "Message sent successfully! We'll get back to you soon.",
+      data: newMessage,
+    });
+  } catch (err) {
+    res.status(400).json({ message: "Error: " + err.message });
+  }
+});
+
+// Get all messages (admin only)
+app.get("/messages", async (req, res) => {
+  try {
+    const messages = await Message.find().sort({ submittedAt: -1 });
+    res.json(messages);
+  } catch (err) {
+    res.status(400).json({ message: "Error: " + err.message });
+  }
+});
+
+// Update message status (admin only)
+app.patch("/messages/:id/status", async (req, res) => {
+  try {
+    const { status } = req.body;
+    const { id } = req.params;
+
+    if (!["new", "read", "replied"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status." });
+    }
+
+    const message = await Message.findById(id);
+    if (!message) {
+      return res.status(404).json({ message: "Message not found." });
+    }
+
+    message.status = status;
+    await message.save();
+    res.json({ message: `Message marked as ${status}!`, data: message });
+  } catch (err) {
+    res.status(400).json({ message: "Error: " + err.message });
+  }
+});
+
+// Delete message (admin only)
+app.delete("/messages/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const message = await Message.findByIdAndDelete(id);
+    
+    if (!message) {
+      return res.status(404).json({ message: "Message not found." });
+    }
+
+    res.json({ message: "Message deleted successfully!" });
+  } catch (err) {
+    res.status(400).json({ message: "Error: " + err.message });
   }
 });
 

@@ -179,9 +179,9 @@
   border-radius: 24px;
   padding: 4px;
   background: conic-gradient(
-    #ffffff 0% 20%,
-    #e0e0e0 20% 40%,
-    transparent 40% 100%
+    #ff30ff 0% 20%,
+    /* Neon pink */ #9b00ff 20% 40%,
+    /* Purple */ transparent 40% 100%
   );
   animation: rotateBorder 3s linear infinite;
   z-index: 1;
