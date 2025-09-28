@@ -1,13 +1,11 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   QrCode,
-  Scan,
   CheckCircle,
   Users,
   Github,
@@ -20,18 +18,9 @@ import { TeamRegistration } from "@/lib/mockBackend";
 import { parseQRCode } from "@/lib/qrUtils";
 import jsQR from "jsqr";
 
-interface DomainSetting {
-  domain: string;
-  maxSlots: number;
-  paused: boolean;
-  slotsLeft: number;
-}
-
 const QRPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
-  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
-  const [domainSettings, setDomainSettings] = useState<DomainSetting[]>([]);
   const [scannedData, setScannedData] = useState<TeamRegistration | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
@@ -39,27 +28,6 @@ const QRPanel = () => {
 
   // Backend API URL
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-  // Fetch domain settings on component mount
-  useEffect(() => {
-    const fetchDomainSettings = async () => {
-      try {
-        const response = await fetch(`${API_URL}/domain-settings`);
-        if (!response.ok) throw new Error("Failed to fetch domain settings");
-        const data = await response.json();
-        setDomainSettings(data);
-      } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Error loading domains",
-          description:
-            "Could not fetch domain settings. Please refresh the page.",
-        });
-      }
-    };
-
-    fetchDomainSettings();
-  }, [toast]);
 
   // Refs for camera scanning
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -71,26 +39,18 @@ const QRPanel = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "volunteer123" && selectedDomains.length > 0) {
+    if (password === "volunteer123") {
       setIsAuthenticated(true);
       toast({
         title: "Access Granted",
-        description: `Volunteer access granted for ${selectedDomains.length} domain(s)`,
+        description: "Volunteer access granted",
       });
     } else {
       toast({
         variant: "destructive",
         title: "Access Denied",
-        description: "Invalid password or no domains selected",
+        description: "Invalid password",
       });
-    }
-  };
-
-  const handleDomainChange = (domainId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedDomains((prev) => [...prev, domainId]);
-    } else {
-      setSelectedDomains((prev) => prev.filter((id) => id !== domainId));
     }
   };
 
@@ -293,57 +253,10 @@ const QRPanel = () => {
             <CardTitle className="text-2xl text-gradient">
               Volunteer Access
             </CardTitle>
-            <p className="text-muted-foreground">
-              Select domains and enter volunteer password
-            </p>
+            <p className="text-muted-foreground">Enter volunteer password</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">
-              <div className="space-y-2">
-                <Label className="text-base font-medium">
-                  Select Domains to Manage
-                </Label>
-                <div className="mt-3 space-y-3">
-                  {domainSettings
-                    .filter((d) => !d.paused)
-                    .map((domain) => (
-                      <div
-                        key={domain.domain}
-                        className="flex items-center space-x-3"
-                      >
-                        <Checkbox
-                          id={domain.domain}
-                          checked={selectedDomains.includes(domain.domain)}
-                          onCheckedChange={(checked) =>
-                            handleDomainChange(
-                              domain.domain,
-                              checked as boolean
-                            )
-                          }
-                        />
-                        <Label
-                          htmlFor={domain.domain}
-                          className="text-sm font-normal cursor-pointer"
-                        >
-                          {domain.domain} ({domain.slotsLeft}/{domain.maxSlots}{" "}
-                          slots left)
-                        </Label>
-                      </div>
-                    ))}
-                </div>
-                {domainSettings.filter((d) => d.paused).length > 0 && (
-                  <div className="mt-4 p-3 bg-muted rounded-md">
-                    <p className="text-xs text-muted-foreground">
-                      Paused domains:{" "}
-                      {domainSettings
-                        .filter((d) => d.paused)
-                        .map((d) => d.domain)
-                        .join(", ")}
-                    </p>
-                  </div>
-                )}
-              </div>
-
               <div>
                 <Label htmlFor="password">Volunteer Password</Label>
                 <Input
@@ -356,12 +269,7 @@ const QRPanel = () => {
                 />
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                variant="hero"
-                disabled={selectedDomains.length === 0}
-              >
+              <Button type="submit" className="w-full" variant="hero">
                 Access QR Scanner
               </Button>
             </form>
@@ -379,16 +287,6 @@ const QRPanel = () => {
           <p className="text-muted-foreground">
             Scan team QR codes to activate repositories on hackathon day
           </p>
-          <div className="mt-2 flex flex-wrap justify-center gap-2">
-            {selectedDomains.map((domainId) => {
-              const domain = domainSettings.find((d) => d.domain === domainId);
-              return (
-                <Badge key={domainId} variant="outline">
-                  {domain?.domain}
-                </Badge>
-              );
-            })}
-          </div>
         </div>
 
         <div className="grid gap-8">

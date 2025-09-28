@@ -165,6 +165,31 @@ app.post("/register", upload.single("paymentProof"), async (req, res) => {
       return res.status(400).json({ message: "UTR number is required." });
     }
 
+    // Check if domain has available slots
+    const domainSetting = await DomainSettings.findOne({
+      domain: teamData.domain,
+    });
+    if (!domainSetting) {
+      return res.status(400).json({ message: "Invalid domain selected." });
+    }
+
+    if (domainSetting.pausedRegistrations) {
+      return res
+        .status(400)
+        .json({ message: "Registrations are paused for this domain." });
+    }
+
+    const occupiedCount = await Team.countDocuments({
+      domain: teamData.domain,
+      status: { $in: ["pending", "approved"] },
+    });
+
+    if (occupiedCount >= domainSetting.maxSlots) {
+      return res
+        .status(400)
+        .json({ message: "No slots available for this domain." });
+    }
+
     // Upload file buffer to Cloudinary
     const streamUpload = (req) => {
       return new Promise((resolve, reject) => {
@@ -398,7 +423,7 @@ HackAbhigna Team`,
           team.domain
         }</strong>.</p>
         <p>Join the Discord server for future updates:https://discord.gg/C6Zr44ZKxt</P>
-        <p>Please find your QR code attached.The QR will be scanned on the hackathon Day to activate you GIT Repository</p>
+        <p>Please find your QR code attached.The QR will be scanned on the Hackathon Day to activate your GIT Repository</p>
         <p>Best regards,<br/>HackAbhigna Team</p>
       `,
         attachments: [
@@ -734,11 +759,11 @@ app.get("/domain-settings", async (req, res) => {
     }
     const settingsWithSlots = await Promise.all(
       domainSettings.map(async (setting) => {
-        const approvedCount = await Team.countDocuments({
+        const occupiedCount = await Team.countDocuments({
           domain: setting.domain,
-          status: "approved",
+          status: { $in: ["pending", "approved"] },
         });
-        const slotsLeft = setting.maxSlots - approvedCount;
+        const slotsLeft = setting.maxSlots - occupiedCount;
         return {
           domain: setting.domain,
           maxSlots: setting.maxSlots,
