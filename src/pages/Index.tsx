@@ -1,5 +1,7 @@
 import { HeroSection } from "@/components/HeroSection";
 import { DomainsSection } from "@/components/DomainsSection";
+import { Collaborations } from "@/components/Collaborations";
+import { Judges } from "@/components/Judges";
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { Brochure } from "@/components/Brochure";
 import { AboutUs } from "@/components/AboutUs";
@@ -13,16 +15,24 @@ const Index = () => {
 
   // If navigated here with { state: { scrollTo: "section-id" } }, perform smooth scroll
   useEffect(() => {
-    const state = (location.state as unknown) as { scrollTo?: string };
+    const state = location.state as unknown as { scrollTo?: string };
     const targetId = state?.scrollTo;
     if (targetId) {
       // Defer to ensure DOM is ready
       setTimeout(() => {
-        document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth" });
+        document
+          .getElementById(targetId)
+          ?.scrollIntoView({ behavior: "smooth" });
       }, 0);
       // Clear the history state so it doesn't re-trigger on back/forward
       try {
-        window.history.replaceState({}, "", window.location.pathname + window.location.search + window.location.hash);
+        window.history.replaceState(
+          {},
+          "",
+          window.location.pathname +
+            window.location.search +
+            window.location.hash
+        );
       } catch {
         // no-op
       }
@@ -34,8 +44,27 @@ const Index = () => {
       <HeroSection />
 
       {/* Domains */}
-      <section className="min-h-screen py-0 bg-transparent scroll-mt-14 md:scroll-mt-16" id="domains">
+      <section
+        className="min-h-screen py-0 bg-transparent scroll-mt-14 md:scroll-mt-16"
+        id="domains"
+      >
         <DomainsSection />
+      </section>
+
+      {/* Collaborations */}
+      <section
+        id="collaborations"
+        className="min-h-screen py-0 scroll-mt-14 md:scroll-mt-16 bg-transparent"
+      >
+        <Collaborations />
+      </section>
+
+      {/* Judges */}
+      <section
+        id="judges"
+        className="min-h-screen py-0 scroll-mt-14 md:scroll-mt-16 bg-transparent"
+      >
+        <Judges />
       </section>
 
       {/* Payment Method */}

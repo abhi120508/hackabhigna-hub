@@ -40,12 +40,12 @@ interface DomainSetting {
 
 const domains = [
   {
-    value: "GenAI/AgenticAI in Agriculture",
-    label: "GenAI/AgenticAI in Agriculture",
+    value: "AI-Powered Autonomous SEO & Marketing Optimization",
+    label: "AI-Powered Autonomous SEO & Marketing Optimization",
   },
   {
-    value: "GenAI/AgenticAI in Education",
-    label: "GenAI/AgenticAI in Education",
+    value: "Fullstack Marketing Analytics & Agentic Flow Platforms",
+    label: "Fullstack Marketing Analytics & Agentic Flow Platforms",
   },
   {
     value: "Wildcard - Environment",

@@ -7,16 +7,16 @@ import "./global.css";
 const domains = [
   {
     icon: Globe,
-    title: "GenAI/AgenticAI in Agriculture",
+    title: "AI-Powered Autonomous SEO & Marketing Optimization",
     description:
-      "Leverage AI to revolutionize farming practices, crop monitoring, and sustainable agriculture solutions.",
+      "Leverage AI to revolutionize SEO and marketing practices, autonomous optimization, and digital marketing solutions.",
     color: "text-primary",
   },
   {
     icon: Brain,
-    title: "GenAI/AgenticAI in Education",
+    title: "Fullstack Marketing Analytics & Agentic Flow Platforms",
     description:
-      "Develop intelligent systems using machine learning and AI technologies to transform learning experiences.",
+      "Develop intelligent systems using machine learning and AI technologies to transform marketing analytics and agentic workflows.",
     color: "text-secondary",
   },
   {

@@ -120,45 +120,29 @@ const User = mongoose.model("User", userSchema);
 
 // Helper to extract domain name from full domain string
 const extractDomainName = (fullDomain) => {
-  // Extract the domain name from strings like "GenAI/AgenticAI in Agriculture"
-  const domainMatch = fullDomain.match(/in\s+([A-Za-z]+)/);
-  if (domainMatch) {
-    return domainMatch[1];
+  // Map full domain strings to prefixes
+  const domainPrefixMap = {
+    "AI-Powered Autonomous SEO & Marketing Optimization": "SM",
+    "Fullstack Marketing Analytics & Agentic Flow Platforms": "FA",
+    "Wildcard - Environment": "WE",
+    "Wildcard - Food Production": "WF",
+  };
+
+  if (domainPrefixMap[fullDomain]) {
+    return domainPrefixMap[fullDomain];
   }
 
-  // For Wildcard sub-domains
-  if (fullDomain === "Wildcard - Environment") {
-    return "Environment";
-  }
-  if (fullDomain === "Wildcard - Food Production") {
-    return "Food Production";
-  }
-
-  // For "Wildcard" or other simple domain names
-  if (fullDomain === "Wildcard") {
-    return "Wildcard";
-  }
-
-  // Fallback: return the original string if no match
-  return fullDomain;
+  // Fallback: extract first two letters or original
+  return fullDomain.substring(0, 2).toUpperCase();
 };
 
 // Helper to generate unique ID
 const generateUniqueId = async (domain, teamName) => {
   const domainName = extractDomainName(domain);
-  // Map domain names to specific prefixes
-  const prefixMap = {
-    Agriculture: "AG",
-    Education: "ED",
-    Environment: "WE",
-    "Food Production": "WF",
-  };
-  const domainPrefix =
-    prefixMap[domainName] || domainName.substring(0, 2).toUpperCase();
   const teamPrefix = teamName.substring(0, 2).toUpperCase();
   const count = await Team.countDocuments({ domain });
   const number = String(count + 1).padStart(3, "0");
-  return `${domainPrefix}${teamPrefix}${number}`;
+  return `${domainName}${teamPrefix}${number}`;
 };
 
 app.post("/register", upload.single("paymentProof"), async (req, res) => {
@@ -724,10 +708,10 @@ app.post("/regenerate-qr-codes", async (req, res) => {
 });
 
 const initializeDomainSettings = async () => {
-  // Updated domains: removed FinTech, split Wildcard into Environment and Food Production
+  // Updated domains: new domains for SEO and Marketing
   const domains = [
-    "GenAI/AgenticAI in Agriculture",
-    "GenAI/AgenticAI in Education",
+    "AI-Powered Autonomous SEO & Marketing Optimization",
+    "Fullstack Marketing Analytics & Agentic Flow Platforms",
     "Wildcard - Environment",
     "Wildcard - Food Production",
   ];
