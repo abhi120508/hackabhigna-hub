@@ -83,6 +83,22 @@ const AdminPanel = () => {
   const [newMaxSlots, setNewMaxSlots] = useState(0);
   const [showAddDomain, setShowAddDomain] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const mediaQuery = window.matchMedia("(max-width: 640px)");
+      setIsMobile(mediaQuery.matches);
+
+      const handleChange = (e: MediaQueryListEvent) => {
+        setIsMobile(e.matches);
+      };
+
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
+  }, []);
+
   const { toast } = useToast();
 
   const API_URL = "https://hackabhigna-hub.onrender.com"; // Your backend URL
@@ -557,7 +573,10 @@ const AdminPanel = () => {
     }
   };
 
-  const handleMessageStatusUpdate = async (messageId: string, status: "new" | "read" | "replied") => {
+  const handleMessageStatusUpdate = async (
+    messageId: string,
+    status: "new" | "read" | "replied"
+  ) => {
     try {
       const response = await fetch(`${API_URL}/messages/${messageId}/status`, {
         method: "PATCH",
@@ -683,17 +702,42 @@ const AdminPanel = () => {
         </div>
 
         <Tabs defaultValue="registrations" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="registrations">Registrations</TabsTrigger>
-            <TabsTrigger value="messages">Messages</TabsTrigger>
-            <TabsTrigger value="certificates">Certificates</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsList className="w-full h-auto flex flex-nowrap overflow-x-auto justify-start">
+            <TabsTrigger
+              value="registrations"
+              className="flex-1 min-w-0 flex-shrink-0 px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm"
+            >
+              {isMobile ? "Regs" : "Registrations"}
+            </TabsTrigger>
+            <TabsTrigger
+              value="messages"
+              className="flex-1 min-w-0 flex-shrink-0 px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm"
+            >
+              {isMobile ? "Msgs" : "Messages"}
+            </TabsTrigger>
+            <TabsTrigger
+              value="certificates"
+              className="flex-1 min-w-0 flex-shrink-0 px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm"
+            >
+              {isMobile ? "Certs" : "Certificates"}
+            </TabsTrigger>
+            <TabsTrigger
+              value="analytics"
+              className="flex-1 min-w-0 flex-shrink-0 px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm"
+            >
+              {isMobile ? "Stats" : "Analytics"}
+            </TabsTrigger>
+            <TabsTrigger
+              value="settings"
+              className="flex-1 min-w-0 flex-shrink-0 px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm"
+            >
+              Settings
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="registrations" className="space-y-6">
             {/* Domain Filter */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-nowrap gap-2 overflow-x-auto pb-2">
               {domains.map((domain) => (
                 <Button
                   key={domain.value}
@@ -701,6 +745,7 @@ const AdminPanel = () => {
                     selectedDomain === domain.value ? "default" : "outline"
                   }
                   size="sm"
+                  className="whitespace-nowrap flex-shrink-0 px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm"
                   onClick={() => setSelectedDomain(domain.value)}
                 >
                   {domain.label}
@@ -946,9 +991,12 @@ const AdminPanel = () => {
                 <Card className="bg-card/50 backdrop-blur-sm">
                   <CardContent className="text-center py-8">
                     <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No Messages Yet</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      No Messages Yet
+                    </h3>
                     <p className="text-muted-foreground">
-                      Contact form messages will appear here when users submit them.
+                      Contact form messages will appear here when users submit
+                      them.
                     </p>
                   </CardContent>
                 </Card>
@@ -961,7 +1009,9 @@ const AdminPanel = () => {
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <CardTitle className="text-xl">{message.name}</CardTitle>
+                          <CardTitle className="text-xl">
+                            {message.name}
+                          </CardTitle>
                           <Badge
                             variant={
                               message.status === "new"
@@ -999,13 +1049,17 @@ const AdminPanel = () => {
                       <div>
                         <h4 className="font-semibold mb-2">Message</h4>
                         <div className="bg-muted/20 p-4 rounded-lg">
-                          <p className="text-sm whitespace-pre-wrap">{message.message}</p>
+                          <p className="text-sm whitespace-pre-wrap">
+                            {message.message}
+                          </p>
                         </div>
                       </div>
                       <div className="flex gap-2 pt-4 border-t">
                         {message.status === "new" && (
                           <Button
-                            onClick={() => handleMessageStatusUpdate(message._id, "read")}
+                            onClick={() =>
+                              handleMessageStatusUpdate(message._id, "read")
+                            }
                             variant="outline"
                             size="sm"
                           >
@@ -1015,7 +1069,9 @@ const AdminPanel = () => {
                         )}
                         {message.status === "read" && (
                           <Button
-                            onClick={() => handleMessageStatusUpdate(message._id, "replied")}
+                            onClick={() =>
+                              handleMessageStatusUpdate(message._id, "replied")
+                            }
                             variant="default"
                             size="sm"
                           >
@@ -1065,11 +1121,11 @@ const AdminPanel = () => {
                       {admittedTeams.map((team) => (
                         <div
                           key={team.id}
-                          className="flex items-center justify-between p-4 border rounded-lg"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg gap-4"
                         >
-                          <div>
-                            <h4 className="font-semibold flex items-center gap-2">
-                              {team.teamName}
+                          <div className="flex-1">
+                            <h4 className="font-semibold flex flex-wrap items-center gap-2">
+                              <span>{team.teamName}</span>
                               <Badge variant="secondary">{team.teamCode}</Badge>
                             </h4>
                             <div className="text-sm text-muted-foreground mt-2 space-y-1">
@@ -1078,8 +1134,8 @@ const AdminPanel = () => {
                                   key={i}
                                   className="flex items-center gap-2"
                                 >
-                                  <Mail className="w-3 h-3" />
-                                  <span>
+                                  <Mail className="w-3 h-3 flex-shrink-0" />
+                                  <span className="break-all">
                                     {p.name} - {p.email}
                                   </span>
                                 </div>
@@ -1089,6 +1145,7 @@ const AdminPanel = () => {
                           <Button
                             variant="hero"
                             size="sm"
+                            className="w-full sm:w-auto"
                             onClick={() => {
                               toast({
                                 title: "Certificate Issued!",

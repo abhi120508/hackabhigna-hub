@@ -284,7 +284,9 @@ const QRPanel = () => {
     <div className="min-h-screen pt-20 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gradient mb-2">QR Panel</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gradient mb-2">
+            QR Panel
+          </h1>
           <p className="text-muted-foreground">
             Scan team QR codes to activate repositories on hackathon day
           </p>
@@ -302,7 +304,7 @@ const QRPanel = () => {
             <CardContent className="text-center space-y-6">
               {!scannedData ? (
                 <>
-                  <div className="w-64 h-64 mx-auto border-2 border-dashed border-border rounded-lg overflow-hidden bg-muted/20 relative flex items-center justify-center">
+                  <div className="w-full max-w-64 aspect-square mx-auto border-2 border-dashed border-border rounded-lg overflow-hidden bg-muted/20 relative flex items-center justify-center">
                     <video
                       ref={videoRef}
                       className="w-full h-full object-cover"
@@ -312,11 +314,12 @@ const QRPanel = () => {
                     <canvas ref={canvasRef} className="hidden" />
                   </div>
 
-                  <div className="flex justify-center space-x-4 mt-4">
+                  <div className="flex flex-col sm:flex-row justify-center gap-4 mt-4">
                     <Button
                       onClick={isScanning ? stopScan : startCameraScan}
                       variant="hero"
                       size="lg"
+                      className="w-full sm:w-auto"
                     >
                       {isScanning ? "Stop Scanning" : "Start Camera Scan"}
                     </Button>
@@ -356,6 +359,7 @@ const QRPanel = () => {
                       }}
                       variant="outline"
                       size="lg"
+                      className="w-full sm:w-auto"
                     >
                       Capture & Scan QR
                     </Button>
@@ -365,17 +369,19 @@ const QRPanel = () => {
                     <Label htmlFor="manual-input">
                       Or paste QR URL / Unique ID
                     </Label>
-                    <div className="flex gap-2 max-w-md mx-auto">
+                    <div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
                       <Input
                         id="manual-input"
                         value={manualInput}
                         onChange={(e) => setManualInput(e.target.value)}
                         placeholder="https://hackabhigna.com/qr/ABCD001 or ABCD001"
+                        className="w-full"
                       />
                       <Button
                         onClick={handleManualFetch}
                         variant="outline"
                         disabled={!manualInput.trim()}
+                        className="w-full sm:w-auto"
                       >
                         Fetch Team
                       </Button>
@@ -455,22 +461,21 @@ const QRPanel = () => {
                         {scannedData.participants.map((participant, index) => (
                           <div
                             key={index}
-                            className="text-sm flex items-center justify-between"
+                            className="text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 flex-wrap"
                           >
-                            <span>
+                            <span className="flex items-center gap-1 flex-wrap">
                               {participant.name}
                               {index === scannedData.leaderIndex && (
-                                <Badge
-                                  variant="outline"
-                                  className="ml-2 text-xs"
-                                >
+                                <Badge variant="outline" className="text-xs">
                                   Leader
                                 </Badge>
                               )}
                             </span>
-                            <div className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Mail className="w-3 h-3" />
-                              {participant.email}
+                            <div className="text-xs text-muted-foreground flex items-center gap-1 min-w-0">
+                              <Mail className="w-3 h-3 flex-shrink-0" />
+                              <span className="break-all truncate sm:break-all">
+                                {participant.email}
+                              </span>
                             </div>
                           </div>
                         ))}

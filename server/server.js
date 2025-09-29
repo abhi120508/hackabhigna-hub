@@ -7,6 +7,7 @@ const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
 const QRCode = require("qrcode");
 const axios = require("axios");
+const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 const app = express();
@@ -102,6 +103,11 @@ const messageSchema = new mongoose.Schema({
   },
 });
 
+const userSchema = new mongoose.Schema({
+  role: { type: String, required: true, enum: ["admin", "judge", "volunteer"] },
+  password: { type: String, required: true },
+});
+
 const Team = mongoose.model("Team", teamSchema);
 
 const DomainSettings = mongoose.model("DomainSettings", domainSettingsSchema);
@@ -109,6 +115,8 @@ const DomainSettings = mongoose.model("DomainSettings", domainSettingsSchema);
 const GlobalSettings = mongoose.model("GlobalSettings", globalSettingsSchema);
 
 const Message = mongoose.model("Message", messageSchema);
+
+const User = mongoose.model("User", userSchema);
 
 // Helper to extract domain name from full domain string
 const extractDomainName = (fullDomain) => {
@@ -1141,6 +1149,40 @@ app.delete("/messages/:id", async (req, res) => {
     res.json({ message: "Message deleted successfully!" });
   } catch (err) {
     res.status(400).json({ message: "Error: " + err.message });
+  }
+});
+
+// Admin/Judge/Volunteer Login
+app.post("/login/admin", async (req, res) => {
+  try {
+    const { role, password } = req.body;
+
+    if (!role || !password) {
+      return res
+        .status(400)
+        .json({ message: "Role and password are required." });
+    }
+
+    if (!["admin", "judge", "volunteer"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role." });
+    }
+
+    const user = await User.findOne({ role });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid password." });
+    }
+
+    res.json({ success: true, message: "Login successful!", role });
+  } catch (err) {
+    console.error("Server error during admin login:", err);
+    res.status(500).json({ message: "Server Error: " + err.message });
   }
 });
 
