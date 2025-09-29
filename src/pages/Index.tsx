@@ -1,7 +1,7 @@
 import { HeroSection } from "@/components/HeroSection";
 import { DomainsSection } from "@/components/DomainsSection";
-import { Collaborations } from "@/components/Collaborations";
-import { Judges } from "@/components/Judges";
+// import { Collaborations } from "@/components/Collaborations";
+// import { Judges } from "@/components/Judges";
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { Brochure } from "@/components/Brochure";
 import { AboutUs } from "@/components/AboutUs";
@@ -51,21 +51,25 @@ const Index = () => {
         <DomainsSection />
       </section>
 
-      {/* Collaborations */}
+      {/* Collaborations - Disabled for now */}
+      {/* 
       <section
         id="collaborations"
         className="min-h-screen py-0 scroll-mt-14 md:scroll-mt-16 bg-transparent"
       >
         <Collaborations />
       </section>
+      */}
 
-      {/* Judges */}
+      {/* Judges - Disabled for now */}
+      {/* 
       <section
         id="judges"
         className="min-h-screen py-0 scroll-mt-14 md:scroll-mt-16 bg-transparent"
       >
         <Judges />
       </section>
+      */}
 
       {/* Payment Method */}
       <section
