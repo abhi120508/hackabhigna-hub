@@ -75,6 +75,7 @@ export function RegistrationForm() {
     Record<string, number>
   >({});
   const [domainPaused, setDomainPaused] = useState<Record<string, boolean>>({});
+  const [isLoadingDomains, setIsLoadingDomains] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -107,6 +108,7 @@ export function RegistrationForm() {
         });
         setDomainSlotsLeft(slotsMap);
         setDomainPaused(pausedMap);
+        setIsLoadingDomains(false);
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error
@@ -117,6 +119,7 @@ export function RegistrationForm() {
           title: "Error fetching domain slots",
           description: errorMessage,
         });
+        setIsLoadingDomains(false);
       }
     };
     fetchDomainSettings();
@@ -442,32 +445,43 @@ export function RegistrationForm() {
           <div className="space-y-2">
             <Label>Competition Domain</Label>
             <Select value={selectedDomain} onValueChange={setSelectedDomain}>
-              <SelectTrigger className="bg-input/50">
+              <SelectTrigger className="bg-input/50 w-full">
                 <SelectValue placeholder="Select your competition domain" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="w-[320px] sm:w-[380px] max-w-[90vw]">
                 {domains.map((domain) => {
                   // Use lowercase key to match domainSlotsLeft keys
                   const domainKey = domain.value.toLowerCase();
                   const slotsLeft = domainSlotsLeft[domainKey];
-                  const paused = domainPaused[domainKey];
-                  let label = domain.label;
-                  if (paused) {
-                    label = `${domain.label} - Paused`;
+                  let paused = domainPaused[domainKey];
+                  let subText = "";
+                  if (isLoadingDomains) {
+                    paused = true;
+                    subText = "Fetching slots...";
+                  } else if (paused === undefined) {
+                    paused = true;
+                    subText = "Loading...";
+                  } else if (paused) {
+                    subText = "Paused";
+                  } else if (slotsLeft !== undefined) {
+                    subText = `${slotsLeft} slots left`;
                   }
                   return (
                     <SelectItem
                       key={domain.value}
                       value={domain.value}
-                      disabled={slotsLeft === 0 || paused}
+                      disabled={
+                        paused || (slotsLeft !== undefined && slotsLeft === 0)
+                      }
+                      className="p-3 w-full"
                     >
-                      {domain.label}
-                      <div className="text-xs text-muted-foreground ml-2">
-                        {paused
-                          ? "Paused"
-                          : slotsLeft !== undefined
-                          ? `${slotsLeft} slots left`
-                          : ""}
+                      <div className="flex flex-col w-full space-y-1">
+                        <span className="text-xs md:text-sm font-medium break-words leading-relaxed line-clamp-3">
+                          {domain.label}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {subText}
+                        </span>
                       </div>
                     </SelectItem>
                   );
@@ -487,8 +501,8 @@ export function RegistrationForm() {
               type="url"
               value={gitRepo}
               onChange={(e) => setGitRepo(e.target.value)}
-              placeholder="https://github.com/yourusername"
-              className="bg-input/50"
+              placeholder="https://github.com/username"
+              className="bg-input/50 w-full"
             />
           </div>
 
