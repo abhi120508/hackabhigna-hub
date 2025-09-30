@@ -1,7 +1,7 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Home, Search } from "lucide-react";
+import { Home } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
@@ -28,12 +28,6 @@ const NotFound = () => {
             <Link to="/">
               <Home className="w-4 h-4 mr-2" />
               Go Home
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link to="/admin">
-              <Search className="w-4 h-4 mr-2" />
-              Admin Panel
             </Link>
           </Button>
         </div>

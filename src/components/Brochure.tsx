@@ -20,9 +20,7 @@ export function Brochure() {
   };
 
   return (
-    <section
-      className="w-full bg-gradient-to-br from-background to-muted/20 py-16 md:py-20 mb-10"
-    >
+    <section className="w-full bg-gradient-to-br from-background to-muted/20 py-16 md:py-20 mb-10">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -104,7 +102,7 @@ export function Brochure() {
                   <div>
                     <h3 className="font-semibold">Domains</h3>
                     <p className="text-sm text-muted-foreground">
-                      4 innovative domains
+                      3 innovative domains
                     </p>
                   </div>
                 </div>

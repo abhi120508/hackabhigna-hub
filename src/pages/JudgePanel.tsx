@@ -132,7 +132,7 @@ const JudgePanel = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "judge123") {
+    if (password === "abhi0806") {
       setIsAuthenticated(true);
       toast({ title: "Login Successful" });
     } else {
