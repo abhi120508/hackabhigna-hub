@@ -28,13 +28,13 @@ export function Contact() {
   const TypingAnimation = () => {
     const [displayText, setDisplayText] = useState("");
     const fullText = "HACKABHIGNA";
-    
+
     useEffect(() => {
       if (!isLoading) {
         setDisplayText("");
         return;
       }
-      
+
       let currentIndex = 0;
       const interval = setInterval(() => {
         if (currentIndex <= fullText.length) {
@@ -45,10 +45,10 @@ export function Contact() {
           currentIndex = 0;
         }
       }, 150); // Typing speed
-      
+
       return () => clearInterval(interval);
     }, [isLoading]);
-    
+
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
         <div className="text-center">
@@ -56,9 +56,7 @@ export function Contact() {
             {displayText}
             <span className="animate-pulse">|</span>
           </div>
-          <div className="text-white text-lg">
-            Sending your message...
-          </div>
+          <div className="text-white text-lg">Sending your message...</div>
         </div>
       </div>
     );
@@ -74,15 +72,20 @@ export function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://hackabhigna-hub.onrender.com'}/contact`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_URL || "https://hackabhigna-hub.onrender.com"
+        }/contact`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       const result = await response.json();
 
@@ -93,8 +96,12 @@ export function Contact() {
         alert(`Error: ${result.message}`);
       }
     } catch (error) {
-      console.error('Error submitting message:', error);
-      alert(`Failed to send message. Error: ${error instanceof Error ? error.message : 'Network error'}`);
+      console.error("Error submitting message:", error);
+      alert(
+        `Failed to send message. Error: ${
+          error instanceof Error ? error.message : "Network error"
+        }`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -256,7 +263,7 @@ export function Contact() {
             {contactInfo.map((info, index) => {
               const Icon = info.icon;
               const isAddress = info.title === "Address";
-              
+
               return (
                 <Card key={index}>
                   <CardContent className="pt-6">
@@ -281,7 +288,12 @@ export function Contact() {
                         {isAddress ? (
                           <button
                             className="text-sm text-muted-foreground hover:text-blue-400 transition-colors duration-300 cursor-pointer underline"
-                            onClick={() => window.open("https://maps.app.goo.gl/DZxJNrAsFtXdQar7A", "_blank")}
+                            onClick={() =>
+                              window.open(
+                                "https://maps.app.goo.gl/DZxJNrAsFtXdQar7A",
+                                "_blank"
+                              )
+                            }
                           >
                             {info.description}
                           </button>
@@ -303,10 +315,7 @@ export function Contact() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <HelpCircle
-                className="w-6 h-6"
-                style={{ color: "#60a5fa" }}
-              />
+              <HelpCircle className="w-6 h-6" style={{ color: "#60a5fa" }} />
               Frequently Asked Questions
             </CardTitle>
           </CardHeader>
@@ -314,10 +323,7 @@ export function Contact() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {faqs.map((faq, index) => (
                 <div key={index} className="space-y-2">
-                  <h3
-                    className="font-semibold"
-                    style={{ color: "#60a5fa" }}
-                  >
+                  <h3 className="font-semibold" style={{ color: "#60a5fa" }}>
                     {faq.question}
                   </h3>
                   <p className="text-sm text-muted-foreground">{faq.answer}</p>

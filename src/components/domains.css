@@ -1,7 +1,7 @@
 /* ===============================
    Import Orbitron Font
 ================================ */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap");
 
 /* ===============================
    Global Variables (optional)
@@ -19,21 +19,21 @@
    Orbitron Neon Title Style
 ================================ */
 .dom_text {
-  font-family: 'Orbitron', sans-serif;
+  font-family: "Orbitron", sans-serif;
   font-size: 2.5rem;
   text-align: center;
-  color: #60a5fa; /* blue-400 */
   margin-bottom: 0.5rem;
 
-  /* Neon Text Shadow */
-  text-shadow: 
-    0 0 5px #60a5fa,
-    0 0 10px #60a5fa,
-    0 0 20px #60a5fa,
-    
-   
-}
+  /* Gradient Text Color */
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
 
+  /* Remove Neon Text Shadow for sharpness */
+  text-shadow: none;
+}
 
 /* ===============================
    Section Styles
@@ -41,7 +41,6 @@
 .domains-section {
   padding: 5rem 1rem;
   background-color: var(--background-color);
-  
 }
 
 /* ===============================
@@ -121,7 +120,7 @@
 .domain-description {
   color: var(--muted-foreground);
   transition: color 0.3s ease;
-  font-family: 'Orbitron', sans-serif;
+  font-family: "Orbitron", sans-serif;
   font-size: 1rem;
   line-height: 1.4;
 }
@@ -140,7 +139,7 @@
   padding: 0.25rem 0.75rem;
   font-size: 0.875rem;
   font-weight: 700;
-  font-family: 'Orbitron', sans-serif;
+  font-family: "Orbitron", sans-serif;
   transition: all 0.3s ease;
   user-select: none;
   cursor: default;
@@ -170,7 +169,7 @@
 }
 
 .cards::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -4px;
   left: -4px;
@@ -188,7 +187,7 @@
 }
 
 .cards::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 4px;
   border-radius: 20px;
@@ -202,6 +201,29 @@
 }
 
 @keyframes rotateBorder {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===============================
+   Mobile Fix for Domain Cards Overlap
+================================ */
+@media (max-width: 640px) {
+  .cards {
+    width: 100% !important;
+    transform: none !important;
+    margin-bottom: 1rem;
+  }
+  .cards:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .domains-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
 }

@@ -63,10 +63,6 @@ const App = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
-          <footer className="w-full bg-background text-center py-4 border-t border-border text-sm text-muted-foreground">
-            © All copyrights reserved in the name of DEPT of CS&E AIT,
-            Chikkamagaluru
-          </footer>
         </HashRouter>
       </TooltipProvider>
     </QueryClientProvider>

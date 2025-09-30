@@ -291,7 +291,7 @@ export function DomainsSection() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="domains-grid grid grid-cols-1 md:grid-cols-2 gap-6">
             {domains.map((domain, index) => {
               const Icon = domain.icon;
               const isLast = index === domains.length - 1;
@@ -299,11 +299,13 @@ export function DomainsSection() {
                 <div
                   key={index}
                   className={
-                    isLast ? "flex justify-center col-span-2 mt-8" : ""
+                    isLast
+                      ? "flex flex-col items-center md:justify-center md:col-span-2 mt-8"
+                      : ""
                   }
-                  style={isLast ? { gridColumn: "span 2" } : undefined}
+                  style={undefined}
                 >
-                  <Card className="cards bg-card/50 backdrop-blur-sm border-border/50 hover:bg-card/70 transition-all duration-300 hover:scale-105">
+                  <Card className="w-full cards bg-card/50 backdrop-blur-sm border-border/50 hover:bg-card/70 transition-all duration-300">
                     <CardHeader>
                       <div className="flex items-center gap-3">
                         <div
