@@ -28,7 +28,7 @@ export function HeroSection() {
             show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
-          Registrations Open <br></br>Brochure will be updated soon!!
+          Registrations Open
         </p>
         {/* Title */}
         <h1
