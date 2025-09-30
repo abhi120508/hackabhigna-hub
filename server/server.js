@@ -718,7 +718,7 @@ const initializeDomainSettings = async () => {
   for (const domain of domains) {
     await DomainSettings.create({
       domain,
-      maxSlots: domain.includes("Wildcard") ? 15 : 35,
+      maxSlots: domain.includes("Wildcard") ? 20 : 40,
       pausedRegistrations: false,
     });
   }
