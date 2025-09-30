@@ -5,7 +5,7 @@ import { DomainsSection } from "@/components/DomainsSection";
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { Brochure } from "@/components/Brochure";
 import { AboutUs } from "@/components/AboutUs";
-import { Contact } from "@/components/Contact";
+import Contact from "@/components/Contact";
 import { PaymentMethod } from "@/components/PaymentMethod";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";

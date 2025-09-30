@@ -16,7 +16,12 @@ import "./Brochure.css";
 
 export function Brochure() {
   const handleDownload = () => {
-    alert("Brochure download will be available soon!");
+    const link = document.createElement("a");
+    link.href = "/HackAbhigna_brochure .pdf";
+    link.download = "HackAbhigna_brochure.pdf";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (

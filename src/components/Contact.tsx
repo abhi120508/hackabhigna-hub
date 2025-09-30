@@ -14,8 +14,9 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Footer } from "./Footer";
 
-export function Contact() {
+export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -334,6 +335,7 @@ export function Contact() {
         </Card>
       </div>
       {isLoading && <TypingAnimation />}
+      <Footer />
     </div>
   );
 }
