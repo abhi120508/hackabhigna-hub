@@ -125,7 +125,6 @@ const extractDomainName = (fullDomain) => {
     "AI-Powered Autonomous SEO & Marketing Optimization": "SM",
     "Fullstack Marketing Analytics & Agentic Flow Platforms": "FA",
     "Wildcard - Environment": "WE",
-    "Wildcard - Food Production": "WF",
   };
 
   if (domainPrefixMap[fullDomain]) {
@@ -713,7 +712,6 @@ const initializeDomainSettings = async () => {
     "AI-Powered Autonomous SEO & Marketing Optimization",
     "Fullstack Marketing Analytics & Agentic Flow Platforms",
     "Wildcard - Environment",
-    "Wildcard - Food Production",
   ];
   // Remove all existing domain settings first to ensure order
   await DomainSettings.deleteMany({});
@@ -724,7 +722,7 @@ const initializeDomainSettings = async () => {
       pausedRegistrations: false,
     });
   }
-  // Remove other domains that are not in the present 4
+  // Remove other domains that are not in the present 3
   await DomainSettings.deleteMany({
     domain: { $nin: domains },
   });

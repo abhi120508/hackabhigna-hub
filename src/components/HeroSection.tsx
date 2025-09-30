@@ -28,7 +28,7 @@ export function HeroSection() {
             show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
-          Coming soon 
+          Registrations Open
         </p>
         {/* Title */}
         <h1
@@ -81,7 +81,9 @@ export function HeroSection() {
           <button
             className="flex items-center justify-center gap-2 font-subtitle text-white text-sm md:text-base hover:text-blue-400 transition-colors duration-300 cursor-pointer whitespace-nowrap"
             style={{ fontFamily: "'Orbitron', sans-serif" }}
-            onClick={() => window.open("https://maps.app.goo.gl/DZxJNrAsFtXdQar7A", "_blank")}
+            onClick={() =>
+              window.open("https://maps.app.goo.gl/DZxJNrAsFtXdQar7A", "_blank")
+            }
           >
             <MapPin
               className="w-6 h-6 md:w-8 md:h-8" /* Reduced icon sizes */

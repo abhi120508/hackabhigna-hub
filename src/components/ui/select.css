@@ -1,0 +1,12 @@
+.custom-select-content .radix-select-viewport {
+  max-width: 320px !important;
+  width: 100% !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+@media (min-width: 640px) {
+  .custom-select-content .radix-select-viewport {
+    max-width: 380px !important;
+    width: 100% !important;
+  }
+}

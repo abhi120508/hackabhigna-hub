@@ -51,10 +51,12 @@ const domains = [
     value: "Wildcard - Environment",
     label: "Wildcard - Environment",
   },
+  /*
   {
     value: "Wildcard - Food Production",
     label: "Wildcard - Food Production",
   },
+  */
 ];
 
 export function RegistrationForm() {
@@ -446,9 +448,12 @@ export function RegistrationForm() {
             <Label>Competition Domain</Label>
             <Select value={selectedDomain} onValueChange={setSelectedDomain}>
               <SelectTrigger className="bg-input/50 w-full">
-                <SelectValue placeholder="Select your competition domain" />
+                <SelectValue
+                  placeholder="Select your competition domain"
+                  className="whitespace-normal break-words"
+                />
               </SelectTrigger>
-              <SelectContent className="w-[320px] sm:w-[380px] max-w-[90vw]">
+              <SelectContent className="w-[320px] sm:w-[380px] max-w-[90vw] custom-select-content">
                 {domains.map((domain) => {
                   // Use lowercase key to match domainSlotsLeft keys
                   const domainKey = domain.value.toLowerCase();
@@ -476,10 +481,10 @@ export function RegistrationForm() {
                       className="p-3 w-full"
                     >
                       <div className="flex flex-col w-full space-y-1">
-                        <span className="text-xs md:text-sm font-medium break-words leading-relaxed line-clamp-3">
+                        <span className="text-[0.65rem] font-medium break-words leading-relaxed whitespace-normal">
                           {domain.label}
                         </span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-[0.55rem] text-muted-foreground whitespace-normal">
                           {subText}
                         </span>
                       </div>

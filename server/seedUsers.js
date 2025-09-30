@@ -22,11 +22,11 @@ async function seedUsers() {
     await User.deleteMany({});
     console.log("Cleared existing users");
 
-    // Seed users
+    // Seed users with updated password "abhi0806"
     const users = [
-      { role: "admin", password: "admin123" },
-      { role: "judge", password: "judge123" },
-      { role: "volunteer", password: "volunteer123" },
+      { role: "admin", password: "abhi0806" },
+      { role: "judge", password: "abhi0806" },
+      { role: "volunteer", password: "abhi0806" },
     ];
 
     for (const userData of users) {

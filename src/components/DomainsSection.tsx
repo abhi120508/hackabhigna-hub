@@ -181,6 +181,7 @@ const domains = [
     color: "text-accent",
     problemStatements: [],
   },
+  /*
   {
     icon: Smartphone,
     title: "Wildcard - Food Production",
@@ -189,6 +190,7 @@ const domains = [
     color: "text-primary",
     problemStatements: [],
   },
+  */
 ];
 
 export function DomainsSection() {
@@ -273,145 +275,157 @@ export function DomainsSection() {
   };
 
   return (
-    <section className="w-full bg-gradient-to-br from-background to-muted/20 py-10 scroll-mt-32 mb-15 border-border/50 mt-10">
-      <div className="max-w-6xl mx-auto px-0">
-        <div className="text-center mb-16">
-          <h2
-            className="dom_text text-4xl font-bold mb-4"
-            style={{ fontSize: "2.5rem" }}
-          >
-            <span className="text-gradient">Competition Domains</span>
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-white">
-            Choose your battleground and showcase your skills in these exciting
-            domains
-          </p>
-        </div>
+    <>
+      <section className="w-full bg-gradient-to-br from-background to-muted/20 py-10 scroll-mt-32 mb-15 border-border/50 mt-10">
+        <div className="max-w-6xl mx-auto px-0">
+          <div className="text-center mb-16">
+            <h2
+              className="dom_text text-4xl font-bold mb-4"
+              style={{ fontSize: "2.5rem" }}
+            >
+              <span className="text-gradient">Competition Domains</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-white">
+              Choose your battleground and showcase your skills in these
+              exciting domains
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {domains.map((domain, index) => {
-            const Icon = domain.icon;
-            return (
-              <Card
-                key={index}
-                className="cards bg-card/50 backdrop-blur-sm border-border/50 hover:bg-card/70 transition-all duration-300 hover:scale-105"
-              >
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`domain-icon p-2 rounded-lg bg-muted/50 ${domain.color}`}
-                    >
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <CardTitle className="text-xl">{domain.title}</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p
-                    className="domain-description text-muted-foreground"
-                    style={{ fontSize: "0.875rem" }}
-                  >
-                    {domain.description}
-                  </p>
-                  {domain.problemStatements &&
-                    domain.problemStatements.length > 0 && (
-                      <Button
-                        onClick={() => handleViewProblems(domain)}
-                        className="w-full mt-4"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {domains.map((domain, index) => {
+              const Icon = domain.icon;
+              const isLast = index === domains.length - 1;
+              return (
+                <div
+                  key={index}
+                  className={
+                    isLast ? "flex justify-center col-span-2 mt-8" : ""
+                  }
+                  style={isLast ? { gridColumn: "span 2" } : undefined}
+                >
+                  <Card className="cards bg-card/50 backdrop-blur-sm border-border/50 hover:bg-card/70 transition-all duration-300 hover:scale-105">
+                    <CardHeader>
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`domain-icon p-2 rounded-lg bg-muted/50 ${domain.color}`}
+                        >
+                          <Icon className="w-6 h-6" />
+                        </div>
+                        <CardTitle className="text-xl">
+                          {domain.title}
+                        </CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p
+                        className="domain-description text-muted-foreground"
+                        style={{ fontSize: "0.875rem" }}
                       >
-                        View Problem Statements
-                      </Button>
-                    )}
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        <div className="mt-12 px-4">
-          <h3 className="text-2xl font-bold mb-6 text-center text-foreground">
-            Important Notes for Participants:
-          </h3>
-          <ol className="list-decimal space-y-3 max-w-full sm:max-w-3xl mx-auto text-muted-foreground text-sm leading-relaxed pl-4 sm:pl-6">
-            <li>
-              Using AI tools to generate code is allowed and expected—but judges
-              will focus on how well you interpret, integrate, and expand AI
-              outputs.
-            </li>
-            <li>
-              Autonomous decision-making (agentic flow) in your solution is
-              highly encouraged.
-            </li>
-            <li>Multi-channel thinking (SEO + AEO + SMM) will be rewarded.</li>
-            <li>
-              Clear documentation and explanation of AI decisions will improve
-              your score.
-            </li>
-          </ol>
-        </div>
-      </div>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedDomain?.title} - Problem Statements
-            </DialogTitle>
-          </DialogHeader>
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
-            <p className="text-sm text-blue-800">
-              <strong>Note:</strong> The below problem statements were listed by
-              the judges and industry experts for reference. Participants can
-              use these Problem statements or come up with their own Problem
-              statements and solutions in that particular domain.
-            </p>
+                        {domain.description}
+                      </p>
+                      {domain.problemStatements &&
+                        domain.problemStatements.length > 0 && (
+                          <Button
+                            onClick={() => handleViewProblems(domain)}
+                            className="w-full mt-4"
+                          >
+                            View Problem Statements
+                          </Button>
+                        )}
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })}
           </div>
-          <div className="space-y-6">
-            {selectedDomain?.problemStatements?.map((ps, idx) => (
-              <div key={idx} className="border-b pb-4 last:border-b-0">
-                <h3 className="text-lg font-semibold mb-2">
-                  {idx + 1}. {ps.title}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  {ps.description}
-                </p>
-                <div className="mb-3">
-                  <h4 className="font-medium mb-1">Objectives:</h4>
-                  <ul className="list-disc list-inside text-sm text-muted-foreground">
-                    {ps.objectives.map((obj, i) => (
-                      <li key={i}>{obj}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="mb-3">
-                  <h4 className="font-medium mb-1">Technical Components:</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {ps.technicalComponents}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-1">Expected Output:</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {ps.expectedOutput}
-                  </p>
-                </div>
-              </div>
-            ))}
-            <div className="mt-6 pt-4 border-t">
-              <Button
-                onClick={() => selectedDomain && downloadPDF(selectedDomain)}
-                variant="outline"
-                className="w-full"
-              >
-                Download Problem Statements
-              </Button>
+
+          <div className="mt-12 px-4">
+            <h3 className="text-2xl font-bold mb-6 text-center text-foreground">
+              Important Notes for Participants:
+            </h3>
+            <ol className="list-decimal space-y-3 max-w-full sm:max-w-3xl mx-auto text-muted-foreground text-sm leading-relaxed pl-4 sm:pl-6">
+              <li>
+                Using AI tools to generate code is allowed and expected—but
+                judges will focus on how well you interpret, integrate, and
+                expand AI outputs.
+              </li>
+              <li>
+                Autonomous decision-making (agentic flow) in your solution is
+                highly encouraged.
+              </li>
+              <li>
+                Multi-channel thinking (SEO + AEO + SMM) will be rewarded.
+              </li>
+              <li>
+                Clear documentation and explanation of AI decisions will improve
+                your score.
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {selectedDomain?.title} - Problem Statements
+              </DialogTitle>
+            </DialogHeader>
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
+              <p className="text-sm text-blue-800">
+                <strong>Note:</strong> The below problem statements were listed
+                by the judges and industry experts for reference. Participants
+                can use these Problem statements or come up with their own
+                Problem statements and solutions in that particular domain.
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground mt-4 text-center">
-              Check brochure for judgement criteria
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </section>
+            <div className="space-y-6">
+              {selectedDomain?.problemStatements?.map((ps, idx) => (
+                <div key={idx} className="border-b pb-4 last:border-b-0">
+                  <h3 className="text-lg font-semibold mb-2">
+                    {idx + 1}. {ps.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {ps.description}
+                  </p>
+                  <div className="mb-3">
+                    <h4 className="font-medium mb-1">Objectives:</h4>
+                    <ul className="list-disc list-inside text-sm text-muted-foreground">
+                      {ps.objectives.map((obj, i) => (
+                        <li key={i}>{obj}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="mb-3">
+                    <h4 className="font-medium mb-1">Technical Components:</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {ps.technicalComponents}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-1">Expected Output:</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {ps.expectedOutput}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div className="mt-6 pt-4 border-t">
+                <Button
+                  onClick={() => selectedDomain && downloadPDF(selectedDomain)}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Download Problem Statements
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground mt-4 text-center">
+                Check brochure for judgement criteria
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </section>
+    </>
   );
 }

@@ -144,7 +144,32 @@ const AdminPanel = () => {
     try {
       const response = await fetch(`${API_URL}/domain-settings`);
       if (!response.ok) throw new Error("Failed to fetch domain settings");
-      const data = await response.json();
+      let data = await response.json();
+
+      // Remove "Wildcard - Food Production" domain
+      data = data.filter(
+        (setting: DomainSetting) =>
+          setting.domain !== "Wildcard - Food Production"
+      );
+
+      // Set slots for remaining domains
+      data = data.map((setting: DomainSetting) => {
+        if (
+          setting.domain ===
+          "AI-Powered Autonomous SEO & Marketing Optimization"
+        ) {
+          return { ...setting, maxSlots: 40 };
+        } else if (
+          setting.domain ===
+          "Fullstack Marketing Analytics & Agentic Flow Platforms"
+        ) {
+          return { ...setting, maxSlots: 40 };
+        } else if (setting.domain === "Wildcard - Environment") {
+          return { ...setting, maxSlots: 20 };
+        }
+        return setting;
+      });
+
       setDomainSettings(data);
     } catch (error) {
       toast({
@@ -631,26 +656,24 @@ const AdminPanel = () => {
   const domains = [
     { value: "all", label: "All Domains" },
     {
-      value: "GenAI/AgenticAI in Agriculture",
-      label: "GenAI/AgenticAI in Agriculture",
+      value: "AI-Powered Autonomous SEO & Marketing Optimization",
+      label: "AI-Powered Autonomous SEO & Marketing Optimization",
     },
     {
-      value: "GenAI/AgenticAI in Education",
-      label: "GenAI/AgenticAI in Education",
+      value: "Fullstack Marketing Analytics & Agentic Flow Platforms",
+      label: "Fullstack Marketing Analytics & Agentic Flow Platforms",
     },
     {
       value: "Wildcard - Environment",
       label: "Wildcard - Environment",
     },
-    {
-      value: "Wildcard - Food Production",
-      label: "Wildcard - Food Production",
-    },
   ];
 
   const filteredRegistrations =
     selectedDomain === "all"
-      ? registrations
+      ? registrations.filter(
+          (reg) => reg.domain !== "Wildcard - Food Production"
+        )
       : registrations.filter((reg) => reg.domain === selectedDomain);
 
   if (!isAuthenticated) {
@@ -904,9 +927,7 @@ const AdminPanel = () => {
                           </div>
                         </div>
                         <div>
-                          <span className="font-semibold">
-                            Original Repository:
-                          </span>
+                          <span className="font-semibold">Github URL:</span>
                           <a
                             href={registration.gitRepo}
                             target="_blank"
@@ -936,15 +957,15 @@ const AdminPanel = () => {
                                   View
                                 </Button>
                               </DialogTrigger>
-                              <DialogContent className="max-w-3xl">
-                                <DialogHeader>
+                              <DialogContent className="max-w-3xl flex flex-col items-center justify-center p-4">
+                                <DialogHeader className="w-full">
                                   <DialogTitle>Payment Proof</DialogTitle>
                                 </DialogHeader>
-                                <div className="mt-4">
+                                <div className="mt-2 flex justify-center w-full">
                                   <img
                                     src={registration.paymentProof}
                                     alt="Payment Proof"
-                                    className="max-w-full h-auto rounded-md"
+                                    className="max-w-full max-h-[80vh] object-contain rounded-md"
                                   />
                                 </div>
                               </DialogContent>
