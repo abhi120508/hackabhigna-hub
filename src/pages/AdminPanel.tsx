@@ -1167,11 +1167,43 @@ const AdminPanel = () => {
                             variant="hero"
                             size="sm"
                             className="w-full sm:w-auto"
-                            onClick={() => {
-                              toast({
-                                title: "Certificate Issued!",
-                                description: `Certificate sent to ${team.teamName} team lead via email.`,
-                              });
+                            onClick={async () => {
+                              try {
+                                toast({
+                                  title: "Issuing Certificates...",
+                                  description: `Preparing certificates for ${team.teamName}`,
+                                });
+
+                                const resp = await fetch(
+                                  `${API_URL}/teams/${encodeURIComponent(
+                                    team.id
+                                  )}/issue-certificates`,
+                                  {
+                                    method: "POST",
+                                  }
+                                );
+
+                                if (!resp.ok) {
+                                  const err = await resp
+                                    .json()
+                                    .catch(() => ({}));
+                                  throw new Error(
+                                    err.message ||
+                                      "Failed to issue certificates"
+                                  );
+                                }
+
+                                toast({
+                                  title: "Certificates Sent",
+                                  description: `Certificate(s) sent to team leader of ${team.teamName}`,
+                                });
+                              } catch (error) {
+                                toast({
+                                  variant: "destructive",
+                                  title: "Certificate Failed",
+                                  description: (error as Error).message,
+                                });
+                              }
                             }}
                           >
                             <Mail className="w-4 h-4 mr-1" />

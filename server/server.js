@@ -706,6 +706,152 @@ app.post("/regenerate-qr-codes", async (req, res) => {
   }
 });
 
+// Issue certificates for a given team: generate one PDF with a page per participant and email to team leader
+app.post("/teams/:id/issue-certificates", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const team = await Team.findById(id);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found." });
+    }
+
+    // Use pdfmake to generate a PDF with one page per participant
+    const PdfPrinter = require("pdfmake");
+
+    const fonts = {
+      Roboto: {
+        normal: "Helvetica",
+        bold: "Helvetica",
+        italics: "Helvetica",
+        bolditalics: "Helvetica",
+      },
+    };
+
+    const printer = new PdfPrinter(fonts);
+
+    // Build content: one certificate page per participant
+    const content = [];
+    team.participants.forEach((p, idx) => {
+      if (idx > 0) content.push({ text: "", pageBreak: "before" });
+
+      content.push(
+        {
+          text: "Certificate of Participation",
+          style: "title",
+          alignment: "center",
+          margin: [0, 40, 0, 20],
+        },
+        {
+          text: p.name,
+          style: "name",
+          alignment: "center",
+          margin: [0, 0, 0, 8],
+        },
+        {
+          text: `Team: ${team.teamName}`,
+          style: "team",
+          alignment: "center",
+          margin: [0, 0, 0, 4],
+        },
+        {
+          text: `Domain: ${team.domain}`,
+          style: "team",
+          alignment: "center",
+          margin: [0, 0, 0, 20],
+        },
+        {
+          text: "Congratulations on participating in HackAbhigna!",
+          style: "note",
+          alignment: "center",
+          margin: [40, 0, 40, 0],
+        },
+        {
+          text: `Date: ${new Date().toLocaleDateString()}`,
+          style: "date",
+          alignment: "right",
+          margin: [0, 40, 40, 0],
+        }
+      );
+    });
+
+    const docDefinition = {
+      content,
+      styles: {
+        title: { fontSize: 26, bold: true, color: "#1B5E20" },
+        name: { fontSize: 20, bold: true },
+        team: { fontSize: 12, color: "#444" },
+        note: { fontSize: 14 },
+        date: { fontSize: 10, color: "#666" },
+      },
+      defaultStyle: { font: "Roboto" },
+      pageSize: "A4",
+      pageMargins: [40, 60, 40, 60],
+    };
+
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+    const chunks = [];
+    pdfDoc.on("data", (chunk) => chunks.push(chunk));
+    pdfDoc.on("end", async () => {
+      try {
+        const result = Buffer.concat(chunks);
+        const base64Data = result.toString("base64");
+
+        // Prepare email
+        const leaderEmail = team.participants[team.leaderIndex]?.email;
+        const leaderName = team.participants[team.leaderIndex]?.name;
+
+        const mailOptions = {
+          from: `"HackAbhigna" <noreply@hackabhigna.in>`,
+          to: leaderEmail,
+          subject: `HackAbhigna - Certificate for ${team.teamName}`,
+          text: `Dear ${
+            leaderName || "Participant"
+          },\n\nCongratulations! Please find attached the certificate(s) of participation for your team ${
+            team.teamName
+          }.\n\nBest regards,\nHackAbhigna Team`,
+          html: `<p>Dear ${
+            leaderName || "Participant"
+          },</p><p>Congratulations! Please find attached the certificate(s) of participation for your team <strong>${
+            team.teamName
+          }</strong>.</p><p>We appreciate your participation in HackAbhigna — congratulations on taking part!</p><p>Best regards,<br/>HackAbhigna Team</p>`,
+          attachments: [
+            {
+              filename: `${team.teamCode || team.teamName}-certificates.pdf`,
+              content: base64Data,
+              type: "application/pdf",
+              disposition: "attachment",
+            },
+          ],
+        };
+
+        try {
+          await sendMail(mailOptions);
+          console.log("Certificate email sent to", leaderEmail);
+          return res.json({ message: "Certificate email sent successfully." });
+        } catch (emailErr) {
+          console.error("Error sending certificate email:", emailErr);
+          return res
+            .status(500)
+            .json({ message: "Failed to send email", error: emailErr.message });
+        }
+      } catch (err) {
+        console.error("Error preparing certificate PDF:", err);
+        return res
+          .status(500)
+          .json({
+            message: "Failed to prepare certificate PDF",
+            error: err.message,
+          });
+      }
+    });
+
+    pdfDoc.end();
+  } catch (err) {
+    console.error("Issue certificates error:", err);
+    res.status(500).json({ message: "Server error: " + err.message });
+  }
+});
+
 const initializeDomainSettings = async () => {
   // Updated domains: new domains for SEO and Marketing
   const domains = [

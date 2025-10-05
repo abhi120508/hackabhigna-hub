@@ -178,9 +178,20 @@ const domains = [
     title: "Wildcard - Environment",
     description:
       "Innovate in environmental sustainability with AI-driven solutions for climate change, conservation, and green tech.",
+
     color: "text-accent",
-    problemStatements: [],
+    problemStatements: [
+      {
+        title: "Note",
+        description:
+          "The one on-spot Problem Statement will be giving on the Hackathon Day by Environ India",
+        objectives: [],
+        technicalComponents: "",
+        expectedOutput: "",
+      },
+    ],
   },
+
   /*
   {
     icon: Smartphone,
@@ -325,15 +336,23 @@ export function DomainsSection() {
                       >
                         {domain.description}
                       </p>
-                      {domain.problemStatements &&
-                        domain.problemStatements.length > 0 && (
-                          <Button
-                            onClick={() => handleViewProblems(domain)}
-                            className="w-full mt-4"
-                          >
-                            View Problem Statements
-                          </Button>
-                        )}
+                      {domain.title === "Wildcard - Environment" ? (
+                        <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mt-2">
+                          <p className="text-sm text-blue-800">
+                            <strong>Note:</strong> The one on-spot Problem
+                            Statement will be giving on the Hackathon Day by
+                            Environ India
+                          </p>
+                        </div>
+                      ) : domain.problemStatements &&
+                        domain.problemStatements.length > 0 ? (
+                        <Button
+                          onClick={() => handleViewProblems(domain)}
+                          className="w-full mt-4"
+                        >
+                          View Problem Statements
+                        </Button>
+                      ) : null}
                     </CardContent>
                   </Card>
                 </div>
