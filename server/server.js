@@ -822,6 +822,20 @@ app.post("/teams/:id/issue-certificates", async (req, res) => {
       }
     }
 
+    // If debug query param is set, return generated PDFs as base64 in JSON for inspection
+    if (String(req.query.debug) === "1") {
+      console.log(
+        "Debug mode: returning generated PDFs instead of sending email"
+      );
+      return res.json({
+        message: "debug-pdfs",
+        attachments: attachments.map((a) => ({
+          filename: a.filename,
+          content: a.content,
+        })),
+      });
+    }
+
     // Prepare email
     const leaderEmail = team.participants[team.leaderIndex]?.email;
     const leaderName = team.participants[team.leaderIndex]?.name;
