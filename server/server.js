@@ -727,13 +727,12 @@ app.post("/teams/:id/issue-certificates", async (req, res) => {
       },
     };
 
-    const printer = new PdfPrinter(fonts);
-
-    // Helper to generate a PDF buffer from a docDefinition
+    // Helper to generate a PDF buffer from a docDefinition using a fresh PdfPrinter per call
     const generatePdfBuffer = (docDefinition) =>
       new Promise((resolve, reject) => {
         try {
-          const pdfDoc = printer.createPdfKitDocument(docDefinition);
+          const localPrinter = new PdfPrinter(fonts);
+          const pdfDoc = localPrinter.createPdfKitDocument(docDefinition);
           const chunks = [];
           pdfDoc.on("data", (chunk) => chunks.push(chunk));
           pdfDoc.on("end", () => resolve(Buffer.concat(chunks)));
@@ -808,6 +807,7 @@ app.post("/teams/:id/issue-certificates", async (req, res) => {
 
       try {
         const buf = await generatePdfBuffer(docDefinition);
+        console.log(`Generated PDF for ${p.name}, bytes: ${buf.length}`);
         attachments.push({
           filename: `${sanitizeFilename(p.name)}.pdf`,
           content: buf.toString("base64"),
