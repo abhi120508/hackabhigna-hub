@@ -15,6 +15,23 @@ sgMail.setApiKey(apiKey);
  *   - subject: email subject
  *   - text: plain text content
  *   - html: HTML content
+const sgMail = require("@sendgrid/mail");
+
+// Set API key from environment variable
+const apiKey = process.env.SENDGRID_API_KEY;
+if (!apiKey) {
+  throw new Error("SENDGRID_API_KEY environment variable is not set");
+}
+sgMail.setApiKey(apiKey);
+
+/**
+ * Send an email using SendGrid API
+ * @param {Object} mailOptions
+ *   - to: recipient email (required)
+ *   - from: sender email (must be verified in SendGrid)
+ *   - subject: email subject
+ *   - text: plain text content
+ *   - html: HTML content
  */
 const sendMail = async (mailOptions) => {
   try {
@@ -69,3 +86,4 @@ const sendMail = async (mailOptions) => {
 };
 
 module.exports = { sendMail };
+// Prepare email payload

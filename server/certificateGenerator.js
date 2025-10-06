@@ -118,11 +118,9 @@ function generateWithPdfKit(participantName, teamName) {
     doc.moveDown(0.5);
     doc.fontSize(14).text(`Team: ${teamName}`, { align: "center" });
     doc.moveDown(1);
-    doc
-      .fontSize(16)
-      .text("Congratulations on participating in HackAbhigna!", {
-        align: "center",
-      });
+    doc.fontSize(16).text("Congratulations on participating in HackAbhigna!", {
+      align: "center",
+    });
 
     // signatures
     const sigY = doc.page.height - 120;
