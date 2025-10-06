@@ -184,7 +184,7 @@ const domains = [
       {
         title: "Note",
         description:
-          "The one on-spot Problem Statement will be giving on the Hackathon Day by Environ India",
+          "The one on-spot Problem Statement will be given on the Hackathon Day by Environ India",
         objectives: [],
         technicalComponents: "",
         expectedOutput: "",
