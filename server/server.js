@@ -846,7 +846,7 @@ app.post("/teams/:id/issue-certificates", async (req, res) => {
       subject: `HackAbhigna - Certificates for ${team.teamName}`,
       text: `Dear ${
         leaderName || "Participant"
-      },\n\nCongratulations! Please find attached the certificate(s) of participation for your team ${
+      },\n\nCongratulations! Please find the attached  certificates of participation for your team ${
         team.teamName
       }.\n\nBest regards,\nHackAbhigna Team`,
       html: `<p>Dear ${
