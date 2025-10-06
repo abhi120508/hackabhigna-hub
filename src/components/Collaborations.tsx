@@ -77,57 +77,63 @@ export const Collaborations = () => {
         <div className="relative -mx-4 sm:-mx-6">
           <div className="hidden sm:block">
             <Carousel
-            ref={carouselRef}
-            className="w-full"
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-          >
-            <CarouselContent className="-ml-4">
-              {collaborations.map((collab, index) => (
-                <CarouselItem key={index} className="basis-full pl-4">
-                  <div className="relative h-[360px] sm:h-[420px] md:h-[480px] lg:h-[520px] rounded-3xl overflow-hidden shadow-2xl">
-                    {/* Semi-transparent background (keep badge visible) */}
-                    <div className="absolute inset-0 bg-black/40 rounded-3xl backdrop-blur-sm" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent rounded-3xl pointer-events-none" />
-                    {/* Company Logo (foreground) */}
-                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30">
-                      <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 flex items-center justify-center border border-white/20 shadow-md backdrop-blur-sm ${collab.logoBg || 'bg-white/10'}`}>
-                        <img
-                          src={collab.logo || collab.image}
-                          alt={`${collab.name} logo`}
-                          className={`w-full h-full ${collab.imgClass || 'object-contain'} rounded-full`}
-                        />
+              ref={carouselRef}
+              className="w-full"
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+            >
+              <CarouselContent className="-ml-4">
+                {collaborations.map((collab, index) => (
+                  <CarouselItem key={index} className="basis-full pl-4">
+                    <div className="relative h-[360px] sm:h-[420px] md:h-[480px] lg:h-[520px] rounded-3xl overflow-hidden shadow-2xl">
+                      {/* Semi-transparent background (keep badge visible) */}
+                      <div className="absolute inset-0 bg-black/40 rounded-3xl backdrop-blur-sm" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent rounded-3xl pointer-events-none" />
+                      {/* Company Logo (foreground) */}
+                      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30">
+                        <div
+                          className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 flex items-center justify-center border border-white/20 shadow-md backdrop-blur-sm ${
+                            collab.logoBg || "bg-white/10"
+                          }`}
+                        >
+                          <img
+                            src={collab.logo || collab.image}
+                            alt={`${collab.name} logo`}
+                            className={`w-full h-full ${
+                              collab.imgClass || "object-contain"
+                            } rounded-full`}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Company Name at Top Center (moved down to avoid overlap with logo) */}
+                      <div className="absolute top-24 sm:top-28 left-1/2 transform -translate-x-1/2 text-center z-20 px-4">
+                        <h3 className="text-base sm:text-xl lg:text-3xl font-bold text-white drop-shadow-2xl">
+                          {collab.name}
+                        </h3>
+                      </div>
+                      {/* Description positioned closer under the title to avoid large empty space */}
+                      <div className="absolute left-3 right-3 z-10 top-36 sm:top-40 md:top-44 lg:top-48">
+                        <div className="bg-black/40 backdrop-blur-md rounded-2xl p-3 sm:p-5 text-white border border-white/10 max-h-[40vh] md:max-h-[34vh] overflow-y-auto">
+                          <p className="text-sm sm:text-base lg:text-lg leading-relaxed">
+                            {collab.description}
+                          </p>
+                          {/* role / more info removed as requested */}
+                        </div>
+                      </div>
+                      <CarouselPrevious className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/50 text-white rounded-full w-8 h-8 sm:w-9 sm:h-9 lg:w-12 lg:h-12 shadow-lg z-20 flex items-center justify-center" />
+                      <CarouselNext className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/50 text-white rounded-full w-8 h-8 sm:w-9 sm:h-9 lg:w-12 lg:h-12 shadow-lg z-20 flex items-center justify-center" />
+
+                      {/* Pagination dots - centered at bottom */}
+                      <div className="absolute left-1/2 -translate-x-1/2 bottom-4 z-30">
+                        <CarouselDots />
                       </div>
                     </div>
-
-                    {/* Company Name at Top Center (moved down to avoid overlap with logo) */}
-                    <div className="absolute top-24 sm:top-28 left-1/2 transform -translate-x-1/2 text-center z-20 px-4">
-                      <h3 className="text-base sm:text-xl lg:text-3xl font-bold text-white drop-shadow-2xl">
-                        {collab.name}
-                      </h3>
-                    </div>
-                    {/* Description positioned closer under the title to avoid large empty space */}
-                    <div className="absolute left-3 right-3 z-10 top-36 sm:top-40 md:top-44 lg:top-48">
-                      <div className="bg-black/40 backdrop-blur-md rounded-2xl p-3 sm:p-5 text-white border border-white/10 max-h-[40vh] md:max-h-[34vh] overflow-y-auto">
-                        <p className="text-sm sm:text-base lg:text-lg leading-relaxed">
-                          {collab.description}
-                        </p>
-                        {/* role / more info removed as requested */}
-                      </div>
-                    </div>
-                    <CarouselPrevious className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/50 text-white rounded-full w-8 h-8 sm:w-9 sm:h-9 lg:w-12 lg:h-12 shadow-lg z-20 flex items-center justify-center" />
-                    <CarouselNext className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/50 text-white rounded-full w-8 h-8 sm:w-9 sm:h-9 lg:w-12 lg:h-12 shadow-lg z-20 flex items-center justify-center" />
-
-                    {/* Pagination dots - centered at bottom */}
-                    <div className="absolute left-1/2 -translate-x-1/2 bottom-4 z-30">
-                      <CarouselDots />
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
             </Carousel>
           </div>
 
@@ -135,13 +141,30 @@ export const Collaborations = () => {
           <div className="block sm:hidden px-4">
             <div className="space-y-6">
               {collaborations.map((collab, i) => (
-                <div key={i} className="rounded-3xl bg-black/40 backdrop-blur-sm p-6">
+                <div
+                  key={i}
+                  className="rounded-3xl bg-black/40 backdrop-blur-sm p-6"
+                >
                   <div className="flex flex-col items-center text-center gap-4">
-                    <div className={`w-16 h-16 rounded-full overflow-hidden border border-white/20 flex items-center justify-center ${collab.logoBg || 'bg-white/10'}`}>
-                      <img src={collab.logo || collab.image} alt={`${collab.name} logo`} className={`w-full h-full ${collab.imgClass || 'object-contain'}`} />
+                    <div
+                      className={`w-16 h-16 rounded-full overflow-hidden border border-white/20 flex items-center justify-center ${
+                        collab.logoBg || "bg-white/10"
+                      }`}
+                    >
+                      <img
+                        src={collab.logo || collab.image}
+                        alt={`${collab.name} logo`}
+                        className={`w-full h-full ${
+                          collab.imgClass || "object-contain"
+                        }`}
+                      />
                     </div>
-                    <h3 className="text-lg font-bold text-white">{collab.name}</h3>
-                    <p className="text-sm text-white/90">{collab.description}</p>
+                    <h3 className="text-lg font-bold text-white">
+                      {collab.name}
+                    </h3>
+                    <p className="text-sm text-white/90">
+                      {collab.description}
+                    </p>
                   </div>
                 </div>
               ))}
