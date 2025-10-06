@@ -57,7 +57,11 @@ function runPdflatex(tmpDir, pdflatexBin = "pdflatex") {
   }
 }
 
-function generateWithLaTeX(participantName, teamName, pdflatexBin = "pdflatex") {
+function generateWithLaTeX(
+  participantName,
+  teamName,
+  pdflatexBin = "pdflatex"
+) {
   const templatePath = path.join(__dirname, "templates", "certificate.tex");
   if (!fs.existsSync(templatePath))
     throw new Error("LaTeX template not found: " + templatePath);
@@ -88,7 +92,7 @@ function generateWithPdfKit(participantName, teamName) {
     const doc = new PDFDocument({
       size: "A4",
       layout: "landscape",
-      margin: 48,
+      margin: 36,
     });
     const bufs = [];
     doc.on("data", (b) => bufs.push(b));
@@ -96,76 +100,127 @@ function generateWithPdfKit(participantName, teamName) {
     doc.on("error", reject);
 
     const assets = path.join(__dirname, "..", "public", "certificate");
+    // Draw background image if present
     try {
-      const logo = path.join(assets, "logo.png");
-      if (fs.existsSync(logo)) {
-        doc.image(logo, doc.page.width / 4, doc.page.height / 6, {
-          width: doc.page.width / 2,
-          opacity: 0.08,
-        });
+      const bg = path.join(assets, "background.png");
+      if (fs.existsSync(bg)) {
+        doc.image(bg, 0, 0, { width: doc.page.width, height: doc.page.height });
       }
     } catch (e) {}
 
+    // Header logos (left, right)
+    try {
+      const left = path.join(assets, "Swamiji1-modified.png");
+      const right = path.join(assets, "Swamiji2-modified.png");
+      const logoH = 80;
+      if (fs.existsSync(left)) doc.image(left, 40, 30, { height: logoH });
+      if (fs.existsSync(right))
+        doc.image(right, doc.page.width - 40 - logoH, 30, { height: logoH });
+    } catch (e) {}
+
+    // Watermark / center logo (faint)
+    try {
+      const logo = path.join(assets, "logo.png");
+      if (fs.existsSync(logo)) {
+        const w = doc.page.width * 0.45;
+        const x = (doc.page.width - w) / 2;
+        const y = doc.page.height * 0.28;
+        doc.opacity(0.08);
+        doc.image(logo, x, y, { width: w });
+        doc.opacity(1);
+      }
+    } catch (e) {}
+
+    // Title
     doc
       .fillColor("#0b663e")
-      .fontSize(34)
-      .text("Certificate of Participation", { align: "center" });
-    doc.moveDown(1);
+      .fontSize(44)
+      .font("Helvetica-Bold")
+      .text("CERTIFICATE", { align: "center" });
+    doc.moveDown(0.1);
+    doc
+      .fontSize(20)
+      .font("Helvetica")
+      .text("OF PARTICIPATION", { align: "center" });
+    doc.moveDown(1.2);
+
+    // Participant name
     doc
       .fillColor("black")
-      .fontSize(28)
+      .fontSize(30)
+      .font("Helvetica-Bold")
       .text(participantName, { align: "center" });
-    doc.moveDown(0.5);
-    doc.fontSize(14).text(`Team: ${teamName}`, { align: "center" });
-    doc.moveDown(1);
-    doc.fontSize(16).text("Congratulations on participating in HackAbhigna!", {
-      align: "center",
-    });
-
-    // signatures
-    const sigY = doc.page.height - 120;
-    const colW = 180;
+    doc.moveDown(0.3);
     doc
-      .moveTo(80, sigY)
-      .lineTo(80 + colW, sigY)
-      .stroke();
-    doc.text(
-      "Dr. Pushpa Ravikumar\nProfessor & Head, Dept. of CS&E\nAIT, Chikkamagaluru",
-      80,
-      sigY + 6,
-      {
-        width: colW,
-        align: "center",
-      }
-    );
-
+      .fontSize(14)
+      .font("Helvetica")
+      .text(`Team: ${teamName}`, { align: "center" });
+    doc.moveDown(0.6);
     doc
-      .moveTo(doc.page.width / 2 - colW / 2, sigY)
-      .lineTo(doc.page.width / 2 + colW / 2, sigY)
-      .stroke();
-    doc.text(
-      "Dr. C. T Jayadeva\nPrincipal\nAIT, Chikkamagaluru",
-      doc.page.width / 2 - colW / 2,
-      sigY + 6,
-      {
-        width: colW,
-        align: "center",
-      }
-    );
+      .fontSize(16)
+      .text(
+        "This is to certify that the above participant has taken part in HACKABHIGNA.",
+        { align: "center" }
+      );
 
-    doc
-      .moveTo(doc.page.width - 80 - colW, sigY)
-      .lineTo(doc.page.width - 80, sigY)
-      .stroke();
-    doc.text(
-      "Dr. C. K Subbaraya\nDirector, AIT\nRegister, ACU",
-      doc.page.width - 80 - colW,
-      sigY + 6,
-      {
-        width: colW,
-        align: "center",
+    // Sponsor logos row
+    try {
+      const logos = ["google gemini logo.png", "streamz.png", "environ.jpg"];
+      const logoSize = 50;
+      const totalWidth = logos.length * logoSize + (logos.length - 1) * 30;
+      let startX = (doc.page.width - totalWidth) / 2;
+      const y = doc.y + 20;
+      for (const ln of logos) {
+        const p = path.join(assets, ln);
+        if (fs.existsSync(p)) {
+          doc.image(p, startX, y, { height: logoSize });
+        }
+        startX += logoSize + 30;
       }
-    );
+      doc.moveDown(4);
+    } catch (e) {}
+
+    // Signature block (three columns with multi-line labels)
+    {
+      const sigY2 = doc.page.height - 120;
+      const colW2 = 180;
+      const leftColX = 80;
+      const centerColX = doc.page.width / 2 - colW2 / 2;
+      const rightColX = doc.page.width - 80 - colW2;
+
+      doc
+        .moveTo(leftColX, sigY2)
+        .lineTo(leftColX + colW2, sigY2)
+        .stroke();
+      doc.text(
+        "Dr. Pushpa Ravikumar\nProfessor & Head, Dept. of CS&E\nAIT, Chikkamagaluru",
+        leftColX,
+        sigY2 + 6,
+        { width: colW2, align: "center" }
+      );
+
+      doc
+        .moveTo(centerColX, sigY2)
+        .lineTo(centerColX + colW2, sigY2)
+        .stroke();
+      doc.text(
+        "Dr. C. T Jayadeva\nPrincipal\nAIT, Chikkamagaluru",
+        centerColX,
+        sigY2 + 6,
+        { width: colW2, align: "center" }
+      );
+
+      doc
+        .moveTo(rightColX, sigY2)
+        .lineTo(rightColX + colW2, sigY2)
+        .stroke();
+      doc.text(
+        "Dr. C. K Subbaraya\nDirector, AIT\nRegister, ACU",
+        rightColX,
+        sigY2 + 6,
+        { width: colW2, align: "center" }
+      );
+    }
 
     doc.end();
   });
@@ -190,7 +245,11 @@ async function findPdflatex() {
   );
 
   // POSIX locations
-  candidates.push("/usr/bin/pdflatex", "/usr/local/bin/pdflatex", "/Library/TeX/texbin/pdflatex");
+  candidates.push(
+    "/usr/bin/pdflatex",
+    "/usr/local/bin/pdflatex",
+    "/Library/TeX/texbin/pdflatex"
+  );
 
   for (const p of candidates) {
     try {
@@ -225,11 +284,16 @@ async function generateCertificatePDF(participantName, teamName) {
       console.log("certificateGenerator: used pdflatex at", pdflatexPath);
       return { buffer: buf, method: "latex", pdflatexPath };
     } catch (e) {
-      console.error("certificateGenerator: pdflatex generation failed:", e && (e.message || e));
+      console.error(
+        "certificateGenerator: pdflatex generation failed:",
+        e && (e.message || e)
+      );
       // fallthrough to pdfkit
     }
   } else {
-    console.log("certificateGenerator: pdflatex not found, falling back to pdfkit");
+    console.log(
+      "certificateGenerator: pdflatex not found, falling back to pdfkit"
+    );
   }
 
   const buf = await generateWithPdfKit(participantName, teamName);

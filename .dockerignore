@@ -1,0 +1,8 @@
+node_modules
+.git
+.github
+dist
+build
+.env
+server/test-cert.pdf
+*.log

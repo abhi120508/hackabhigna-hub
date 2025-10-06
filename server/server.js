@@ -745,12 +745,10 @@ app.post("/teams/:id/issue-certificates", async (req, res) => {
         });
       } catch (e) {
         console.error("Certificate generation failed for", p.name, e);
-        return res
-          .status(500)
-          .json({
-            message: `Failed to generate certificate for ${p.name}`,
-            error: e.message,
-          });
+        return res.status(500).json({
+          message: `Failed to generate certificate for ${p.name}`,
+          error: e.message,
+        });
       }
     }
 
