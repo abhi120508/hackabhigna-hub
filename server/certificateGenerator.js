@@ -30,11 +30,11 @@ function copyPublicCertificateAssets(dst) {
   }
 }
 
-function runPdflatex(tmpDir) {
+function runPdflatex(tmpDir, pdflatexBin = "pdflatex") {
   const opts = { cwd: tmpDir, timeout: 30000 };
   const run = () =>
     spawnSync(
-      "pdflatex",
+      pdflatexBin,
       ["-interaction=nonstopmode", "-halt-on-error", "main.tex"],
       opts
     );
@@ -57,7 +57,7 @@ function runPdflatex(tmpDir) {
   }
 }
 
-function generateWithLaTeX(participantName, teamName) {
+function generateWithLaTeX(participantName, teamName, pdflatexBin = "pdflatex") {
   const templatePath = path.join(__dirname, "templates", "certificate.tex");
   if (!fs.existsSync(templatePath))
     throw new Error("LaTeX template not found: " + templatePath);
@@ -70,7 +70,7 @@ function generateWithLaTeX(participantName, teamName) {
   try {
     fs.writeFileSync(path.join(tmp, "main.tex"), tex, "utf8");
     copyPublicCertificateAssets(tmp);
-    runPdflatex(tmp);
+    runPdflatex(tmp, pdflatexBin);
     const pdfPath = path.join(tmp, "main.pdf");
     if (!fs.existsSync(pdfPath))
       throw new Error("PDF not produced by pdflatex");
@@ -174,21 +174,66 @@ function generateWithPdfKit(participantName, teamName) {
 /**
  * Generate PDF buffer: prefer pdflatex when available unless FORCE_PDFKIT env forces fallback.
  */
+async function findPdflatex() {
+  // allow override via env
+  const envPath = process.env.PDFLATEX_PATH || process.env.PDFLATEX_BIN;
+  const candidates = [];
+  if (envPath) candidates.push(envPath);
+
+  // Common Windows MiKTeX locations
+  candidates.push(
+    "C:/Program Files/MiKTeX/miktex/bin/x64/pdflatex.exe",
+    "C:/Program Files/MiKTeX/miktex/bin/pdflatex.exe",
+    "C:/Program Files/MiKTeX 2.9/miktex/bin/x64/pdflatex.exe",
+    "C:/Program Files/texlive/2023/bin/win32/pdflatex.exe",
+    "C:/texlive/2023/bin/win32/pdflatex.exe"
+  );
+
+  // POSIX locations
+  candidates.push("/usr/bin/pdflatex", "/usr/local/bin/pdflatex", "/Library/TeX/texbin/pdflatex");
+
+  for (const p of candidates) {
+    try {
+      if (p && fs.existsSync(p)) return p;
+    } catch (e) {}
+  }
+
+  // last resort: try running plain pdflatex on PATH
+  try {
+    const check = spawnSync("pdflatex", ["--version"], { timeout: 3000 });
+    if (check.status === 0) return "pdflatex";
+  } catch (e) {}
+  return null;
+}
+
+/**
+ * Generate PDF buffer: prefer pdflatex when available unless FORCE_PDFKIT env forces fallback.
+ * Returns an object { buffer: Buffer, method: 'latex'|'pdfkit', pdflatexPath?: string }
+ */
 async function generateCertificatePDF(participantName, teamName) {
   const forcePdfKit =
     process.env.FORCE_PDFKIT === "1" || process.env.FORCE_PDFKIT === "true";
   if (forcePdfKit) {
-    return await generateWithPdfKit(participantName, teamName);
+    const buf = await generateWithPdfKit(participantName, teamName);
+    return { buffer: buf, method: "pdfkit" };
   }
-  try {
-    const check = spawnSync("pdflatex", ["--version"], { timeout: 3000 });
-    if (check.status === 0) {
-      return generateWithLaTeX(participantName, teamName);
+
+  const pdflatexPath = await findPdflatex();
+  if (pdflatexPath) {
+    try {
+      const buf = generateWithLaTeX(participantName, teamName, pdflatexPath);
+      console.log("certificateGenerator: used pdflatex at", pdflatexPath);
+      return { buffer: buf, method: "latex", pdflatexPath };
+    } catch (e) {
+      console.error("certificateGenerator: pdflatex generation failed:", e && (e.message || e));
+      // fallthrough to pdfkit
     }
-  } catch (e) {
-    // ignore and fallback
+  } else {
+    console.log("certificateGenerator: pdflatex not found, falling back to pdfkit");
   }
-  return await generateWithPdfKit(participantName, teamName);
+
+  const buf = await generateWithPdfKit(participantName, teamName);
+  return { buffer: buf, method: "pdfkit" };
 }
 
 module.exports = { generateCertificatePDF };

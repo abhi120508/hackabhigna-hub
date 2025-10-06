@@ -729,15 +729,19 @@ app.post("/teams/:id/issue-certificates", async (req, res) => {
 
     for (const p of team.participants) {
       try {
-        const buf = await generateCertificatePDF(p.name, team.teamName);
+        const result = await generateCertificatePDF(p.name, team.teamName);
+        // result may be { buffer, method, pdflatexPath }
+        const buf = result && result.buffer ? result.buffer : result;
+        const method = result && result.method ? result.method : "unknown";
         console.log(
-          `Generated certificate for ${p.name}, bytes: ${buf.length}`
+          `Generated certificate for ${p.name}, bytes: ${buf.length}, method: ${method}`
         );
         attachments.push({
           filename: `${sanitizeFilename(p.name)}.pdf`,
           content: buf.toString("base64"),
           type: "application/pdf",
           disposition: "attachment",
+          _generationMethod: method,
         });
       } catch (e) {
         console.error("Certificate generation failed for", p.name, e);
@@ -757,6 +761,7 @@ app.post("/teams/:id/issue-certificates", async (req, res) => {
         attachments: attachments.map((a) => ({
           filename: a.filename,
           content: a.content,
+          generationMethod: a._generationMethod || null,
         })),
       });
     }
