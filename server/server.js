@@ -706,7 +706,7 @@ app.post("/regenerate-qr-codes", async (req, res) => {
   }
 });
 
-// Issue certificates for a given team: generate one PDF with a page per participant and email to team leader
+// Issue certificates for a given team: generate one PDF per participant and email to team leader
 app.post("/teams/:id/issue-certificates", async (req, res) => {
   try {
     const { id } = req.params;
@@ -715,35 +715,9 @@ app.post("/teams/:id/issue-certificates", async (req, res) => {
       return res.status(404).json({ message: "Team not found." });
     }
 
-    // Use pdfmake to generate separate PDFs per participant and attach each as individual files
-    const PdfPrinter = require("pdfmake");
+    const { generateCertificatePDF } = require("./certificateGenerator");
 
-    const fonts = {
-      Roboto: {
-        normal: "Helvetica",
-        bold: "Helvetica",
-        italics: "Helvetica",
-        bolditalics: "Helvetica",
-      },
-    };
-
-    // Helper to generate a PDF buffer from a docDefinition using a fresh PdfPrinter per call
-    const generatePdfBuffer = (docDefinition) =>
-      new Promise((resolve, reject) => {
-        try {
-          const localPrinter = new PdfPrinter(fonts);
-          const pdfDoc = localPrinter.createPdfKitDocument(docDefinition);
-          const chunks = [];
-          pdfDoc.on("data", (chunk) => chunks.push(chunk));
-          pdfDoc.on("end", () => resolve(Buffer.concat(chunks)));
-          pdfDoc.on("error", (e) => reject(e));
-          pdfDoc.end();
-        } catch (e) {
-          reject(e);
-        }
-      });
-
-    // Sanitize filename
+    // Sanitize filename helper
     const sanitizeFilename = (name) =>
       String(name)
         .trim()
@@ -751,63 +725,14 @@ app.post("/teams/:id/issue-certificates", async (req, res) => {
         .replace(/_+/g, "_")
         .substring(0, 120);
 
-    // Generate PDFs for each participant
     const attachments = [];
-    for (const p of team.participants) {
-      const docDefinition = {
-        content: [
-          {
-            text: "Certificate of Participation",
-            style: "title",
-            alignment: "center",
-            margin: [0, 40, 0, 20],
-          },
-          {
-            text: p.name,
-            style: "name",
-            alignment: "center",
-            margin: [0, 0, 0, 8],
-          },
-          {
-            text: `Team: ${team.teamName}`,
-            style: "team",
-            alignment: "center",
-            margin: [0, 0, 0, 4],
-          },
-          {
-            text: `Domain: ${team.domain}`,
-            style: "team",
-            alignment: "center",
-            margin: [0, 0, 0, 20],
-          },
-          {
-            text: "Congratulations on participating in HackAbhigna!",
-            style: "note",
-            alignment: "center",
-            margin: [40, 0, 40, 0],
-          },
-          {
-            text: `Date: ${new Date().toLocaleDateString()}`,
-            style: "date",
-            alignment: "right",
-            margin: [0, 40, 40, 0],
-          },
-        ],
-        styles: {
-          title: { fontSize: 26, bold: true, color: "#1B5E20" },
-          name: { fontSize: 20, bold: true },
-          team: { fontSize: 12, color: "#444" },
-          note: { fontSize: 14 },
-          date: { fontSize: 10, color: "#666" },
-        },
-        defaultStyle: { font: "Roboto" },
-        pageSize: "A4",
-        pageMargins: [40, 60, 40, 60],
-      };
 
+    for (const p of team.participants) {
       try {
-        const buf = await generatePdfBuffer(docDefinition);
-        console.log(`Generated PDF for ${p.name}, bytes: ${buf.length}`);
+        const buf = await generateCertificatePDF(p.name, team.teamName);
+        console.log(
+          `Generated certificate for ${p.name}, bytes: ${buf.length}`
+        );
         attachments.push({
           filename: `${sanitizeFilename(p.name)}.pdf`,
           content: buf.toString("base64"),
@@ -815,18 +740,18 @@ app.post("/teams/:id/issue-certificates", async (req, res) => {
           disposition: "attachment",
         });
       } catch (e) {
-        console.error("Error generating PDF for", p.name, e);
+        console.error("Certificate generation failed for", p.name, e);
         return res
           .status(500)
-          .json({ message: `Failed to generate PDF for ${p.name}` });
+          .json({
+            message: `Failed to generate certificate for ${p.name}`,
+            error: e.message,
+          });
       }
     }
 
-    // If debug query param is set, return generated PDFs as base64 in JSON for inspection
+    // Debug mode: return base64 blobs for inspection
     if (String(req.query.debug) === "1") {
-      console.log(
-        "Debug mode: returning generated PDFs instead of sending email"
-      );
       return res.json({
         message: "debug-pdfs",
         attachments: attachments.map((a) => ({
@@ -836,7 +761,6 @@ app.post("/teams/:id/issue-certificates", async (req, res) => {
       });
     }
 
-    // Prepare email
     const leaderEmail = team.participants[team.leaderIndex]?.email;
     const leaderName = team.participants[team.leaderIndex]?.name;
 
@@ -846,7 +770,7 @@ app.post("/teams/:id/issue-certificates", async (req, res) => {
       subject: `HackAbhigna - Certificates for ${team.teamName}`,
       text: `Dear ${
         leaderName || "Participant"
-      },\n\nCongratulations! Please find the attached  certificates of participation for your team ${
+      },\n\nCongratulations! Please find the attached certificates of participation for your team ${
         team.teamName
       }.\n\nBest regards,\nHackAbhigna Team`,
       html: `<p>Dear ${
