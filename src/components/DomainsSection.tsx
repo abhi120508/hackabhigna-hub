@@ -340,7 +340,7 @@ export function DomainsSection() {
                         <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mt-2">
                           <p className="text-sm text-blue-800">
                             <strong>Note:</strong> The one on-spot Problem
-                            Statement will be giving on the Hackathon Day by
+                            Statement will be given on the Hackathon Day by
                             Environ India
                           </p>
                         </div>
