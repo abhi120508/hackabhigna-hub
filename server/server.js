@@ -84,6 +84,8 @@ const domainSettingsSchema = new mongoose.Schema({
   domain: { type: String, required: true, unique: true },
   maxSlots: { type: Number, default: 50 },
   pausedRegistrations: { type: Boolean, default: false },
+  // lastAssignedSerial keeps an atomic counter for team serials per-domain
+  lastAssignedSerial: { type: Number, default: 0 },
 });
 
 const globalSettingsSchema = new mongoose.Schema({
@@ -139,8 +141,17 @@ const extractDomainName = (fullDomain) => {
 const generateUniqueId = async (domain, teamName) => {
   const domainName = extractDomainName(domain);
   const teamPrefix = teamName.substring(0, 2).toUpperCase();
-  const count = await Team.countDocuments({ domain });
-  const number = String(count + 1).padStart(3, "0");
+
+  // Atomically increment and retrieve the lastAssignedSerial for this domain
+  // stored in DomainSettings to avoid race conditions on concurrent approvals.
+  const updated = await DomainSettings.findOneAndUpdate(
+    { domain },
+    { $inc: { lastAssignedSerial: 1 } },
+    { new: true, upsert: true }
+  );
+
+  const seq = (updated && updated.lastAssignedSerial) || 1;
+  const number = String(seq).padStart(3, "0");
   return `${domainName}${teamPrefix}${number}`;
 };
 
@@ -706,6 +717,23 @@ app.post("/regenerate-qr-codes", async (req, res) => {
   }
 });
 
+// Health endpoint for certificate generator (doesn't generate PDFs)
+app.get("/health/cert-generator", async (req, res) => {
+  try {
+    const { findPdflatex } = require("./certificateGenerator");
+    const pdflatexPath = await findPdflatex();
+    const prefer =
+      process.env.FORCE_PDFKIT === "1" || process.env.FORCE_PDFKIT === "true"
+        ? "pdfkit (forced)"
+        : pdflatexPath
+        ? "latex"
+        : "pdfkit (fallback)";
+    return res.json({ pdflatexPath: pdflatexPath || null, generator: prefer });
+  } catch (e) {
+    return res.status(500).json({ error: e.message || String(e) });
+  }
+});
+
 // Issue certificates for a given team: generate one PDF per participant and email to team leader
 app.post("/teams/:id/issue-certificates", async (req, res) => {
   try {
@@ -814,6 +842,7 @@ const initializeDomainSettings = async () => {
       domain,
       maxSlots: domain.includes("Wildcard") ? 20 : 40,
       pausedRegistrations: false,
+      lastAssignedSerial: 0,
     });
   }
   // Remove other domains that are not in the present 3
@@ -823,6 +852,28 @@ const initializeDomainSettings = async () => {
   // After creation, log current domain settings for debugging
   const allSettings = await DomainSettings.find();
   console.log("Initialized Domain Settings:", allSettings);
+  // Backfill lastAssignedSerial from existing teams (in case there are pre-existing teams)
+  for (const s of allSettings) {
+    try {
+      const domain = s.domain;
+      // teamCode format expected: <DOMAIN_PREFIX><TEAM_PREFIX><NNN>
+      const teams = await Team.find({ domain, teamCode: { $exists: true, $ne: null } });
+      let maxSerial = 0;
+      for (const t of teams) {
+        const code = (t.teamCode || "").trim();
+        const numPart = code.slice(-3); // last 3 chars
+        const n = parseInt(numPart, 10);
+        if (!Number.isNaN(n) && n > maxSerial) maxSerial = n;
+      }
+      if (maxSerial > 0) {
+        s.lastAssignedSerial = maxSerial;
+        await s.save();
+        console.log(`Backfilled lastAssignedSerial for ${domain} -> ${maxSerial}`);
+      }
+    } catch (e) {
+      console.error("Error backfilling lastAssignedSerial for domain", s.domain, e && e.message);
+    }
+  }
 };
 
 const initializeGlobalSettings = async () => {

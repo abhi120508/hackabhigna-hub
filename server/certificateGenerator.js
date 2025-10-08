@@ -300,4 +300,4 @@ async function generateCertificatePDF(participantName, teamName) {
   return { buffer: buf, method: "pdfkit" };
 }
 
-module.exports = { generateCertificatePDF };
+module.exports = { generateCertificatePDF, findPdflatex };
