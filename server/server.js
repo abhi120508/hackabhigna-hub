@@ -840,7 +840,7 @@ const initializeDomainSettings = async () => {
   for (const domain of domains) {
     await DomainSettings.create({
       domain,
-      maxSlots: domain.includes("Wildcard") ? 20 : 40,
+      maxSlots: domain.includes("Wildcard") ? 21 : 41,
       pausedRegistrations: false,
       lastAssignedSerial: 0,
     });
@@ -857,7 +857,10 @@ const initializeDomainSettings = async () => {
     try {
       const domain = s.domain;
       // teamCode format expected: <DOMAIN_PREFIX><TEAM_PREFIX><NNN>
-      const teams = await Team.find({ domain, teamCode: { $exists: true, $ne: null } });
+      const teams = await Team.find({
+        domain,
+        teamCode: { $exists: true, $ne: null },
+      });
       let maxSerial = 0;
       for (const t of teams) {
         const code = (t.teamCode || "").trim();
@@ -868,10 +871,16 @@ const initializeDomainSettings = async () => {
       if (maxSerial > 0) {
         s.lastAssignedSerial = maxSerial;
         await s.save();
-        console.log(`Backfilled lastAssignedSerial for ${domain} -> ${maxSerial}`);
+        console.log(
+          `Backfilled lastAssignedSerial for ${domain} -> ${maxSerial}`
+        );
       }
     } catch (e) {
-      console.error("Error backfilling lastAssignedSerial for domain", s.domain, e && e.message);
+      console.error(
+        "Error backfilling lastAssignedSerial for domain",
+        s.domain,
+        e && e.message
+      );
     }
   }
 };
