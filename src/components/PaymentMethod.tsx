@@ -8,10 +8,10 @@ import { toast } from "@/hooks/use-toast";
 
 export function PaymentMethod() {
   const accountDetails = {
-    accountNumber: "64185686568",
-    ifscCode: "SBIN0016280",
-    accountHolderName: "THE PRINCIPAL A I T CHIKKAMAGALURU",
-    registrationFee: "₹1,000"
+    accountNumber: "",
+    ifscCode: "",
+    accountHolderName: "",
+    registrationFee: "₹1,000",
   };
 
   const copyToClipboard = async (text: string, label: string) => {
@@ -38,14 +38,16 @@ export function PaymentMethod() {
         {/* Registration Fee */}
         <div className="text-center">
           <h3 className="text-2xl font-bold mb-2" style={{ color: "#60a5fa" }}>
-            Registration Fee: {accountDetails.registrationFee}
+            Registration Fee:(closed) {accountDetails.registrationFee}
           </h3>
         </div>
 
         {/* Account Details */}
         <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-center">Bank Account Details</h4>
-          
+          <h4 className="text-lg font-semibold text-center">
+            Bank Account Details
+          </h4>
+
           {/* Account Holder Name */}
           <div className="space-y-2">
             <Label htmlFor="accountHolder">Account Holder Name</Label>
@@ -57,7 +59,12 @@ export function PaymentMethod() {
                 className="bg-muted/50"
               />
               <Button
-                onClick={() => copyToClipboard(accountDetails.accountHolderName, "Account Holder Name")}
+                onClick={() =>
+                  copyToClipboard(
+                    accountDetails.accountHolderName,
+                    "Account Holder Name"
+                  )
+                }
                 size="sm"
                 variant="outline"
               >
@@ -77,7 +84,12 @@ export function PaymentMethod() {
                 className="bg-muted/50"
               />
               <Button
-                onClick={() => copyToClipboard(accountDetails.accountNumber, "Account Number")}
+                onClick={() =>
+                  copyToClipboard(
+                    accountDetails.accountNumber,
+                    "Account Number"
+                  )
+                }
                 size="sm"
                 variant="outline"
               >
@@ -97,7 +109,9 @@ export function PaymentMethod() {
                 className="bg-muted/50"
               />
               <Button
-                onClick={() => copyToClipboard(accountDetails.ifscCode, "IFSC Code")}
+                onClick={() =>
+                  copyToClipboard(accountDetails.ifscCode, "IFSC Code")
+                }
                 size="sm"
                 variant="outline"
               >
@@ -109,14 +123,16 @@ export function PaymentMethod() {
 
         {/* QR Code Display */}
         <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-center">Scan QR Code to Pay</h4>
-          
+          <h4 className="text-lg font-semibold text-center">
+            Scan QR Code to Pay
+          </h4>
+
           <div className="text-center">
             <p className="text-sm text-muted-foreground mb-4">
               Scan this QR code with your payment app to pay ₹1,000
             </p>
             <img
-              src="/images/payment-qr.jpg"
+              src="/images/payment.jpg"
               alt="Payment QR Code"
               className="max-w-xs mx-auto rounded-lg border-2 border-white/20"
               onError={(e) => {
@@ -124,7 +140,8 @@ export function PaymentMethod() {
                 target.style.display = "none";
                 const parent = target.parentElement;
                 if (parent) {
-                  parent.innerHTML = '<p class="text-muted-foreground">QR Code will be uploaded soon</p>';
+                  parent.innerHTML =
+                    '<p class="text-muted-foreground">QR Code will be uploaded soon</p>';
                 }
               }}
             />
@@ -135,8 +152,9 @@ export function PaymentMethod() {
         <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
           <h5 className="font-semibold mb-2 text-blue-400">Important Note:</h5>
           <p className="text-sm text-muted-foreground">
-            After making the payment, please keep the screenshot of the payment confirmation 
-            and UTR number ready. You will need to submit these details during the registration process.
+            After making the payment, please keep the screenshot of the payment
+            confirmation and UTR number ready. You will need to submit these
+            details during the registration process.
           </p>
         </div>
       </CardContent>
