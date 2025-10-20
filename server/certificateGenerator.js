@@ -78,9 +78,9 @@ async function generateCertificatePDF(participantName, teamName) {
     .replace(/__PARTICIPANT__/g, escapeLaTeX(participantName))
     .replace(/__TEAM__/g, escapeLaTeX(teamName));
 
-  // Step 1: Upload .tex file to Aspose Storage
+  // Step 1: Upload .tex file to Aspose Storage (using v3.0 API)
   const uploadUrl =
-    "https://api.aspose.cloud/v4.0/storage/file/certificate.tex";
+    "https://api.aspose.cloud/v3.0/storage/file/certificate.tex";
   await retryApiCall(() =>
     axios.put(uploadUrl, latexContent, {
       headers: {
