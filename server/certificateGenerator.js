@@ -65,9 +65,6 @@ async function getAsposeAccessToken() {
  * Returns an object { buffer: Buffer, method: 'latex' }
  */
 async function generateCertificatePDF(participantName, teamName) {
-  // Get access token using client credentials
-  const accessToken = await getAsposeAccessToken();
-
   // Read LaTeX template and replace placeholders
   const templatePath = path.join(__dirname, "templates", "certificate.tex");
   if (!fs.existsSync(templatePath)) {
@@ -81,26 +78,28 @@ async function generateCertificatePDF(participantName, teamName) {
   // Step 1: Upload .tex file to Aspose Storage (using v3.0 API)
   const uploadUrl =
     "https://api.aspose.cloud/v3.0/storage/file/certificate.tex";
-  await retryApiCall(() =>
-    axios.put(uploadUrl, latexContent, {
+  await retryApiCall(async () => {
+    const accessToken = await getAsposeAccessToken();
+    return axios.put(uploadUrl, latexContent, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/octet-stream",
       },
-    })
-  );
+    });
+  });
 
   // Step 2: Convert .tex to .pdf
   const convertUrl =
     "https://api.aspose.cloud/v4.0/pdf/certificate.tex/convert";
-  const response = await retryApiCall(() =>
-    axios.get(convertUrl, {
+  const response = await retryApiCall(async () => {
+    const accessToken = await getAsposeAccessToken();
+    return axios.get(convertUrl, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
       responseType: "arraybuffer",
-    })
-  );
+    });
+  });
 
   if (!response.data) {
     throw new Error("No data received from LaTeX API");
