@@ -65,10 +65,6 @@ async function getAsposeAccessToken() {
  * Returns an object { buffer: Buffer, method: 'latex' }
  */
 async function generateCertificatePDF(participantName, teamName) {
-  const apiUrl =
-    process.env.CERTIFICATE_API_URL ||
-    "https://api.aspose.cloud/v4.0/pdf/create/latex";
-
   // Get access token using client credentials
   const accessToken = await getAsposeAccessToken();
 
@@ -82,20 +78,28 @@ async function generateCertificatePDF(participantName, teamName) {
     .replace(/__PARTICIPANT__/g, escapeLaTeX(participantName))
     .replace(/__TEAM__/g, escapeLaTeX(teamName));
 
-  const response = await retryApiCall(() =>
-    axios.post(
-      apiUrl,
-      {
-        latexContent: latexContent,
+  // Step 1: Upload .tex file to Aspose Storage
+  const uploadUrl =
+    "https://api.aspose.cloud/v4.0/storage/file/certificate.tex";
+  await retryApiCall(() =>
+    axios.put(uploadUrl, latexContent, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/octet-stream",
       },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        responseType: "arraybuffer",
-      }
-    )
+    })
+  );
+
+  // Step 2: Convert .tex to .pdf
+  const convertUrl =
+    "https://api.aspose.cloud/v4.0/pdf/certificate.tex/convert";
+  const response = await retryApiCall(() =>
+    axios.get(convertUrl, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      responseType: "arraybuffer",
+    })
   );
 
   if (!response.data) {
