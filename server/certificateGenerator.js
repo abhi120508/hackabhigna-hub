@@ -67,7 +67,7 @@ async function getAsposeAccessToken() {
 async function generateCertificatePDF(participantName, teamName) {
   const apiUrl =
     process.env.CERTIFICATE_API_URL ||
-    "https://api.aspose.cloud/v3.0/pdf/convert/latex";
+    "https://api.aspose.cloud/v4.0/pdf/create/latex";
 
   // Get access token using client credentials
   const accessToken = await getAsposeAccessToken();
@@ -86,7 +86,7 @@ async function generateCertificatePDF(participantName, teamName) {
     axios.post(
       apiUrl,
       {
-        LaTeXContent: latexContent,
+        latexContent: latexContent,
       },
       {
         headers: {
