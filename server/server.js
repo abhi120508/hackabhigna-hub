@@ -722,13 +722,19 @@ app.get("/health/cert-generator", async (req, res) => {
   try {
     const { findPdflatex } = require("./certificateGenerator");
     const pdflatexPath = await findPdflatex();
-    const prefer =
-      process.env.FORCE_PDFKIT === "1" || process.env.FORCE_PDFKIT === "true"
-        ? "pdfkit (forced)"
-        : pdflatexPath
-        ? "latex"
-        : "pdfkit (fallback)";
-    return res.json({ pdflatexPath: pdflatexPath || null, generator: prefer });
+    const apiKey = process.env.PDF_CO_API_KEY;
+    const prefer = apiKey
+      ? "api"
+      : process.env.FORCE_PDFKIT === "1" || process.env.FORCE_PDFKIT === "true"
+      ? "pdfkit (forced)"
+      : pdflatexPath
+      ? "latex"
+      : "pdfkit (fallback)";
+    return res.json({
+      pdflatexPath: pdflatexPath || null,
+      apiKeyConfigured: !!apiKey,
+      generator: prefer,
+    });
   } catch (e) {
     return res.status(500).json({ error: e.message || String(e) });
   }

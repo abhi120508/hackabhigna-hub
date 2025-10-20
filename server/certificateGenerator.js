@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { spawnSync } = require("child_process");
+const axios = require("axios");
 
 let PDFDocument;
 try {
@@ -235,13 +236,17 @@ async function findPdflatex() {
   const candidates = [];
   if (envPath) candidates.push(envPath);
 
-  // Common Windows MiKTeX locations
+  // Common Windows MiKTeX locations (add more paths)
   candidates.push(
     "C:/Program Files/MiKTeX/miktex/bin/x64/pdflatex.exe",
     "C:/Program Files/MiKTeX/miktex/bin/pdflatex.exe",
     "C:/Program Files/MiKTeX 2.9/miktex/bin/x64/pdflatex.exe",
     "C:/Program Files/texlive/2023/bin/win32/pdflatex.exe",
-    "C:/texlive/2023/bin/win32/pdflatex.exe"
+    "C:/texlive/2023/bin/win32/pdflatex.exe",
+    "C:/Program Files (x86)/MiKTeX/miktex/bin/pdflatex.exe",
+    "C:/Program Files (x86)/MiKTeX 2.9/miktex/bin/pdflatex.exe",
+    "C:/MiKTeX/miktex/bin/x64/pdflatex.exe",
+    "C:/MiKTeX/miktex/bin/pdflatex.exe"
   );
 
   // POSIX locations
@@ -253,49 +258,254 @@ async function findPdflatex() {
 
   for (const p of candidates) {
     try {
-      if (p && fs.existsSync(p)) return p;
+      if (p && fs.existsSync(p)) {
+        console.log("certificateGenerator: found pdflatex at", p);
+        return p;
+      }
     } catch (e) {}
   }
 
   // last resort: try running plain pdflatex on PATH
   try {
     const check = spawnSync("pdflatex", ["--version"], { timeout: 3000 });
-    if (check.status === 0) return "pdflatex";
+    if (check.status === 0) {
+      console.log("certificateGenerator: found pdflatex on PATH");
+      return "pdflatex";
+    }
   } catch (e) {}
+
+  console.log("certificateGenerator: pdflatex not found in any location");
   return null;
 }
 
 /**
- * Generate PDF buffer: prefer pdflatex when available unless FORCE_PDFKIT env forces fallback.
- * Returns an object { buffer: Buffer, method: 'latex'|'pdfkit', pdflatexPath?: string }
+ * Generate PDF buffer: prefer online LaTeX API, then local pdflatex, then HTML API, then pdfkit.
+ * Returns an object { buffer: Buffer, method: 'latex'|'api'|'pdfkit', pdflatexPath?: string }
  */
 async function generateCertificatePDF(participantName, teamName) {
   const forcePdfKit =
     process.env.FORCE_PDFKIT === "1" || process.env.FORCE_PDFKIT === "true";
-  if (forcePdfKit) {
-    const buf = await generateWithPdfKit(participantName, teamName);
-    return { buffer: buf, method: "pdfkit" };
+  const forceLatex =
+    process.env.FORCE_LATEX === "1" || process.env.FORCE_LATEX === "true";
+
+  // Try online LaTeX API first (prioritize online LaTeX)
+  if (!forcePdfKit) {
+    try {
+      const apiUrl =
+        process.env.CERTIFICATE_API_URL ||
+        "https://api.pdf.co/v1/pdf/generate/latex";
+      const apiKey = process.env.PDF_CO_API_KEY;
+
+      if (apiKey) {
+        // Read LaTeX template and replace placeholders
+        const templatePath = path.join(
+          __dirname,
+          "templates",
+          "certificate.tex"
+        );
+        if (!fs.existsSync(templatePath))
+          throw new Error("LaTeX template not found: " + templatePath);
+        const tpl = fs.readFileSync(templatePath, "utf8");
+        const latexContent = tpl
+          .replace(/__PARTICIPANT__/g, escapeLaTeX(participantName))
+          .replace(/__TEAM__/g, escapeLaTeX(teamName));
+
+        const response = await axios.post(
+          apiUrl,
+          {
+            latex: latexContent,
+            name: "certificate.pdf",
+          },
+          {
+            headers: {
+              "x-api-key": apiKey,
+              "Content-Type": "application/json",
+            },
+            responseType: "arraybuffer",
+          }
+        );
+
+        if (response.data) {
+          console.log("certificateGenerator: used online LaTeX API");
+          return { buffer: Buffer.from(response.data), method: "latex" };
+        }
+      }
+    } catch (e) {
+      console.error(
+        "certificateGenerator: online LaTeX API failed:",
+        e.message
+      );
+      if (forceLatex) {
+        throw e; // If forcing LaTeX, don't fallback
+      }
+      // fallthrough to local pdflatex
+    }
   }
 
+  // Check for local pdflatex second
   const pdflatexPath = await findPdflatex();
-  if (pdflatexPath) {
+  if (pdflatexPath && !forcePdfKit) {
     try {
       const buf = generateWithLaTeX(participantName, teamName, pdflatexPath);
-      console.log("certificateGenerator: used pdflatex at", pdflatexPath);
+      console.log("certificateGenerator: used local pdflatex at", pdflatexPath);
       return { buffer: buf, method: "latex", pdflatexPath };
     } catch (e) {
       console.error(
-        "certificateGenerator: pdflatex generation failed:",
+        "certificateGenerator: local pdflatex generation failed:",
         e && (e.message || e)
       );
-      // fallthrough to pdfkit
+      if (forceLatex) {
+        throw e; // If forcing LaTeX, don't fallback
+      }
+      // fallthrough to HTML API or pdfkit
     }
-  } else {
+  } else if (!pdflatexPath && !forcePdfKit) {
     console.log(
-      "certificateGenerator: pdflatex not found, falling back to pdfkit"
+      "certificateGenerator: local pdflatex not found, trying HTML API fallback"
     );
   }
 
+  // Try HTML API method as third option
+  if (!forceLatex) {
+    try {
+      const apiUrl =
+        process.env.CERTIFICATE_API_URL_HTML ||
+        "https://api.pdf.co/v1/pdf/generate/html";
+      const apiKey = process.env.PDF_CO_API_KEY;
+
+      if (apiKey) {
+        const htmlContent = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <title>Certificate</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f5f5f5;
+              }
+              .certificate {
+                width: 800px;
+                height: 600px;
+                margin: 50px auto;
+                background: white;
+                border: 10px solid #0b663e;
+                position: relative;
+                padding: 40px;
+                box-sizing: border-box;
+              }
+              .header {
+                text-align: center;
+                color: #0b663e;
+                margin-bottom: 30px;
+              }
+              .title {
+                font-size: 48px;
+                font-weight: bold;
+                margin: 0;
+              }
+              .subtitle {
+                font-size: 24px;
+                margin: 10px 0;
+              }
+              .content {
+                text-align: center;
+                margin: 40px 0;
+              }
+              .participant-name {
+                font-size: 36px;
+                font-weight: bold;
+                margin: 20px 0;
+              }
+              .team-name {
+                font-size: 18px;
+                margin: 10px 0;
+              }
+              .description {
+                font-size: 20px;
+                margin: 20px 0;
+                line-height: 1.5;
+              }
+              .signatures {
+                position: absolute;
+                bottom: 80px;
+                left: 0;
+                right: 0;
+                display: flex;
+                justify-content: space-around;
+              }
+              .signature {
+                text-align: center;
+                width: 200px;
+              }
+              .signature-line {
+                border-top: 1px solid black;
+                margin: 40px 0 10px 0;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="certificate">
+              <div class="header">
+                <h1 class="title">CERTIFICATE</h1>
+                <h2 class="subtitle">OF PARTICIPATION</h2>
+              </div>
+              <div class="content">
+                <p>This is to certify that</p>
+                <h3 class="participant-name">${participantName}</h3>
+                <p class="team-name">Team: ${teamName}</p>
+                <p class="description">has taken part in HACKABHIGNA.</p>
+              </div>
+              <div class="signatures">
+                <div class="signature">
+                  <div class="signature-line"></div>
+                  <p>Dr. Pushpa Ravikumar<br>Professor & Head, Dept. of CS&E<br>AIT, Chikkamagaluru</p>
+                </div>
+                <div class="signature">
+                  <div class="signature-line"></div>
+                  <p>Dr. C. T Jayadeva<br>Principal<br>AIT, Chikkamagaluru</p>
+                </div>
+                <div class="signature">
+                  <div class="signature-line"></div>
+                  <p>Dr. C. K Subbaraya<br>Director, AIT<br>Register, ACU</p>
+                </div>
+              </div>
+            </div>
+          </body>
+          </html>
+        `;
+
+        const response = await axios.post(
+          apiUrl,
+          {
+            html: htmlContent,
+            name: "certificate.pdf",
+            margins: "40px",
+          },
+          {
+            headers: {
+              "x-api-key": apiKey,
+              "Content-Type": "application/json",
+            },
+            responseType: "arraybuffer",
+          }
+        );
+
+        if (response.data) {
+          console.log("certificateGenerator: used HTML API method");
+          return { buffer: Buffer.from(response.data), method: "api" };
+        }
+      }
+    } catch (e) {
+      console.error("certificateGenerator: HTML API method failed:", e.message);
+      // fallthrough to pdfkit
+    }
+  }
+
+  // Final fallback to pdfkit
   const buf = await generateWithPdfKit(participantName, teamName);
   return { buffer: buf, method: "pdfkit" };
 }
