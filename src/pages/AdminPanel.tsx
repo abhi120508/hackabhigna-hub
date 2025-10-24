@@ -236,7 +236,7 @@ const AdminPanel = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "abhi0806") {
+    if (password === "abhi1205") {
       setIsAuthenticated(true);
       toast({
         title: "Login Successful",

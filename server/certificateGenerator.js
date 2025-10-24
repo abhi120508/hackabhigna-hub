@@ -1,6 +1,14 @@
 const fs = require("fs");
 const path = require("path");
-const axios = require("axios");
+const os = require("os");
+const { spawnSync } = require("child_process");
+
+let PDFDocument;
+try {
+  PDFDocument = require("pdfkit");
+} catch (e) {
+  PDFDocument = null;
+}
 
 function escapeLaTeX(s = "") {
   return String(s)
@@ -8,105 +16,186 @@ function escapeLaTeX(s = "") {
     .replace(/([%&#{}_$^~^<>])/g, "\\$1");
 }
 
-async function retryApiCall(apiCall, maxRetries = 3, delay = 1000) {
-  for (let i = 0; i < maxRetries; i++) {
+function copyPublicCertificateAssets(dst) {
+  const pubCertDir = path.join(__dirname, "..", "public", "certificate");
+  if (!fs.existsSync(pubCertDir)) return;
+  for (const f of fs.readdirSync(pubCertDir)) {
+    const src = path.join(pubCertDir, f);
+    const dest = path.join(dst, f);
     try {
-      return await apiCall();
+      fs.copyFileSync(src, dest);
     } catch (e) {
-      console.error(
-        `certificateGenerator: API call failed (attempt ${
-          i + 1
-        }/${maxRetries}):`,
-        e.message
-      );
-      if (i < maxRetries - 1) {
-        console.log(`certificateGenerator: retrying in ${delay}ms...`);
-        await new Promise((resolve) => setTimeout(resolve, delay));
-      } else {
-        throw e;
-      }
+      // ignore (directories / unreadable files)
     }
   }
 }
 
-async function getAsposeAccessToken() {
-  const clientId = process.env.ASPOSE_CLIENT_ID;
-  const clientSecret = process.env.ASPOSE_CLIENT_SECRET;
+function runPdflatex(tmpDir, pdflatexBin = "pdflatex") {
+  const opts = { cwd: tmpDir, timeout: 30000 };
+  const run = () =>
+    spawnSync(
+      pdflatexBin,
+      ["-interaction=nonstopmode", "-halt-on-error", "main.tex"],
+      opts
+    );
 
-  if (!clientId || !clientSecret) {
+  let res = run();
+  if (res.status !== 0) {
+    const out = (res.stdout || "").toString().slice(0, 2000);
+    const err = (res.stderr || "").toString().slice(0, 2000);
     throw new Error(
-      "ASPOSE_CLIENT_ID and ASPOSE_CLIENT_SECRET environment variables are required"
+      "pdflatex failed (pass1)\nstdout:\n" + out + "\nstderr:\n" + err
     );
   }
-
-  const response = await axios.post(
-    "https://api.aspose.cloud/connect/token",
-    new URLSearchParams({
-      grant_type: "client_credentials",
-      client_id: clientId,
-      client_secret: clientSecret,
-    }),
-    {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    }
-  );
-
-  if (!response.data.access_token) {
-    throw new Error("Failed to obtain access token from Aspose");
+  res = run();
+  if (res.status !== 0) {
+    const out = (res.stdout || "").toString().slice(0, 2000);
+    const err = (res.stderr || "").toString().slice(0, 2000);
+    throw new Error(
+      "pdflatex failed (pass2)\nstdout:\n" + out + "\nstderr:\n" + err
+    );
   }
-
-  return response.data.access_token;
 }
 
-/**
- * Generate PDF buffer using only online LaTeX API (Aspose).
- * Returns an object { buffer: Buffer, method: 'latex' }
- */
-async function generateCertificatePDF(participantName, teamName) {
-  // Read LaTeX template and replace placeholders
+function generateWithLaTeX(
+  participantName,
+  teamName,
+  pdflatexBin = "pdflatex"
+) {
   const templatePath = path.join(__dirname, "templates", "certificate.tex");
-  if (!fs.existsSync(templatePath)) {
+  if (!fs.existsSync(templatePath))
     throw new Error("LaTeX template not found: " + templatePath);
-  }
   const tpl = fs.readFileSync(templatePath, "utf8");
-  const latexContent = tpl
+  const tex = tpl
     .replace(/__PARTICIPANT__/g, escapeLaTeX(participantName))
     .replace(/__TEAM__/g, escapeLaTeX(teamName));
 
-  // Step 1: Upload .tex file to Aspose Storage (using v3.0 API)
-  const uploadUrl =
-    "https://api.aspose.cloud/v3.0/storage/file/certificate.tex";
-  await retryApiCall(async () => {
-    const accessToken = await getAsposeAccessToken();
-    return axios.put(uploadUrl, latexContent, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/octet-stream",
-      },
-    });
-  });
-
-  // Step 2: Convert .tex to .pdf
-  const convertUrl =
-    "https://api.aspose.cloud/v4.0/pdf/certificate.tex/convert";
-  const response = await retryApiCall(async () => {
-    const accessToken = await getAsposeAccessToken();
-    return axios.get(convertUrl, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      responseType: "arraybuffer",
-    });
-  });
-
-  if (!response.data) {
-    throw new Error("No data received from LaTeX API");
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "cert-"));
+  try {
+    fs.writeFileSync(path.join(tmp, "main.tex"), tex, "utf8");
+    copyPublicCertificateAssets(tmp);
+    runPdflatex(tmp, pdflatexBin);
+    const pdfPath = path.join(tmp, "main.pdf");
+    if (!fs.existsSync(pdfPath))
+      throw new Error("PDF not produced by pdflatex");
+    return fs.readFileSync(pdfPath);
+  } finally {
+    try {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    } catch (e) {
+      // ignore cleanup errors
+    }
   }
-
-  console.log("certificateGenerator: used online LaTeX API (Aspose)");
-  return { buffer: Buffer.from(response.data), method: "latex" };
 }
 
-module.exports = { generateCertificatePDF };
+async function generateWithPdfKit(participantName, teamName) {
+  if (!PDFDocument) {
+    throw new Error("pdfkit not available");
+  }
+
+  const doc = new PDFDocument({
+    size: "letter",
+    layout: "landscape",
+    margin: 50,
+  });
+
+  const buffers = [];
+  doc.on("data", buffers.push.bind(buffers));
+  doc.on("end", () => {});
+
+  // Simple certificate layout
+  doc.fontSize(24).text("CERTIFICATE OF PARTICIPATION", { align: "center" });
+  doc.moveDown();
+  doc.fontSize(18).text("This is to certify that", { align: "center" });
+  doc.moveDown();
+  doc.fontSize(28).text(participantName, { align: "center" });
+  doc.moveDown();
+  doc.fontSize(16).text(`Team: ${teamName}`, { align: "center" });
+  doc.moveDown(2);
+  doc
+    .fontSize(14)
+    .text(
+      "has participated in HACKABHIGNA, a 24-Hours National-Level Hackathon organized by the Department of Computer Science & Engineering, Adichunchanagiri Institute of Technology.",
+      { align: "center" }
+    );
+
+  doc.end();
+
+  return new Promise((resolve, reject) => {
+    doc.on("end", () => resolve(Buffer.concat(buffers)));
+    doc.on("error", reject);
+  });
+}
+
+function findPdflatex() {
+  // allow override via env
+  const envPath = process.env.PDFLATEX_PATH || process.env.PDFLATEX_BIN;
+  const candidates = [];
+  if (envPath) candidates.push(envPath);
+
+  // Common Windows MiKTeX locations
+  candidates.push(
+    "C:/Program Files/MiKTeX/miktex/bin/x64/pdflatex.exe",
+    "C:/Program Files/MiKTeX/miktex/bin/pdflatex.exe",
+    "C:/Program Files/MiKTeX 2.9/miktex/bin/x64/pdflatex.exe",
+    "C:/Program Files/texlive/2023/bin/win32/pdflatex.exe",
+    "C:/texlive/2023/bin/win32/pdflatex.exe"
+  );
+
+  // POSIX locations
+  candidates.push(
+    "/usr/bin/pdflatex",
+    "/usr/local/bin/pdflatex",
+    "/Library/TeX/texbin/pdflatex"
+  );
+
+  for (const p of candidates) {
+    try {
+      if (p && fs.existsSync(p)) return p;
+    } catch (e) {}
+  }
+
+  // last resort: try running plain pdflatex on PATH
+  try {
+    const check = spawnSync("pdflatex", ["--version"], { timeout: 3000 });
+    if (check.status === 0) return "pdflatex";
+  } catch (e) {}
+  return null;
+}
+
+/**
+ * Generate PDF buffer: prefer pdflatex when available unless FORCE_PDFKIT env forces fallback.
+ * Returns an object { buffer: Buffer, method: 'latex'|'pdfkit', pdflatexPath?: string }
+ */
+async function generateCertificatePDF(participantName, teamName) {
+  const forcePdfKit =
+    process.env.FORCE_PDFKIT === "1" || process.env.FORCE_PDFKIT === "true";
+  if (forcePdfKit) {
+    const buf = await generateWithPdfKit(participantName, teamName);
+    return { buffer: buf, method: "pdfkit" };
+  }
+
+  const pdflatexPath = findPdflatex();
+  if (pdflatexPath) {
+    try {
+      const buf = generateWithLaTeX(participantName, teamName, pdflatexPath);
+      console.log("certificateGenerator: used pdflatex at", pdflatexPath);
+      return { buffer: buf, method: "latex", pdflatexPath };
+    } catch (e) {
+      console.error(
+        "certificateGenerator: pdflatex generation failed:",
+        e && (e.message || e)
+      );
+      // fallthrough to pdfkit
+    }
+  } else {
+    console.log(
+      "certificateGenerator: pdflatex not found, falling back to pdfkit"
+    );
+  }
+
+  const buf = await generateWithPdfKit(participantName, teamName);
+  return { buffer: buf, method: "pdfkit" };
+}
+
+module.exports = { generateCertificatePDF, findPdflatex };
