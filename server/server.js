@@ -846,11 +846,11 @@ const initializeDomainSettings = async () => {
   for (const domain of domains) {
     let maxSlots;
     if (domain === "AI-Powered Autonomous SEO & Marketing Optimization") {
-      maxSlots = 44;
+      maxSlots = 45;
     } else if (
       domain === "Fullstack Marketing Analytics & Agentic Flow Platforms"
     ) {
-      maxSlots = 43;
+      maxSlots = 42;
     } else if (domain === "Wildcard - Environment") {
       maxSlots = 21;
     } else {
