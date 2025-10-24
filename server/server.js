@@ -844,9 +844,21 @@ const initializeDomainSettings = async () => {
   // Remove all existing domain settings first to ensure order
   await DomainSettings.deleteMany({});
   for (const domain of domains) {
+    let maxSlots;
+    if (domain === "AI-Powered Autonomous SEO & Marketing Optimization") {
+      maxSlots = 44;
+    } else if (
+      domain === "Fullstack Marketing Analytics & Agentic Flow Platforms"
+    ) {
+      maxSlots = 43;
+    } else if (domain === "Wildcard - Environment") {
+      maxSlots = 21;
+    } else {
+      maxSlots = 50; // default
+    }
     await DomainSettings.create({
       domain,
-      maxSlots: domain.includes("Wildcard") ? 21 : 41,
+      maxSlots,
       pausedRegistrations: false,
       lastAssignedSerial: 0,
     });
