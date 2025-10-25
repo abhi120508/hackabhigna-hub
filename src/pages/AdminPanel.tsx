@@ -158,12 +158,12 @@ const AdminPanel = () => {
           setting.domain ===
           "AI-Powered Autonomous SEO & Marketing Optimization"
         ) {
-          return { ...setting, maxSlots: 40 };
+          return { ...setting, maxSlots: 44 };
         } else if (
           setting.domain ===
           "Fullstack Marketing Analytics & Agentic Flow Platforms"
         ) {
-          return { ...setting, maxSlots: 40 };
+          return { ...setting, maxSlots: 41 };
         } else if (setting.domain === "Wildcard - Environment") {
           return { ...setting, maxSlots: 20 };
         }
