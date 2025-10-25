@@ -102,6 +102,7 @@ const AdminPanel = () => {
   const { toast } = useToast();
 
   const API_URL = "https://hackabhigna-hub.onrender.com"; // Your backend URL
+  const LOCAL_CERTIFICATE_SERVICE_URL = "http://localhost:3001"; // Local certificate service
 
   const loadRegistrations = useCallback(async () => {
     try {
@@ -1174,12 +1175,20 @@ const AdminPanel = () => {
                                   description: `Preparing certificates for ${team.teamName}`,
                                 });
 
+                                // Send request to local certificate service
                                 const resp = await fetch(
-                                  `${API_URL}/teams/${encodeURIComponent(
-                                    team.id
-                                  )}/issue-certificates`,
+                                  `${LOCAL_CERTIFICATE_SERVICE_URL}/generate-and-send-certificate`,
                                   {
                                     method: "POST",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                      teamId: team.id,
+                                      teamName: team.teamName,
+                                      participants: team.participants,
+                                      leaderIndex: team.leaderIndex,
+                                    }),
                                   }
                                 );
 

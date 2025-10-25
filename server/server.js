@@ -740,98 +740,13 @@ app.get("/health/cert-generator", async (req, res) => {
   }
 });
 
-// Issue certificates for a given team: generate one PDF per participant and email to team leader
+// Certificate generation is now handled by local service
+// This endpoint is kept for backward compatibility but not used
 app.post("/teams/:id/issue-certificates", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const team = await Team.findById(id);
-    if (!team) {
-      return res.status(404).json({ message: "Team not found." });
-    }
-
-    const { generateCertificatePDF } = require("./certificateGenerator");
-
-    // Sanitize filename helper
-    const sanitizeFilename = (name) =>
-      String(name)
-        .trim()
-        .replace(/[^a-z0-9._-]/gi, "_")
-        .replace(/_+/g, "_")
-        .substring(0, 120);
-
-    const attachments = [];
-
-    for (const p of team.participants) {
-      try {
-        const result = await generateCertificatePDF(p.name, team.teamName);
-        // result may be { buffer, method, pdflatexPath }
-        const buf = result && result.buffer ? result.buffer : result;
-        const method = result && result.method ? result.method : "unknown";
-        console.log(
-          `Generated certificate for ${p.name}, bytes: ${buf.length}, method: ${method}`
-        );
-        attachments.push({
-          filename: `${sanitizeFilename(p.name)}.pdf`,
-          content: buf.toString("base64"),
-          type: "application/pdf",
-          disposition: "attachment",
-          _generationMethod: method,
-        });
-      } catch (e) {
-        console.error("Certificate generation failed for", p.name, e);
-        return res.status(500).json({
-          message: `Failed to generate certificate for ${p.name}`,
-          error: e.message,
-        });
-      }
-    }
-
-    // Debug mode: return base64 blobs for inspection
-    if (String(req.query.debug) === "1") {
-      return res.json({
-        message: "debug-pdfs",
-        attachments: attachments.map((a) => ({
-          filename: a.filename,
-          content: a.content,
-          generationMethod: a._generationMethod || null,
-        })),
-      });
-    }
-
-    const leaderEmail = team.participants[team.leaderIndex]?.email;
-    const leaderName = team.participants[team.leaderIndex]?.name;
-
-    const mailOptions = {
-      from: `"HackAbhigna" <noreply@hackabhigna.in>`,
-      to: leaderEmail,
-      subject: `HackAbhigna - Certificates for ${team.teamName}`,
-      text: `Dear ${
-        leaderName || "Participant"
-      },\n\nCongratulations! Please find the attached certificates of participation for your team ${
-        team.teamName
-      }.\n\nBest regards,\nHackAbhigna Team`,
-      html: `<p>Dear ${
-        leaderName || "Participant"
-      },</p><p>Congratulations! Please find attached the certificate(s) of participation for your team <strong>${
-        team.teamName
-      }</strong>.</p><p>We appreciate your participation in HackAbhigna — congratulations on taking part!</p><p>Best regards,<br/>HackAbhigna Team</p>`,
-      attachments,
-    };
-
-    try {
-      await sendMail(mailOptions);
-      console.log("Certificate email sent to", leaderEmail);
-      return res.json({ message: "Certificate email sent successfully." });
-    } catch (emailErr) {
-      console.error("Error sending certificate email:", emailErr);
-      return res
-        .status(500)
-        .json({ message: "Failed to send email", error: emailErr.message });
-    }
-  } catch (err) {
-    console.error("Issue certificates error:", err);
-    res.status(500).json({ message: "Server error: " + err.message });
-  }
+  return res.status(501).json({
+    message:
+      "Certificate generation is handled by local service. Please ensure local certificate service is running.",
+  });
 });
 
 const initializeDomainSettings = async () => {

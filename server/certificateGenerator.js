@@ -393,8 +393,16 @@ async function generateCertificatePDF(participantName, teamName) {
   }
 
   // Fallback to pdfkit
-  const buf = await generateWithPdfKit(participantName, teamName);
-  return { buffer: buf, method: "pdfkit" };
+  try {
+    const buf = await generateWithPdfKit(participantName, teamName);
+    return { buffer: buf, method: "pdfkit" };
+  } catch (pdfkitErr) {
+    console.error(
+      "❌ certificateGenerator: pdfkit generation also failed:",
+      pdfkitErr && (pdfkitErr.message || pdfkitErr)
+    );
+    throw pdfkitErr;
+  }
 }
 
 module.exports = { generateCertificatePDF, findPdflatex };
