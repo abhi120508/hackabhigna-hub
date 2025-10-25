@@ -1,293 +1,400 @@
-const puppeteer = require("puppeteer");
+const fs = require("fs");
 const path = require("path");
+const os = require("os");
+const { spawnSync } = require("child_process");
 
-async function generateCertificatePDF(participantName, teamName) {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
-
-  const page = await browser.newPage();
-
-  // Get absolute paths for images
-  const publicCertDir = path.join(__dirname, "..", "public", "certificate");
-  const backgroundPath = `file://${path.join(publicCertDir, "background.png")}`;
-  const logoPath = `file://${path.join(publicCertDir, "logo.png")}`;
-  const monkLeftPath = `file://${path.join(
-    publicCertDir,
-    "Swamiji1-modified.png"
-  )}`;
-  const monkRightPath = `file://${path.join(
-    publicCertDir,
-    "Swamiji2-modified.png"
-  )}`;
-  const geminiPath = `file://${path.join(
-    publicCertDir,
-    "google gemini logo.png"
-  )}`;
-  const streamzPath = `file://${path.join(publicCertDir, "streamz.png")}`;
-  const environPath = `file://${path.join(publicCertDir, "environ.jpg")}`;
-  const ictPath = `file://${path.join(publicCertDir, "ICT.png")}`;
-
-  // HTML template
-  const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Certificate</title>
-      <style>
-        body {
-          font-family: 'Times New Roman', Times, serif;
-          margin: 0;
-          padding: 0;
-          width: 1122px;
-          height: 794px;
-          position: relative;
-          background: white;
-        }
-
-        .background {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          z-index: -1;
-        }
-
-        .watermark {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 55%;
-          opacity: 0.08;
-          z-index: 0;
-        }
-
-        .header {
-          position: absolute;
-          top: 0;
-          width: 100%;
-          text-align: center;
-          z-index: 1;
-        }
-
-        .monk-left {
-          position: absolute;
-          left: 15px;
-          top: 10px;
-          height: 100px;
-        }
-
-        .monk-right {
-          position: absolute;
-          right: 15px;
-          top: 10px;
-          height: 100px;
-        }
-
-        .institute-text {
-          position: absolute;
-          top: 10px;
-          width: 100%;
-          text-align: center;
-          line-height: 1.2;
-          font-size: 12px;
-          font-weight: bold;
-        }
-
-        .content {
-          position: absolute;
-          top: 150px;
-          width: 100%;
-          text-align: center;
-          line-height: 1.5;
-          z-index: 1;
-        }
-
-        .content h1 {
-          font-size: 48px;
-          font-weight: bold;
-          margin: 0;
-        }
-
-        .content h2 {
-          font-size: 20px;
-          font-weight: bold;
-          margin: 10px 0;
-        }
-
-        .content p {
-          font-size: 20px;
-          margin: 10px 0;
-        }
-
-        .content h3 {
-          font-size: 28px;
-          font-weight: bold;
-          margin: 20px 0;
-        }
-
-        .content .team {
-          font-size: 14px;
-          font-weight: bold;
-          margin: 10px 0;
-        }
-
-        .content .description {
-          font-size: 14px;
-          max-width: 80%;
-          margin: 20px auto;
-          line-height: 1.4;
-        }
-
-        .collaboration {
-          position: absolute;
-          top: 500px;
-          width: 80%;
-          left: 10%;
-          text-align: center;
-          z-index: 1;
-        }
-
-        .collaboration p {
-          font-size: 14px;
-          font-weight: bold;
-          margin: 0 0 10px 0;
-        }
-
-        .logos {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        .logos img {
-          height: 20px;
-          margin: 0 10px;
-        }
-
-        .knowledge-partner {
-          position: absolute;
-          top: 500px;
-          right: 15px;
-          text-align: center;
-          z-index: 1;
-        }
-
-        .knowledge-partner p {
-          font-size: 12px;
-          font-weight: bold;
-          margin: 0 0 5px 0;
-        }
-
-        .knowledge-partner img {
-          height: 24px;
-        }
-
-        .signatures {
-          position: absolute;
-          bottom: 30px;
-          width: 90%;
-          left: 5%;
-          display: flex;
-          justify-content: space-between;
-          z-index: 1;
-        }
-
-        .signature {
-          text-align: center;
-          width: 28%;
-        }
-
-        .signature hr {
-          border: 0.2px solid black;
-          width: 150px;
-          margin-bottom: 5px;
-        }
-
-        .signature p {
-          font-size: 12px;
-          margin: 0;
-          line-height: 1.2;
-        }
-      </style>
-    </head>
-    <body>
-      <img src="${backgroundPath}" class="background" alt="Background">
-
-      <img src="${logoPath}" class="watermark" alt="Watermark Logo">
-
-      <div class="header">
-        <img src="${monkLeftPath}" class="monk-left" alt="Monk Left">
-        <img src="${monkRightPath}" class="monk-right" alt="Monk Right">
-        <div class="institute-text">
-          <p>|| JAI SRI GURUDEV ||</p>
-          <p>ADICHUNCHANAGIRI INSTITUTE OF TECHNOLOGY</p>
-          <p>JYOTHI NAGARA, CHIKKAMAGALURU-577102, KARNATAKA, INDIA</p>
-          <p>DEPARTMENT OF COMPUTER SCIENCE & ENGINEERING</p>
-        </div>
-      </div>
-
-      <div class="content">
-        <h1>CERTIFICATE</h1>
-        <h2>OF PARTICIPATION</h2>
-        <p>This is to certify that</p>
-        <h3 id="participant-name">${participantName}</h3>
-        <p class="team">Team: <span id="team-name">${teamName}</span></p>
-        <p class="description">This is to certify that the above participant has taken part in HACKABHIGNA (domain name), a 24-Hours National-Level Hackathon organized by the Department of Computer Science & Engineering, Adichunchanagiri Institute of Technology.</p>
-      </div>
-
-      <div class="collaboration">
-        <p>In Collaboration with</p>
-        <div class="logos">
-          <img src="${geminiPath}" alt="Google Gemini">
-          <img src="${streamzPath}" alt="Streamz">
-          <img src="${environPath}" alt="Environ">
-        </div>
-      </div>
-
-      <div class="knowledge-partner">
-        <p>Knowledge Partner</p>
-        <img src="${ictPath}" alt="ICT">
-      </div>
-
-      <div class="signatures">
-        <div class="signature">
-          <hr>
-          <p><strong>Dr. Pushpa Ravikumar</strong><br>Professor & Head, Dept. of CS&E<br>AIT, Chikkamagaluru</p>
-        </div>
-        <div class="signature">
-          <hr>
-          <p><strong>Dr. C. T Jayadeva</strong><br>Principal<br>AIT, Chikkamagaluru</p>
-        </div>
-        <div class="signature">
-          <hr>
-          <p><strong>Dr. C. K Subbaraya</strong><br>Director, AIT<br>Register, ACU</p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
-  await page.setContent(html, { waitUntil: "networkidle0" });
-
-  const pdfBuffer = await page.pdf({
-    width: "1122px",
-    height: "794px",
-    printBackground: true,
-    margin: {
-      top: "0px",
-      right: "0px",
-      bottom: "0px",
-      left: "0px",
-    },
-  });
-
-  await browser.close();
-
-  return { buffer: pdfBuffer, method: "puppeteer" };
+let PDFDocument;
+try {
+  PDFDocument = require("pdfkit");
+} catch (e) {
+  PDFDocument = null;
 }
 
-module.exports = { generateCertificatePDF };
+function escapeLaTeX(s = "") {
+  return String(s)
+    .replace(/\\/g, "\\textbackslash{}")
+    .replace(/([%&#{}_$^~^<>])/g, "\\$1");
+}
+
+function copyPublicCertificateAssets(dst) {
+  const pubCertDir = path.join(__dirname, "..", "public", "certificate");
+  if (!fs.existsSync(pubCertDir)) return;
+  for (const f of fs.readdirSync(pubCertDir)) {
+    const src = path.join(pubCertDir, f);
+    const dest = path.join(dst, f);
+    try {
+      fs.copyFileSync(src, dest);
+    } catch (e) {
+      // ignore (directories / unreadable files)
+    }
+  }
+}
+
+function runPdflatex(tmpDir, pdflatexBin = "pdflatex") {
+  const opts = { cwd: tmpDir, timeout: 30000 };
+  const run = () =>
+    spawnSync(
+      pdflatexBin,
+      ["-interaction=nonstopmode", "-halt-on-error", "main.tex"],
+      opts
+    );
+
+  let res = run();
+  if (res.status !== 0) {
+    const out = (res.stdout || "").toString().slice(0, 2000);
+    const err = (res.stderr || "").toString().slice(0, 2000);
+    throw new Error(
+      "pdflatex failed (pass1)\nstdout:\n" + out + "\nstderr:\n" + err
+    );
+  }
+  res = run();
+  if (res.status !== 0) {
+    const out = (res.stdout || "").toString().slice(0, 2000);
+    const err = (res.stderr || "").toString().slice(0, 2000);
+    throw new Error(
+      "pdflatex failed (pass2)\nstdout:\n" + out + "\nstderr:\n" + err
+    );
+  }
+}
+
+function generateWithLaTeX(
+  participantName,
+  teamName,
+  pdflatexBin = "pdflatex"
+) {
+  const templatePath = path.join(__dirname, "templates", "certificate.tex");
+  if (!fs.existsSync(templatePath))
+    throw new Error("LaTeX template not found: " + templatePath);
+  const tpl = fs.readFileSync(templatePath, "utf8");
+  const tex = tpl
+    .replace(/__PARTICIPANT__/g, escapeLaTeX(participantName))
+    .replace(/__TEAM__/g, escapeLaTeX(teamName));
+
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "cert-"));
+  try {
+    fs.writeFileSync(path.join(tmp, "main.tex"), tex, "utf8");
+    copyPublicCertificateAssets(tmp);
+    runPdflatex(tmp, pdflatexBin);
+    const pdfPath = path.join(tmp, "main.pdf");
+    if (!fs.existsSync(pdfPath))
+      throw new Error("PDF not produced by pdflatex");
+    return fs.readFileSync(pdfPath);
+  } finally {
+    try {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    } catch (e) {
+      // ignore cleanup errors
+    }
+  }
+}
+
+async function generateWithPdfKit(participantName, teamName) {
+  if (!PDFDocument) throw new Error("pdfkit not available");
+
+  const doc = new PDFDocument({
+    size: [1122, 794], // landscape letter size in points
+    margin: 50,
+  });
+
+  const buffers = [];
+  doc.on("data", buffers.push.bind(buffers));
+  doc.on("end", () => {});
+
+  // Add background if available
+  const backgroundPath = path.join(
+    __dirname,
+    "..",
+    "public",
+    "certificate",
+    "background.png"
+  );
+  if (fs.existsSync(backgroundPath)) {
+    doc.image(backgroundPath, 0, 0, { width: 1122, height: 794 });
+  }
+
+  // Watermark logo
+  const logoPath = path.join(
+    __dirname,
+    "..",
+    "public",
+    "certificate",
+    "logo.png"
+  );
+  if (fs.existsSync(logoPath)) {
+    doc.opacity(0.08);
+    doc.image(logoPath, 1122 / 2 - 300, 794 / 2 - 200, {
+      width: 600,
+      height: 400,
+      align: "center",
+    });
+    doc.opacity(1);
+  }
+
+  // Header monks and institute text
+  const monkLeftPath = path.join(
+    __dirname,
+    "..",
+    "public",
+    "certificate",
+    "Swamiji1-modified.png"
+  );
+  if (fs.existsSync(monkLeftPath)) {
+    doc.image(monkLeftPath, 50, 30, { height: 100 });
+  }
+
+  const monkRightPath = path.join(
+    __dirname,
+    "..",
+    "public",
+    "certificate",
+    "Swamiji2-modified.png"
+  );
+  if (fs.existsSync(monkRightPath)) {
+    doc.image(monkRightPath, 1122 - 150, 30, { height: 100 });
+  }
+
+  doc
+    .fontSize(12)
+    .font("Helvetica-Bold")
+    .text("|| JAI SRI GURUDEV ||", 0, 40, { align: "center" });
+  doc
+    .fontSize(16)
+    .text("ADICHUNCHANAGIRI INSTITUTE OF TECHNOLOGY", { align: "center" });
+  doc
+    .fontSize(11)
+    .text("JYOTHI NAGARA, CHIKKAMAGALURU-577102, KARNATAKA, INDIA", {
+      align: "center",
+    });
+  doc.fontSize(13).text("DEPARTMENT OF COMPUTER SCIENCE & ENGINEERING", {
+    align: "center",
+  });
+
+  // Certificate content
+  doc
+    .fontSize(48)
+    .font("Helvetica-Bold")
+    .text("CERTIFICATE", 0, 200, { align: "center" });
+  doc.fontSize(20).text("OF PARTICIPATION", { align: "center" });
+  doc.fontSize(20).text("This is to certify that", { align: "center" });
+  doc
+    .fontSize(28)
+    .font("Helvetica-Bold")
+    .text(participantName, { align: "center" });
+  doc
+    .fontSize(14)
+    .font("Helvetica-Bold")
+    .text(`Team: ${teamName}`, { align: "center" });
+  doc
+    .fontSize(14)
+    .text(
+      "This is to certify that the above participant has taken part in HACKABHIGNA (domain name), a 24-Hours National-Level Hackathon organized by the Department of Computer Science & Engineering, Adichunchanagiri Institute of Technology.",
+      100,
+      400,
+      { width: 922, align: "center" }
+    );
+
+  // Collaboration logos
+  const geminiPath = path.join(
+    __dirname,
+    "..",
+    "public",
+    "certificate",
+    "google gemini logo.png"
+  );
+  const streamzPath = path.join(
+    __dirname,
+    "..",
+    "public",
+    "certificate",
+    "streamz.png"
+  );
+  const environPath = path.join(
+    __dirname,
+    "..",
+    "public",
+    "certificate",
+    "environ.jpg"
+  );
+
+  let logoY = 550;
+  doc
+    .fontSize(14)
+    .font("Helvetica-Bold")
+    .text("In Collaboration with", 0, logoY, {
+      align: "center",
+    });
+  logoY += 20;
+
+  let logoX = 1122 / 2 - 150;
+  if (fs.existsSync(geminiPath)) {
+    doc.image(geminiPath, logoX, logoY, { height: 30 });
+    logoX += 100;
+  }
+  if (fs.existsSync(streamzPath)) {
+    doc.image(streamzPath, logoX, logoY, { height: 30 });
+    logoX += 100;
+  }
+  if (fs.existsSync(environPath)) {
+    doc.image(environPath, logoX, logoY, { height: 30 });
+  }
+
+  // Knowledge partner
+  const ictPath = path.join(
+    __dirname,
+    "..",
+    "public",
+    "certificate",
+    "ICT.png"
+  );
+  if (fs.existsSync(ictPath)) {
+    doc
+      .fontSize(12)
+      .font("Helvetica-Bold")
+      .text("Knowledge Partner", 1122 - 200, logoY - 20, { width: 150 });
+    doc.image(ictPath, 1122 - 150, logoY + 10, { height: 40 });
+  }
+
+  // Signatures
+  const signatureY = 650;
+  doc
+    .fontSize(12)
+    .font("Helvetica-Bold")
+    .text("Dr. Pushpa Ravikumar", 100, signatureY, {
+      width: 200,
+      align: "center",
+    });
+  doc.fontSize(10).text("Professor & Head, Dept. of CS&E", { align: "center" });
+  doc.text("AIT, Chikkamagaluru", { align: "center" });
+
+  doc
+    .fontSize(12)
+    .font("Helvetica-Bold")
+    .text("Dr. C. T Jayadeva", 1122 / 2 - 100, signatureY, {
+      width: 200,
+      align: "center",
+    });
+  doc.fontSize(10).text("Principal", { align: "center" });
+  doc.text("AIT, Chikkamagaluru", { align: "center" });
+
+  doc
+    .fontSize(12)
+    .font("Helvetica-Bold")
+    .text("Dr. C. K Subbaraya", 1122 - 300, signatureY, {
+      width: 200,
+      align: "center",
+    });
+  doc.fontSize(10).text("Director, AIT", { align: "center" });
+  doc.text("Register, ACU", { align: "center" });
+
+  // Add signature lines
+  doc
+    .moveTo(150, signatureY - 10)
+    .lineTo(250, signatureY - 10)
+    .stroke();
+  doc
+    .moveTo(1122 / 2 - 50, signatureY - 10)
+    .lineTo(1122 / 2 + 50, signatureY - 10)
+    .stroke();
+  doc
+    .moveTo(1122 - 250, signatureY - 10)
+    .lineTo(1122 - 150, signatureY - 10)
+    .stroke();
+
+  doc.end();
+
+  return new Promise((resolve, reject) => {
+    doc.on("end", () => {
+      resolve(Buffer.concat(buffers));
+    });
+    doc.on("error", reject);
+  });
+}
+
+/**
+ * Generate PDF buffer: prefer pdflatex when available unless FORCE_PDFKIT env forces fallback.
+ */
+async function findPdflatex() {
+  // allow override via env
+  const envPath = process.env.PDFLATEX_PATH || process.env.PDFLATEX_BIN;
+  const candidates = [];
+  if (envPath) candidates.push(envPath);
+
+  // Common Windows MiKTeX locations
+  candidates.push(
+    "C:/Program Files/MiKTeX/miktex/bin/x64/pdflatex.exe",
+    "C:/Program Files/MiKTeX/miktex/bin/pdflatex.exe",
+    "C:/Program Files/MiKTeX 2.9/miktex/bin/x64/pdflatex.exe",
+    "C:/texlive/2023/bin/win32/pdflatex.exe",
+    "C:/texlive/2023/bin/win32/pdflatex.exe"
+  );
+
+  // POSIX locations
+  candidates.push(
+    "/usr/bin/pdflatex",
+    "/usr/local/bin/pdflatex",
+    "/Library/TeX/texbin/pdflatex"
+  );
+
+  for (const p of candidates) {
+    try {
+      if (p && fs.existsSync(p)) return p;
+    } catch (e) {}
+  }
+
+  // last resort: try running plain pdflatex on PATH
+  try {
+    const check = spawnSync("pdflatex", ["--version"], { timeout: 3000 });
+    if (check.status === 0) return "pdflatex";
+  } catch (e) {}
+  return null;
+}
+
+/**
+ * Generate PDF buffer: prefer pdflatex when available unless FORCE_PDFKIT env forces fallback.
+ * Returns an object { buffer: Buffer, method: 'latex'|'pdfkit', pdflatexPath?: string }
+ */
+async function generateCertificatePDF(participantName, teamName) {
+  const forcePdfKit =
+    process.env.FORCE_PDFKIT === "1" || process.env.FORCE_PDFKIT === "true";
+
+  // If FORCE_PDFKIT is set, skip LaTeX entirely
+  if (forcePdfKit) {
+    console.log("certificateGenerator: FORCE_PDFKIT is enabled, using pdfkit");
+    const buf = await generateWithPdfKit(participantName, teamName);
+    return { buffer: buf, method: "pdfkit" };
+  }
+
+  // Try to find and use pdflatex
+  const pdflatexPath = await findPdflatex();
+  if (pdflatexPath) {
+    try {
+      console.log(
+        "certificateGenerator: attempting LaTeX generation with",
+        pdflatexPath
+      );
+      const buf = generateWithLaTeX(participantName, teamName, pdflatexPath);
+      console.log(
+        "✅ certificateGenerator: successfully used pdflatex at",
+        pdflatexPath
+      );
+      return { buffer: buf, method: "latex", pdflatexPath };
+    } catch (e) {
+      console.error(
+        "❌ certificateGenerator: pdflatex generation failed:",
+        e && (e.message || e)
+      );
+      console.log("certificateGenerator: falling back to pdfkit");
+      // fallthrough to pdfkit
+    }
+  } else {
+    console.log(
+      "⚠️  certificateGenerator: pdflatex not found on system, using pdfkit fallback"
+    );
+  }
+
+  // Fallback to pdfkit
+  const buf = await generateWithPdfKit(participantName, teamName);
+  return { buffer: buf, method: "pdfkit" };
+}
+
+module.exports = { generateCertificatePDF, findPdflatex };
