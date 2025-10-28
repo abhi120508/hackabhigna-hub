@@ -42,22 +42,8 @@ const ParticipantPanel = () => {
   const { toast } = useToast();
   const API_URL = "https://hackabhigna-hub.onrender.com";
 
-  // Get GitHub credentials - try VITE_ prefix first, then fallback
-  const getGitHubToken = () => {
-    const viteToken = import.meta.env.VITE_GITHUB_TOKEN;
-    if (viteToken) return viteToken;
-    return (import.meta.env as any).GITHUB_TOKEN || "";
-  };
-
-  const getGitHubOwner = () => {
-    const viteOwner = import.meta.env.VITE_GITHUB_OWNER;
-    if (viteOwner) return viteOwner;
-    return (import.meta.env as any).GITHUB_OWNER || "";
-  };
-
   const { data, fetchRepoCommits, fetchRepoStats } = useGitHubData({
-    owner: getGitHubOwner(),
-    token: getGitHubToken(),
+    owner: "hackabhigna2025-hub",
   });
 
   useEffect(() => {

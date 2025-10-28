@@ -815,6 +815,95 @@ app.get("/health/cert-generator", async (req, res) => {
   }
 });
 
+// GitHub API proxy endpoint - frontend calls this instead of GitHub directly
+app.get("/api/github/repo-stats", async (req, res) => {
+  try {
+    const { owner, repo } = req.query;
+
+    if (!owner || !repo) {
+      return res.status(400).json({
+        error: "Missing owner or repo parameter",
+      });
+    }
+
+    if (!process.env.GITHUB_TOKEN) {
+      console.error("❌ GITHUB_TOKEN not configured");
+      return res.status(500).json({
+        error: "GitHub token not configured on server",
+      });
+    }
+
+    const headers = {
+      Authorization: `token ${process.env.GITHUB_TOKEN}`,
+      Accept: "application/vnd.github.v3+json",
+    };
+
+    console.log(`📊 Fetching stats for ${owner}/${repo}`);
+
+    // Fetch commits
+    const commitsResponse = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo}/commits?per_page=10`,
+      { headers }
+    );
+
+    // Fetch repo info
+    const repoResponse = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo}`,
+      { headers }
+    );
+
+    // Fetch branches
+    const branchesResponse = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo}/branches`,
+      { headers }
+    );
+
+    // Fetch contributors
+    const contributorsResponse = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo}/contributors`,
+      { headers }
+    );
+
+    console.log(`✅ Successfully fetched stats for ${owner}/${repo}`);
+
+    return res.json({
+      commits: commitsResponse.data,
+      repo: {
+        stars: repoResponse.data.stargazers_count,
+        forks: repoResponse.data.forks_count,
+        watchers: repoResponse.data.watchers_count,
+        description: repoResponse.data.description,
+        url: repoResponse.data.html_url,
+      },
+      branches: branchesResponse.data,
+      contributors: contributorsResponse.data,
+    });
+  } catch (error) {
+    console.error(
+      "❌ GitHub API error:",
+      error.response?.status,
+      error.message
+    );
+
+    if (error.response?.status === 401) {
+      return res.status(401).json({
+        error: "GitHub authentication failed - Invalid or expired token",
+      });
+    }
+
+    if (error.response?.status === 404) {
+      return res.status(404).json({
+        error: "Repository not found",
+      });
+    }
+
+    return res.status(500).json({
+      error: "Failed to fetch GitHub data",
+      details: error.message,
+    });
+  }
+});
+
 // Debug endpoint to check environment variables
 app.get("/debug/env", (req, res) => {
   // Only allow in development or with a secret query param
