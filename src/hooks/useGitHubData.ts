@@ -8,6 +8,44 @@ import type {
 
 const GITHUB_API_BASE = "https://api.github.com/repos";
 
+// Helper to get GitHub token - try multiple sources
+function getGitHubToken(): string {
+  // Try VITE_ prefixed first (Vite convention)
+  const viteToken = import.meta.env.VITE_GITHUB_TOKEN;
+  if (viteToken) {
+    console.log("Using VITE_GITHUB_TOKEN");
+    return viteToken;
+  }
+
+  // Try without prefix (in case it's set differently)
+  const token = (import.meta.env as any).GITHUB_TOKEN;
+  if (token) {
+    console.log("Using GITHUB_TOKEN");
+    return token;
+  }
+
+  console.warn("No GitHub token found in environment variables");
+  return "";
+}
+
+// Helper to get GitHub owner
+function getGitHubOwner(): string {
+  const viteOwner = import.meta.env.VITE_GITHUB_OWNER;
+  if (viteOwner) {
+    console.log("Using VITE_GITHUB_OWNER:", viteOwner);
+    return viteOwner;
+  }
+
+  const owner = (import.meta.env as any).GITHUB_OWNER;
+  if (owner) {
+    console.log("Using GITHUB_OWNER:", owner);
+    return owner;
+  }
+
+  console.warn("No GitHub owner found in environment variables");
+  return "";
+}
+
 // Normalize owner and repoName from various inputs (owner + repoName OR full repo URL OR owner/repo)
 function parseOwnerAndRepo(ownerIn: string, repoIn: string) {
   let owner = ownerIn || "";
@@ -71,11 +109,17 @@ export function useGitHubData({ owner, token }: UseGitHubDataParams) {
   // Debug: Log when token changes
   useEffect(() => {
     if (token) {
-      console.log("GitHub token configured:", token.substring(0, 10) + "...");
+      console.log("✓ GitHub token configured:", token.substring(0, 10) + "...");
+      console.log("✓ GitHub owner configured:", owner);
     } else {
-      console.warn("GitHub token not configured");
+      console.error(
+        "✗ GitHub token NOT configured - GitHub API calls will fail"
+      );
+      console.error(
+        "✗ Make sure VITE_GITHUB_TOKEN is set in environment variables"
+      );
     }
-  }, [token]);
+  }, [token, owner]);
 
   const fetchRepoCommits = useCallback(
     async ({
