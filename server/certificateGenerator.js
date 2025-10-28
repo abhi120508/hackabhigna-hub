@@ -18,42 +18,87 @@ function escapeLaTeX(s = "") {
 
 function copyPublicCertificateAssets(dst) {
   const pubCertDir = path.join(__dirname, "..", "public", "certificate");
-  if (!fs.existsSync(pubCertDir)) return;
-  for (const f of fs.readdirSync(pubCertDir)) {
+  if (!fs.existsSync(pubCertDir)) {
+    console.warn(`⚠️  Certificate assets directory not found: ${pubCertDir}`);
+    return;
+  }
+
+  const files = fs.readdirSync(pubCertDir);
+  console.log(`   📦 Found ${files.length} asset files to copy`);
+
+  for (const f of files) {
     const src = path.join(pubCertDir, f);
     const dest = path.join(dst, f);
     try {
-      fs.copyFileSync(src, dest);
+      const stat = fs.statSync(src);
+      if (stat.isDirectory()) {
+        // Recursively copy directory
+        fs.mkdirSync(dest, { recursive: true });
+        const subFiles = fs.readdirSync(src);
+        for (const subFile of subFiles) {
+          fs.copyFileSync(path.join(src, subFile), path.join(dest, subFile));
+        }
+        console.log(`      ✓ Copied: ${f}/ (${subFiles.length} files)`);
+      } else {
+        // Copy file
+        fs.copyFileSync(src, dest);
+        console.log(`      ✓ Copied: ${f}`);
+      }
     } catch (e) {
-      // ignore (directories / unreadable files)
+      console.warn(`      ⚠️  Failed to copy ${f}: ${e.message}`);
     }
   }
 }
 
 function runPdflatex(tmpDir, pdflatexBin = "pdflatex") {
-  const opts = { cwd: tmpDir, timeout: 30000 };
+  const opts = { cwd: tmpDir, timeout: 30000, encoding: "utf8" };
   const run = () =>
-    spawnSync(
-      pdflatexBin,
-      ["-interaction=nonstopmode", "-halt-on-error", "main.tex"],
-      opts
-    );
+    spawnSync(pdflatexBin, ["-interaction=batchmode", "main.tex"], opts);
 
   let res = run();
   if (res.status !== 0) {
-    const out = (res.stdout || "").toString().slice(0, 2000);
-    const err = (res.stderr || "").toString().slice(0, 2000);
-    throw new Error(
-      "pdflatex failed (pass1)\nstdout:\n" + out + "\nstderr:\n" + err
-    );
+    const out = (res.stdout || "").toString();
+    const err = (res.stderr || "").toString();
+
+    // Try to read the log file for more details
+    let logContent = "";
+    try {
+      const logPath = path.join(tmpDir, "main.log");
+      if (fs.existsSync(logPath)) {
+        logContent = fs.readFileSync(logPath, "utf8");
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    const fullError = `pdflatex failed (pass1)\nstdout:\n${out.slice(
+      0,
+      3000
+    )}\nstderr:\n${err.slice(0, 3000)}\nlog:\n${logContent.slice(-2000)}`;
+    console.error("Full pdflatex error:", fullError);
+    throw new Error(fullError);
   }
   res = run();
   if (res.status !== 0) {
-    const out = (res.stdout || "").toString().slice(0, 2000);
-    const err = (res.stderr || "").toString().slice(0, 2000);
-    throw new Error(
-      "pdflatex failed (pass2)\nstdout:\n" + out + "\nstderr:\n" + err
-    );
+    const out = (res.stdout || "").toString();
+    const err = (res.stderr || "").toString();
+
+    let logContent = "";
+    try {
+      const logPath = path.join(tmpDir, "main.log");
+      if (fs.existsSync(logPath)) {
+        logContent = fs.readFileSync(logPath, "utf8");
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    const fullError = `pdflatex failed (pass2)\nstdout:\n${out.slice(
+      0,
+      3000
+    )}\nstderr:\n${err.slice(0, 3000)}\nlog:\n${logContent.slice(-2000)}`;
+    console.error("Full pdflatex error:", fullError);
+    throw new Error(fullError);
   }
 }
 
@@ -67,18 +112,29 @@ function generateWithLaTeX(
     throw new Error("LaTeX template not found: " + templatePath);
   const tpl = fs.readFileSync(templatePath, "utf8");
   const tex = tpl
-    .replace(/__PARTICIPANT__/g, escapeLaTeX(participantName))
-    .replace(/__TEAM__/g, escapeLaTeX(teamName));
+    .replace(/PARTICIPANT_NAME/g, escapeLaTeX(participantName))
+    .replace(/TEAM_DOMAIN/g, escapeLaTeX(teamName || ""));
 
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "cert-"));
+  console.log(`   📁 LaTeX temp directory: ${tmp}`);
   try {
     fs.writeFileSync(path.join(tmp, "main.tex"), tex, "utf8");
+    console.log(`   ✅ LaTeX template written`);
+
     copyPublicCertificateAssets(tmp);
+    const copiedFiles = fs.readdirSync(tmp);
+    console.log(`   ✅ Assets copied: ${copiedFiles.join(", ")}`);
+
     runPdflatex(tmp, pdflatexBin);
+    console.log(`   ✅ pdflatex compilation successful`);
+
     const pdfPath = path.join(tmp, "main.pdf");
     if (!fs.existsSync(pdfPath))
       throw new Error("PDF not produced by pdflatex");
-    return fs.readFileSync(pdfPath);
+
+    const pdfBuffer = fs.readFileSync(pdfPath);
+    console.log(`   ✅ PDF read: ${pdfBuffer.length} bytes`);
+    return pdfBuffer;
   } finally {
     try {
       fs.rmSync(tmp, { recursive: true, force: true });

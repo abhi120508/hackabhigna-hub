@@ -1,107 +1,157 @@
 \documentclass[a4paper,landscape]{article}
 \usepackage[margin=1in]{geometry}
-\usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{tikz}
-\usetikzlibrary{decorations.pathmorphing,calc}
-\usepackage{newtxtext}
-\usepackage{newtxmath}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{calc}
+
+\usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
 \pagenumbering{gobble}
+\usepackage{graphicx}
 \usepackage{ragged2e}
-\usepackage{eso-pic}
 
-% Put full-page background if present
-\AddToShipoutPictureBG*{
-  \AtPageLowerLeft{%
-    \includegraphics[width=\paperwidth,height=\paperheight]{background.png}%
-  }
-}
+\definecolor{navy}{RGB}{0,0,128}
 
 \begin{document}
 \thispagestyle{empty}
 
-% central faint watermark logo (if logo.png exists)
+% Put full-page background if present using TikZ
 \begin{tikzpicture}[remember picture, overlay]
-  \node[anchor=center, opacity=0.08] at (current page.center) {
-    \includegraphics[width=0.55\paperwidth,keepaspectratio]{logo.png}
+  \node[anchor=south west, inner sep=0] at (current page.south west) {
+    \includegraphics[width=\paperwidth,height=\paperheight]{"bg3.png"}
   };
 \end{tikzpicture}
 
-% Header: top-left and top-right monk logos and institute/title text
+% background logo
 \begin{tikzpicture}[remember picture, overlay]
-  % left monk
-  \node[anchor=north west, yshift=-0.8cm, xshift=1.5cm] at (current page.north west)
-    {\includegraphics[height=3.5cm]{Swamiji1-modified.png}};
-  % right monk
-  \node[anchor=north east, yshift=-0.8cm, xshift=-1.5cm] at (current page.north east)
-    {\includegraphics[height=3.5cm]{Swamiji2-modified.png}};
-
-  % center institute text
-  \node[align=center, anchor=north] at ([yshift=-0.8cm]current page.north) {
-    {\fontsize{12}{12}\selectfont \textbf{|| JAI SRI GURUDEV ||}}\\[0.2cm]
-    {\fontsize{16}{18}\selectfont \textbf{ADICHUNCHANAGIRI INSTITUTE OF TECHNOLOGY}}\\[0.1cm]
-    {\fontsize{11}{13}\selectfont \textbf{JYOTHI NAGARA, CHIKKAMAGALURU-577102, KARNATAKA, INDIA}}\\[0.1cm]
-    {\fontsize{13}{14}\selectfont \textbf{DEPARTMENT OF COMPUTER SCIENCE \& ENGINEERING}}
-  };
+    \node[anchor=center, opacity=0.2] at (current page.center) {
+        \includegraphics[width=0.5\paperwidth, keepaspectratio]{"logo.png"}
+    };
 \end{tikzpicture}
 
-% Big certificate heading
-\begin{center}
-  \vspace*{2.5cm}
-  {\fontsize{48}{48}\selectfont\textbf{CERTIFICATE}}\\[0.2cm]
-  {\fontsize{20}{22}\selectfont\textbf{OF PARTICIPATION}}\\[1.2cm]
-  {\fontsize{20}{24}\selectfont This is to certify that}\\[0.8cm]
-  {\fontsize{28}{30}\selectfont \textbf{__PARTICIPANT__}}\\[0.6cm]
-  {\fontsize{14}{18}\selectfont \textbf{Team:} \underline{\textbf{__TEAM__}}}\\[0.9cm]
-  {\fontsize{14}{18}\selectfont This is to certify that the above participant has taken part in HACKABHIGNA (domain name), a 24-Hours National-Level Hackathon organized by the Department of Computer Science \& Engineering, Adichunchanagiri Institute of Technology.}\\[1.2cm]
-\end{center}
+\vspace*{\fill} % push content down to leave space if needed
 
-% Sponsor / collaborator logos and labels
 \begin{tikzpicture}[remember picture, overlay]
-  \node[anchor=north, yshift=-9.8cm] at (current page.north) {
-    \begin{minipage}{0.8\textwidth}
-      \centering
-      {\fontsize{14}{16}\selectfont \textbf{In Collaboration with}}\\[0.25cm]
-      \includegraphics[height=0.7cm]{google gemini logo.png}\hspace{1cm}
-      \includegraphics[height=0.7cm]{streamz.png}\hspace{1cm}
-      \includegraphics[height=0.7cm]{environ.jpg}\\[0.4cm]
-    \end{minipage}
+    % Left logo
+  \node[anchor=north west, yshift=-1cm, xshift=2.5cm] at (current page.north west)
+    {\includegraphics[height=3.5cm]{"Swamiji1-modified.png"}};
+  % Right logo
+  \node[anchor=north east, yshift=-1cm, xshift=-2.5cm] at (current page.north east)
+    {\includegraphics[height=3.5cm]{"Swamiji2-modified.png"}};
+  % Center text
+  \node[align=center, anchor=north] at ([yshift=-1cm]current page.north) {
+    {\fontsize{12}{12}\bfseries \textbar\textbar\, JAI SRI GURUDEV \,\textbar\textbar}\\[0.3cm]
+    {\fontsize{16}{16}\selectfont\bfseries ADICHUNCHANAGIRI INSTITUTE OF TECHNOLOGY}\\[0.2cm]
+    {\fontsize{11}{11}\selectfont\bfseries JYOTHI NAGARA, CHIKKAMAGALURU-577102, KARNATAKA, INDIA}\\[0.2cm]
+    {\fontsize{14}{14}\selectfont\bfseries DEPARTMENT OF COMPUTER SCIENCE \& ENGINEERING}
+
   };
-  % Knowledge partner at right
-  \node[anchor=north east, yshift=-9.8cm, xshift=-1.5cm] at (current page.north east) {
-    \begin{minipage}{3cm}\centering
-      {\fontsize{12}{12}\selectfont \textbf{Knowledge Partner}}\\[0.1cm]
-      \includegraphics[height=0.8cm]{ICT.png}
+
+    % --- Three additional logos below text ---
+    % Left logo
+    \node[anchor=north, yshift=-4.5cm, xshift=-8cm] at (current page.north)
+      {\includegraphics[height=2.5cm]{"clg logo.png"}};
+    % Right logo
+    \node[anchor=north, yshift=-4.5cm, xshift=8cm] at (current page.north)
+      {\includegraphics[height=2.5cm]{"dept logo.png"}};
+
+
+% certificate heading
+
+    \node[align=center, anchor=north] at ([yshift=-6.9cm]current page.north) {
+    {\fontsize{50}{50}\selectfont \textbf{\textcolor{violet!50!navy}{\rmfamily CERTIFICATE}}}\\[0.5cm]
+    \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        % Text node
+        \node (text) {\fontsize{20}{30}\selectfont \textbf{\textcolor{violet!50!navy}{OF PARTICIPATION}}};
+
+        % Left line (extends left from text)
+        \textcolor{violet!50!navy}
+        {\draw[decorate, decoration={saw, amplitude=2pt, segment length=4pt}]
+            ($(text.west) + (-3cm,0)$) -- ($(text.west) + (-0.2cm,0)$);}
+
+        % Right line (extends right from text)
+        \textcolor{violet!50!navy}
+        {\draw[decorate, decoration={saw, amplitude=2pt, segment length=4pt}]
+            ($(text.east) + (0.2cm,0)$) -- ($(text.east) + (3cm,0)$);}
+    \end{tikzpicture}
+    };
+
+% Body of certificate
+
+    \node[align=center, anchor=north] at ([yshift=-10.2cm]current page.north) {
+    \begin{minipage}{1.1\textwidth} % wider box
+    \centering
+    \fontsize{15}{22}\selectfont
+
+    This is to certify that Mr. / Ms. \underline{\textbf{ PARTICIPANT_NAME }} has participated in \textbf{HACKABHiGNA (TEAM_DOMAIN)}, a 24-Hours National Level Hackathon event organized by the Department of Computer Science and Engineering, Adichunchanagiri Institute of Technology, Chikkamagaluru on October 29 - 30, 2025.
     \end{minipage}
-  };
+    };
+
+
+    % --- Sponsored by logos ---
+    \node[align=center, anchor=north] at ([yshift=-13cm]current page.north) {
+
+    \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        \node[anchor=north, yshift=-0.9cm] at (-16,0) {\includegraphics[height=0.9cm]{"google gemini logo.png"}};
+        \node[anchor=north, yshift=-1cm] at (-8,0) {\includegraphics[height=0.7cm]{"streamz.png"}};
+        \node[anchor=north, yshift=-0.9cm] at (-1,0) {\includegraphics[height=1cm]{"environ (1).png"}};
+
+    \end{tikzpicture}
+    };
+
+   % --- Signatures ---
+\node[align=center, anchor=north] at ([yshift=-15.5cm]current page.north) {\LARGE
+\begin{tikzpicture}[baseline={(current bounding box.center)}]
+    % Left signature
+    \node[align=center, anchor=north] at (-8,0) {
+        \includegraphics[width=4cm]{"signatures/HOD.png"}\\[-0.7cm]
+        \underline{\hspace{7cm}}\\
+        \textbf{Dr. Pushpa Ravikumar}\\
+        Professor \& Head, Dept. of CS\&E\\
+        AIT, Chikkamagaluru
+    };
+
+    % Center signature
+    \node[align=center, anchor=north] at (0,0) {
+        \includegraphics[width=4cm]{"signatures/principal.png"}\\[-0.8cm]
+        \underline{\hspace{7cm}}\\
+        \textbf{Dr. C. T. Jayadeva}\\
+        Principal\\
+        AIT, Chikkamagaluru
+    };
+
+    % Right signature
+    \node[align=center, anchor=north] at (8,0) {
+        \includegraphics[width=4cm]{"signatures/director.png"}\\[-1.1cm]
+        \underline{\hspace{7cm}}\\
+        \textbf{Dr. C. K. Subbaraya}\\
+        Director\\
+        AIT, Chikkamagaluru
+    };
+\end{tikzpicture}
+};
 \end{tikzpicture}
 
-% Signatures row at bottom
+
+
+
+
+\vfill
+
+% PAGE 2 - Google Certificate with Participant Name
+\newpage
+\thispagestyle{empty}
+
 \begin{tikzpicture}[remember picture, overlay]
-  \node[anchor=south, yshift=2.3cm] at (current page.south) {
-    \begin{minipage}{0.9\textwidth}
-      \centering
-      \begin{tabular}{ccc}
-        \begin{minipage}{0.28\textwidth}\centering
-          \rule{6cm}{0.4pt}\\[0.2cm]
-          \textbf{Dr. Pushpa Ravikumar}\\
-          Professor & Head, Dept. of CS\&E\\
-          AIT, Chikkamagaluru
-        \end{minipage} &
-        \begin{minipage}{0.28\textwidth}\centering
-          \rule{6cm}{0.4pt}\\[0.2cm]
-          \textbf{Dr. C. T Jayadeva}\\
-          Principal\\
-          AIT, Chikkamagaluru
-        \end{minipage} &
-        \begin{minipage}{0.28\textwidth}\centering
-          \rule{6cm}{0.4pt}\\[0.2cm]
-          \textbf{Dr. C. K Subbaraya}\\
-          Director, AIT \\ Register, ACU
-        \end{minipage}
-      \end{tabular}
-    \end{minipage}
+  % Add Google Certificate image as background
+  \node[anchor=center] at (current page.center) {
+    \includegraphics[width=\paperwidth,height=\paperheight]{"Google Certificate .pdf.jpg"}
+  };
+
+  % Add participant name above the blue line, below "This is to certify that"
+  \node[align=center, anchor=center] at ([yshift=-9.3cm]current page.north) {
+    {\fontsize{18}{18}\selectfont \textbf{PARTICIPANT_NAME}}
   };
 \end{tikzpicture}
 

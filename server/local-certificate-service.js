@@ -11,7 +11,6 @@
 const express = require("express");
 const cors = require("cors");
 const { generateCertificatePDF } = require("./certificateGenerator");
-const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 const app = express();
@@ -25,14 +24,18 @@ console.log(`📍 Port: ${PORT}`);
 console.log("-------------------------------------------\n");
 
 // Configure email transporter
-const transporter = nodemailer.createTransport({
-  host: "smtp.sendgrid.net",
-  port: 587,
-  auth: {
-    user: "apikey",
-    pass: process.env.SENDGRID_API_KEY,
-  },
-});
+const sgMail = require("@sendgrid/mail");
+
+const apiKey = process.env.SENDGRID_API_KEY;
+if (!apiKey) {
+  console.error("❌ ERROR: SENDGRID_API_KEY not set in environment!");
+  process.exit(1);
+}
+
+console.log("📧 SendGrid API Key configured");
+console.log(`   Key starts with: ${apiKey.substring(0, 10)}...`);
+
+sgMail.setApiKey(apiKey);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -42,7 +45,7 @@ app.get("/health", (req, res) => {
 // Main endpoint: Generate and send certificates
 app.post("/generate-and-send-certificate", async (req, res) => {
   try {
-    const { teamId, teamName, participants, leaderIndex } = req.body;
+    const { teamId, teamName, domain, participants, leaderIndex } = req.body;
 
     if (!teamName || !participants || leaderIndex === undefined) {
       return res.status(400).json({
@@ -52,6 +55,7 @@ app.post("/generate-and-send-certificate", async (req, res) => {
 
     console.log(`\n📋 Processing certificate request`);
     console.log(`   Team: ${teamName}`);
+    console.log(`   Domain: ${domain || "N/A"}`);
     console.log(`   Participants: ${participants.length}`);
 
     // Generate certificates for each participant
@@ -63,14 +67,12 @@ app.post("/generate-and-send-certificate", async (req, res) => {
 
         const result = await generateCertificatePDF(
           participant.name,
-          teamName
+          domain || teamName
         );
         const buf = result && result.buffer ? result.buffer : result;
         const method = result && result.method ? result.method : "unknown";
 
-        console.log(
-          `   ✅ Generated: ${buf.length} bytes (method: ${method})`
-        );
+        console.log(`   ✅ Generated: ${buf.length} bytes (method: ${method})`);
 
         // Sanitize filename
         const sanitizedName = String(participant.name)
@@ -108,11 +110,11 @@ app.post("/generate-and-send-certificate", async (req, res) => {
 
     console.log(`   📧 Sending email to ${leaderEmail}...`);
 
-    // Send email
+    // Send email using SendGrid
     try {
-      const mailOptions = {
-        from: `"HackAbhigna" <noreply@hackabhigna.in>`,
+      const msg = {
         to: leaderEmail,
+        from: "noreply@hackabhigna.in",
         subject: `HackAbhigna - Certificates for ${teamName}`,
         text: `Dear ${
           leaderName || "Participant"
@@ -120,10 +122,17 @@ app.post("/generate-and-send-certificate", async (req, res) => {
         html: `<p>Dear ${
           leaderName || "Participant"
         },</p><p>Congratulations! Please find attached the certificate(s) of participation for your team <strong>${teamName}</strong>.</p><p>We appreciate your participation in HackAbhigna — congratulations on taking part!</p><p>Best regards,<br/>HackAbhigna Team</p>`,
-        attachments,
+        attachments: attachments.map((att) => ({
+          filename: att.filename,
+          content: att.content.toString("base64"),
+          type: att.contentType,
+          disposition: "attachment",
+        })),
       };
 
-      await transporter.sendMail(mailOptions);
+      console.log(`   📤 Sending via SendGrid...`);
+      const response = await sgMail.send(msg);
+      console.log(`   ✅ SendGrid response: ${response[0].statusCode}`);
 
       console.log(`   ✅ Email sent successfully to ${leaderEmail}`);
       console.log(`✅ Certificate process completed for ${teamName}\n`);
@@ -137,9 +146,14 @@ app.post("/generate-and-send-certificate", async (req, res) => {
       });
     } catch (emailError) {
       console.error(`   ❌ Failed to send email:`, emailError.message);
+      console.error(
+        `   Error details:`,
+        emailError.response?.body || emailError
+      );
       return res.status(500).json({
         message: "Failed to send email",
         error: emailError.message,
+        details: emailError.response?.body,
       });
     }
   } catch (error) {
@@ -153,7 +167,9 @@ app.post("/generate-and-send-certificate", async (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Local Certificate Service running on http://localhost:${PORT}`);
+  console.log(
+    `🚀 Local Certificate Service running on http://localhost:${PORT}`
+  );
   console.log(`✅ Ready to receive certificate requests from Admin Panel\n`);
 });
 
@@ -167,4 +183,3 @@ process.on("SIGTERM", () => {
   console.log("\n\n👋 Shutting down local certificate service...");
   process.exit(0);
 });
-

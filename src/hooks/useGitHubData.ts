@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type {
   GitHubCommit,
   RepoStats,
@@ -68,6 +68,15 @@ export function useGitHubData({ owner, token }: UseGitHubDataParams) {
     error: null,
   });
 
+  // Debug: Log when token changes
+  useEffect(() => {
+    if (token) {
+      console.log("GitHub token configured:", token.substring(0, 10) + "...");
+    } else {
+      console.warn("GitHub token not configured");
+    }
+  }, [token]);
+
   const fetchRepoCommits = useCallback(
     async ({
       owner: repoOwner,
@@ -83,6 +92,7 @@ export function useGitHubData({ owner, token }: UseGitHubDataParams) {
       if (!finalOwner || !finalRepo) return;
       setData((prev) => ({ ...prev, loading: true, error: null }));
       try {
+        // Try to fetch commits from the default branch
         const response = await fetch(
           `${GITHUB_API_BASE}/${finalOwner}/${finalRepo}/commits?per_page=10`,
           {
@@ -94,13 +104,18 @@ export function useGitHubData({ owner, token }: UseGitHubDataParams) {
         );
         if (!response.ok) {
           const body = await response.text().catch(() => "");
+          console.error(`GitHub API error: ${response.status}`, body);
           throw new Error(`GitHub API error: ${response.status} ${body}`);
         }
         const commitsData: GitHubCommit[] = await response.json();
+        console.log(
+          `Fetched ${commitsData.length} commits for ${finalOwner}/${finalRepo}`
+        );
         setData((prev) => ({ ...prev, commits: commitsData, loading: false }));
       } catch (error: unknown) {
         const message =
           error instanceof Error ? error.message : "Failed to fetch commits";
+        console.error("Commit fetch error:", message);
         setData((prev) => ({
           ...prev,
           loading: false,
@@ -129,6 +144,7 @@ export function useGitHubData({ owner, token }: UseGitHubDataParams) {
       if (!finalOwner || !finalRepo) return;
       setData((prev) => ({ ...prev, loading: true, error: null }));
       try {
+        console.log(`Fetching stats for ${finalOwner}/${finalRepo}`);
         const repoResponse = await fetch(
           `${GITHUB_API_BASE}/${finalOwner}/${finalRepo}`,
           {
@@ -162,10 +178,13 @@ export function useGitHubData({ owner, token }: UseGitHubDataParams) {
           const branchesData = await branchesResponse.json();
           const contributorsData = await contributorsResponse.json();
 
+          console.log(
+            `Repo stats: branches=${branchesData.length}, contributors=${contributorsData.length}`
+          );
           setData((prev) => ({
             ...prev,
             repoStats: {
-              commits: 0,
+              commits: prev.commits.length,
               branches: branchesData.length,
               lastActivity: repoData.updated_at,
               contributors: contributorsData.length,
@@ -178,6 +197,9 @@ export function useGitHubData({ owner, token }: UseGitHubDataParams) {
             branchesResponse.text().catch(() => ""),
             contributorsResponse.text().catch(() => ""),
           ]);
+          console.error(
+            `Failed to fetch repo stats: ${repoResponse.status}, ${branchesResponse.status}, ${contributorsResponse.status}`
+          );
           throw new Error(
             `Failed to fetch repo stats: ${repoResponse.status}, ${
               branchesResponse.status
@@ -187,6 +209,7 @@ export function useGitHubData({ owner, token }: UseGitHubDataParams) {
       } catch (error: unknown) {
         const message =
           error instanceof Error ? error.message : "Failed to fetch repo stats";
+        console.error("Repo stats fetch error:", message);
         setData((prev) => ({
           ...prev,
           loading: false,

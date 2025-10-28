@@ -1186,6 +1186,7 @@ const AdminPanel = () => {
                                     body: JSON.stringify({
                                       teamId: team.id,
                                       teamName: team.teamName,
+                                      domain: team.domain,
                                       participants: team.participants,
                                       leaderIndex: team.leaderIndex,
                                     }),
