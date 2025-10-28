@@ -740,6 +740,39 @@ app.get("/health/cert-generator", async (req, res) => {
   }
 });
 
+// Debug endpoint to check environment variables
+app.get("/debug/env", (req, res) => {
+  // Only allow in development or with a secret query param
+  const secret = req.query.secret;
+  if (
+    process.env.NODE_ENV === "production" &&
+    secret !== process.env.DEBUG_SECRET
+  ) {
+    return res.status(403).json({ message: "Forbidden" });
+  }
+
+  return res.json({
+    nodeEnv: process.env.NODE_ENV,
+    github: {
+      GITHUB_OWNER: process.env.GITHUB_OWNER ? "✓ Set" : "✗ Not set",
+      GITHUB_TOKEN: process.env.GITHUB_TOKEN
+        ? "✓ Set (length: " + process.env.GITHUB_TOKEN.length + ")"
+        : "✗ Not set",
+      VITE_GITHUB_OWNER: process.env.VITE_GITHUB_OWNER ? "✓ Set" : "✗ Not set",
+      VITE_GITHUB_TOKEN: process.env.VITE_GITHUB_TOKEN
+        ? "✓ Set (length: " + process.env.VITE_GITHUB_TOKEN.length + ")"
+        : "✗ Not set",
+    },
+    other: {
+      ATLAS_URI: process.env.ATLAS_URI ? "✓ Set" : "✗ Not set",
+      SENDGRID_API_KEY: process.env.SENDGRID_API_KEY ? "✓ Set" : "✗ Not set",
+      CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME
+        ? "✓ Set"
+        : "✗ Not set",
+    },
+  });
+});
+
 // Certificate generation is now handled by local service
 // This endpoint is kept for backward compatibility but not used
 app.post("/teams/:id/issue-certificates", async (req, res) => {
