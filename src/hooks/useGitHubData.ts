@@ -109,15 +109,9 @@ export function useGitHubData({ owner, token }: UseGitHubDataParams) {
   // Debug: Log when token changes
   useEffect(() => {
     if (token) {
-      console.log("✓ GitHub token configured:", token.substring(0, 10) + "...");
-      console.log("✓ GitHub owner configured:", owner);
+      console.log("✓ GitHub integration configured");
     } else {
-      console.error(
-        "✗ GitHub token NOT configured - GitHub API calls will fail"
-      );
-      console.error(
-        "✗ Make sure VITE_GITHUB_TOKEN is set in environment variables"
-      );
+      console.warn("⚠ GitHub token not configured");
     }
   }, [token, owner]);
 

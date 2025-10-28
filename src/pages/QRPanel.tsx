@@ -226,10 +226,22 @@ const QRPanel = () => {
         setManualInput("");
         stopScan();
       } else {
+        // Show detailed error information
+        let errorDescription =
+          data.message || "Failed to activate repository access";
+
+        // Add error details if available
+        if (data.error) {
+          errorDescription += `\n\nError: ${data.error}`;
+        }
+
+        // Log full error response for debugging
+        console.error("Activation error response:", data);
+
         toast({
           variant: "destructive",
           title: "Activation Failed",
-          description: data.message || "Failed to activate repository access",
+          description: errorDescription,
         });
       }
     } catch (error) {

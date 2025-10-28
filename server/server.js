@@ -571,56 +571,127 @@ app.post("/give-access", async (req, res) => {
   }
 
   try {
+    // Validate environment variables
+    if (!process.env.GITHUB_TOKEN) {
+      console.error("❌ GITHUB_TOKEN is not set in environment variables");
+      return res.status(500).json({
+        message: "GitHub token not configured on server",
+        error: "GITHUB_TOKEN environment variable is missing",
+      });
+    }
+
+    if (!process.env.GITHUB_OWNER) {
+      console.error("❌ GITHUB_OWNER is not set in environment variables");
+      return res.status(500).json({
+        message: "GitHub owner not configured on server",
+        error: "GITHUB_OWNER environment variable is missing",
+      });
+    }
+
+    console.log(`🔍 Looking up team with code: ${teamCode}`);
     const team = await Team.findOne({ teamCode: teamCode });
 
     if (!team) {
+      console.error(`❌ Team not found with code: ${teamCode}`);
       return res
         .status(404)
         .json({ message: `Team with code '${teamCode}' not found` });
     }
 
+    console.log(`✅ Team found: ${team.teamName}`);
+
     const gitRepoUrl = team.gitRepo;
     if (!gitRepoUrl || !gitRepoUrl.includes("github.com/")) {
+      console.error(`❌ Invalid GitHub repository URL: ${gitRepoUrl}`);
       return res.status(400).json({ message: "Invalid GitHub repository URL" });
     }
 
     const urlParts = gitRepoUrl.split("github.com/");
     const pathPart = urlParts[1];
     if (!pathPart) {
+      console.error(`❌ Could not extract GitHub username from: ${gitRepoUrl}`);
       return res
         .status(400)
         .json({ message: "Could not extract GitHub username" });
     }
 
     const leaderUsername = pathPart.split("/")[0].trim();
+    console.log(`👤 Leader GitHub username: ${leaderUsername}`);
 
     const repoName = team.teamCode;
     if (!repoName) {
+      console.error(`❌ No repository name found for team: ${team.teamName}`);
       return res.status(400).json({ message: "No repository name found" });
     }
 
+    console.log(`📦 Repository name: ${repoName}`);
+    console.log(`🔗 GitHub Owner: ${process.env.GITHUB_OWNER}`);
+
     // Send collaboration invitation via GitHub API
-    await axios.put(
-      `https://api.github.com/repos/${process.env.GITHUB_OWNER}/${repoName}/collaborators/${leaderUsername}`,
-      { permission: "push" },
-      {
-        headers: {
-          Authorization: `token ${process.env.GITHUB_TOKEN}`,
-          Accept: "application/vnd.github+json",
-        },
-      }
+    console.log(`🚀 Sending collaboration invitation to GitHub API...`);
+    console.log(
+      `   URL: https://api.github.com/repos/${process.env.GITHUB_OWNER}/${repoName}/collaborators/${leaderUsername}`
     );
+
+    try {
+      const githubResponse = await axios.put(
+        `https://api.github.com/repos/${process.env.GITHUB_OWNER}/${repoName}/collaborators/${leaderUsername}`,
+        { permission: "push" },
+        {
+          headers: {
+            Authorization: `token ${process.env.GITHUB_TOKEN}`,
+            Accept: "application/vnd.github+json",
+          },
+        }
+      );
+      console.log(`✅ GitHub API response status: ${githubResponse.status}`);
+    } catch (githubError) {
+      console.error(`❌ GitHub API Error:`, {
+        status: githubError.response?.status,
+        statusText: githubError.response?.statusText,
+        data: githubError.response?.data,
+        message: githubError.message,
+      });
+
+      // Provide specific error messages based on GitHub API response
+      if (githubError.response?.status === 401) {
+        return res.status(401).json({
+          message: "GitHub authentication failed",
+          error:
+            "Invalid or expired GitHub token. Please update GITHUB_TOKEN in environment variables.",
+          details: githubError.response?.data,
+        });
+      } else if (githubError.response?.status === 404) {
+        return res.status(404).json({
+          message: "Repository or user not found on GitHub",
+          error: `Could not find repository '${repoName}' under owner '${process.env.GITHUB_OWNER}' or user '${leaderUsername}'`,
+          details: githubError.response?.data,
+        });
+      } else if (githubError.response?.status === 422) {
+        return res.status(422).json({
+          message: "Invalid request to GitHub API",
+          error: "Repository or collaborator configuration is invalid",
+          details: githubError.response?.data,
+        });
+      } else {
+        return res.status(githubError.response?.status || 500).json({
+          message: "Failed to add collaborator on GitHub",
+          error: githubError.response?.data?.message || githubError.message,
+          details: githubError.response?.data,
+        });
+      }
+    }
 
     // Send email to team leader with GitHub repo and participant login credentials
     const teamLeaderEmail = team.participants[team.leaderIndex]?.email;
     const teamLeaderName = team.participants[team.leaderIndex]?.name;
 
-    console.log("Preparing to send notification email...");
-    console.log("Team Leader Email:", teamLeaderEmail);
-    console.log("Team Leader Name:", teamLeaderName);
-    console.log("Team Code:", team.teamCode);
+    console.log("📧 Preparing to send notification email...");
+    console.log("   Team Leader Email:", teamLeaderEmail);
+    console.log("   Team Leader Name:", teamLeaderName);
+    console.log("   Team Code:", team.teamCode);
     console.log(
-      "Repository URL:",
+      "   Repository URL:",
       `https://github.com/${process.env.GITHUB_OWNER}/${repoName}`
     );
 
@@ -641,23 +712,21 @@ Best regards,
 HackAbhigna Team`,
     };
 
-    console.log("Mail options prepared:", {
-      from: mailOptions.from,
-      to: mailOptions.to,
-      subject: mailOptions.subject,
-    });
-
     try {
-      console.log("Attempting to send email...");
+      console.log("📤 Attempting to send email...");
       await sendMail(mailOptions);
       console.log(
         `✅ Notification email sent successfully to ${mailOptions.to}`
       );
     } catch (emailError) {
       console.error("❌ Error sending notification email:", emailError);
-      console.error("Email error details:", emailError.message);
+      console.error("   Email error details:", emailError.message);
+      // Don't fail the entire request if email fails - the GitHub access was successful
     }
 
+    console.log(
+      `✅ Repository activation completed successfully for team: ${team.teamName}`
+    );
     res.json({
       message: `Repository ${repoName} is ready and ${leaderUsername} has been invited with push access`,
       details: {
@@ -669,9 +738,15 @@ HackAbhigna Team`,
       },
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Something went wrong", error: err.message });
+    console.error(`❌ Unexpected error in /give-access endpoint:`, {
+      message: err.message,
+      stack: err.stack,
+    });
+    res.status(500).json({
+      message: "Something went wrong",
+      error: err.message,
+      details: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    });
   }
 });
 
