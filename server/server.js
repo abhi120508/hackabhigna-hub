@@ -765,7 +765,7 @@ const initializeDomainSettings = async () => {
     } else if (
       domain === "Fullstack Marketing Analytics & Agentic Flow Platforms"
     ) {
-      maxSlots = 42;
+      maxSlots = 43;
     } else if (domain === "Wildcard - Environment") {
       maxSlots = 21;
     } else {
