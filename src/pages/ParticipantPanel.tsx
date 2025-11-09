@@ -85,11 +85,11 @@ const ParticipantPanel = () => {
       const repoName =
         teamData.githubRepo.split("/").pop() || teamData.teamCode;
       fetchRepoCommits({
-        owner: import.meta.env.VITE_GITHUB_OWNER || "",
+        owner: "hackabhigna2025-hub",
         repoName,
       });
       fetchRepoStats({
-        owner: import.meta.env.VITE_GITHUB_OWNER || "",
+        owner: "hackabhigna2025-hub",
         repoName,
       });
     }
@@ -317,15 +317,12 @@ const ParticipantPanel = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        const repoName =
-                          teamData.githubRepo.split("/").pop() ||
-                          teamData.teamCode;
-                        window.open(
-                          `https://${
-                            import.meta.env.VITE_GITHUB_OWNER
-                          }.github.io/${repoName}`,
-                          "_blank"
-                        );
+                        toast({
+                          title: "Access Restricted",
+                          description:
+                            "Participants are restricted from running the project.",
+                          variant: "destructive",
+                        });
                       }}
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
@@ -430,9 +427,7 @@ const ParticipantPanel = () => {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => {
-                                    const commitUrl = `https://github.com/${
-                                      import.meta.env.VITE_GITHUB_OWNER
-                                    }/${
+                                    const commitUrl = `https://github.com/hackabhigna2025-hub/${
                                       teamData.githubRepo?.split("/").pop() ||
                                       teamData.teamCode
                                     }/commit/${commit.sha}`;
