@@ -40,25 +40,25 @@ export function AboutUs() {
     {
       name: "RAVIKUMAR",
       role: "Assistant Professor",
-      description: "9741970005",
+      description: "",
       image: "/images/faculty/ravi-kumar.jpg",
     },
     {
       name: "RAGHURAMEGOWDA S M",
       role: "Assistant Professor",
-      description: "9844926668",
+      description: "",
       image: "/images/faculty/raghurame-gowda.jpg",
     },
     {
       name: "ANSER PASHA C A",
       role: "Assistant Professor",
-      description: "9880744210",
+      description: "",
       image: "/images/faculty/anser-pasha.jpg",
     },
     {
       name: "HARISH S",
       role: "Assistant Professor",
-      description: "9964027241",
+      description: "",
       image: "/images/faculty/harish-s.jpg",
     },
   ];
@@ -73,37 +73,37 @@ export function AboutUs() {
     {
       name: "AKSHATA CHITME",
       role: "Girls Accommodation",
-      phone: "+91 97310 88591",
+      phone: "",
       image: "/images/students/akshata.jpg",
     },
     {
       name: "DISHA GOWDA",
       role: "Girls Accommodation",
-      phone: "+91 93531 40736",
+      phone: "",
       image: "/images/students/disha.jpg",
     },
     {
       name: "JEWEL PINTO",
       role: "Event Queries",
-      phone: "+91 80733 22353",
+      phone: "",
       image: "/images/students/jewel.jpg",
     },
     {
       name: "MOHAMMED ZAID ALI",
       role: "Registration Queries",
-      phone: "+91 91646 24616",
+      phone: "",
       image: "/images/students/zaid.jpg",
     },
     {
       name: "SHREYANKA A Y",
       role: "Event Queries",
-      phone: "+91 6363745305",
+      phone: "",
       image: "/images/students/shreyanka.jpg",
     },
     {
       name: "SRIRAG D R",
       role: "Boys Accommodation",
-      phone: "+91 6361 065 881",
+      phone: "",
       image: "/images/students/srirag.jpg",
     },
   ];
